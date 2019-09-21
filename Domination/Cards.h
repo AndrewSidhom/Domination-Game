@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+using namespace std;
 
 class Cards
 {
@@ -18,6 +19,12 @@ public:
 		int countryId;
 	};
 
+	// TODO remove after testing
+	struct DummyCountry {
+		int id;
+		int armies;
+	};
+	
 	/*** Inner Class ***/
 	class Hand 
 	{
@@ -30,8 +37,9 @@ public:
 		/*  Exchange 3 cards in hand for armies
 			@param ownedCountries[] reference to list of owned countries
 			@param isMandatory if exchange is mandatory
+			@return if exchange was successful, false if exchange cancelled
 		*/
-		void exchange(int ownedCountries[], bool isMandatory);
+		bool exchange(vector<DummyCountry>* ownedCountries, bool isMandatory);
 
 	private:
 		std::vector<Card>* playerHand;
@@ -46,7 +54,18 @@ public:
 			@return true if valid, else false
 		*/
 		bool isValidExchangeCards(int i, int j, int k);
+
+		/*	Check if exchanged cards match a country the player owns. If so, 
+			prompt the player to choose which country to give +2 units.
+			@param owned countries
+			@param index of cards in player's hand that will be exchanged
+		*/
+		// TODO modify after removing dummy country
+		void giveBonusTwoArmies(vector<DummyCountry>* ownedCountries, int cardsToExchange[]);
 	};
+
+	// TODO remove after testing
+	vector<DummyCountry>* ownedCountries;
 
 	/*	Draws a card from top of deck
 		@return Card object
@@ -65,6 +84,9 @@ private:
 	/*	Shuffle the deck
 	*/
 	void shuffleDeck();
+
+	// TODO remove after testing
+	void createDummyCountries(int totalCountries);
 };
 
 enum Card_Type {

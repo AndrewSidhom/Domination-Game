@@ -1,7 +1,6 @@
 #include "Cards.h"
 #include <cstdlib>
 #include <iomanip>
-using namespace std;
 
 
 /*	Constructor that creates and shuffles the deck
@@ -11,6 +10,9 @@ Cards::Cards(int totalCountries) {
 
 	createDeck(totalCountries);
 	shuffleDeck();
+
+	// TODO Remove after testing
+	createDummyCountries(totalCountries);
 }
 
 /*	Creates unshuffled deck equal to total number of countries
@@ -86,6 +88,17 @@ void Cards::shuffleDeck() {
 	}
 }
 
+// TODO remove after testing
+void Cards::createDummyCountries(int n) {
+
+	for (int i = 0; i < n; i++) {
+		DummyCountry c;
+		c.id = i + 1;
+		c.armies = (rand() % 99) + 1;
+		ownedCountries->push_back(c);
+	}
+}
+
 /*	Draws a card from top of deck
 	@return Card object
 */
@@ -112,12 +125,13 @@ void Cards::Hand::showHand() {
 /*	Exchange 3 cards in hand for armies
     @param ownedCountries[] reference to list of owned countries
 	@param isMandatory if exchange is mandatory
+	@return if exchange was successful, false if exchange cancelled
 */
-void Cards::Hand::exchange(int ownedCountries[], bool isMandatory) {
+bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandatory) {
 
-	int countryId, index = 0;
+	bool isSuccessful = false;
+	int index = 0, cardsIndexToExchange[3];
 	char playerInput;
-	int cardsToExchange[3];
 
 	/// display hand to player
 	showHand();
@@ -138,12 +152,14 @@ void Cards::Hand::exchange(int ownedCountries[], bool isMandatory) {
 		}
 		else if (isdigit(playerInput))
 		{
-			int cardInHandIndex = playerInput - '0'; /// implicitly cast char to int
-
+			/// note vector->size() code blow this returns a size_t, NOT int
+			/// hence why its declared size_t
+			size_t selectedCardIndex = playerInput - '0'; /// implicitly cast char to int
+			
 			/// make sure index is within hand's card count
-			if (cardInHandIndex <= playerHand->size())
+			if (selectedCardIndex <= playerHand->size()) 
 			{
-				cardsToExchange[index] = playerInput - '0';
+				cardsIndexToExchange[index] = playerInput - '0';
 				index++;
 			}
 			else cout << "Your choice must be within your hand's cards.";
@@ -155,14 +171,27 @@ void Cards::Hand::exchange(int ownedCountries[], bool isMandatory) {
 
 		if (index == 3) /// if 3 cards are picked
 		{
-			if (isValidExchangeCards(cardsToExchange[0], cardsToExchange[1], cardsToExchange[2]))
+			if (isValidExchangeCards(cardsIndexToExchange[0], cardsIndexToExchange[1], cardsIndexToExchange[2]))
 			{
-				// exchange and add units
+				/// give bonus +2 armies if cards match owned countries
+				giveBonusTwoArmies(ownedCountries, cardsIndexToExchange);
+				/// remove exchanged cards from hand
+				playerHand->erase(playerHand->begin() + cardsIndexToExchange[0]);
+				playerHand->erase(playerHand->begin() + cardsIndexToExchange[1]);
+				playerHand->erase(playerHand->begin() + cardsIndexToExchange[2]);
+				/// exchange is successful
+				isSuccessful = true;
 			}
-			else cout << "Cannot exchange with these cards. Must be a matching or of consecutive types.";
+			else 
+			{
+				cout << "Cannot exchange with these cards. Must be a matching or of consecutive types.";
+				index = 0;
+			}
 		}
 
 	} while (index != 3);
+
+	return isSuccessful;
 }
 
 /*	Returns a string version of enum Card_Type
@@ -193,4 +222,58 @@ bool Cards::Hand::isValidExchangeCards(int i, int j, int k) {
 		playerHand->at(i).type != playerHand->at(k).type &&
 		playerHand->at(j).type != playerHand->at(k).type)
 	);
+}
+
+/*	Check if exchanged cards match a country the player owns. If so,
+	prompt the player to choose which country to give +2 units.
+	@param owned countries
+	@param index of cards in player's hand that will be exchanged
+*/
+void Cards::Hand::giveBonusTwoArmies(vector<DummyCountry>* ownedCountries, int cardsToExchange[]) {
+
+	vector<DummyCountry> matchingCountries;
+	char playerInput;
+
+	/// check if exchanged cards matches owned countries
+	for (int i = 0; i < 3; i++) {
+		for (DummyCountry &c : *ownedCountries)
+		{
+			if (c.id == playerHand->at(cardsToExchange[i]).countryId)
+				matchingCountries.push_back(c); /// store country by reference
+		}
+	}
+
+	if (!matchingCountries.empty()) 
+	{
+		/// prompt player input to choose which country to give +2 units
+		cout << "Countries you own matches with your exchanged cards:" << endl;
+		for (DummyCountry c : matchingCountries) 
+			cout << "Country " << c.id << ": " << c.armies << " armies" << endl;
+		
+		do {
+			cout << "Choose a country to give 2 additional armies: ";
+			cin >> playerInput;
+
+			if (isdigit(playerInput))
+			{
+				int selectedCountry = playerInput - '0'; /// implicitly cast char to int
+
+				for (DummyCountry &c : matchingCountries) /// grab country by reference
+				{
+					if (c.id == selectedCountry) {
+						c.armies += 2;
+						break;
+					}
+				}
+				/// else if did not break, then choice was invalid
+				cout << "Your choice is invalid. Please try again";
+			}
+			else
+			{
+				cout << "Invalid input. Please try again.";
+			}
+		} while (true);
+	}
+	
+	
 }
