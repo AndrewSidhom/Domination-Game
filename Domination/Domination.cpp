@@ -2,10 +2,14 @@
 //
 
 #include <iostream>
+#include "Cards.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	Cards* c = new Cards(7);
+	c->draw();
+	Cards::Hand* h = new Cards::Hand();
+	int i = h->exchange(1, 2, 3);
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
