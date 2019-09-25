@@ -10,6 +10,7 @@ Cards::Cards(int totalCountries) {
 
 	createDeck(totalCountries);
 	shuffleDeck();
+	deckIndex = totalCountries - 1;
 
 	// TODO Remove after testing
 	createDummyCountries(totalCountries);
@@ -21,7 +22,6 @@ Cards::Cards(int totalCountries) {
 void Cards::createDeck(int totalCountries) {
 
 	int n = 0;
-
 	do 
 	{ 
 		Card c;
@@ -53,19 +53,6 @@ void Cards::createDeck(int totalCountries) {
 
 	deck->push_back(w1);
 	deck->push_back(w2);
-
-	// TODO remove after testing
-	for (Card c : *deck)
-	{
-		cout << "id: " << c.countryId << " type: ";
-		switch (c.type)
-		{
-		case INFANTRY: cout << "Infantry";
-		case ARTILLERY: cout << "Artillery";
-		case CAVALRY: cout << "Cavalry";
-		case WILD: cout << "Wild";
-		}
-	}
 };
 
 /*	Shuffle the deck
@@ -99,14 +86,23 @@ void Cards::createDummyCountries(int n) {
 	}
 }
 
-/*	Draws a card from top of deck
-	@return Card object
+/*	Draws a card from top of deck.
+		Note: null doesnt exist in C++, only nullptr. Hence return pointer instead of object.
+		@return pointer to Card object or nullptr if no more cards are left
 */
-Cards::Card Cards::draw() {
+Cards::Card* Cards::draw() {
 
-	Card last = deck->back();
-	deck->pop_back(); /// remove last element
-		
+	Card* last;
+
+	if(deckIndex != -1) {
+		last = &(deck->at(deckIndex));
+		deckIndex--;
+	}
+	else {
+		cout << endl << "No cards left in the deck.";
+		last = nullptr;
+	}
+
 	return last;
 }
 
@@ -136,12 +132,13 @@ bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandator
 	/// display hand to player
 	showHand();
 	/// prompt player input
+	if (isMandatory) cout << "You have reached the maximum number of cards and must exchange. ";
 	cout << "Enter 3 cards to exchange";
 	if (!isMandatory) cout << " or 'x' to cancel";
 	cout << endl;
 
 	do {
-		cout << "Card " << (index + 1) << ": ";
+		cout << endl << "Card " << (index + 1) << ": ";
 		/// get player input with max length of 1
 		cin >> setw(1) >> playerInput;
 
@@ -162,11 +159,11 @@ bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandator
 				cardsIndexToExchange[index] = playerInput - '0';
 				index++;
 			}
-			else cout << "Your choice must be within your hand's cards.";
+			else cout << endl << "Your choice must be within your hand's cards.";
 		}
 		else
 		{
-			cout << "Invalid input. Please try again.";
+			cout << endl << "Invalid input. Please try again.";
 		}
 
 		if (index == 3) /// if 3 cards are picked
@@ -184,7 +181,7 @@ bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandator
 			}
 			else 
 			{
-				cout << "Cannot exchange with these cards. Must be a matching or of consecutive types.";
+				cout << endl << "Cannot exchange with these cards. Must be a matching or of consecutive types.";
 				index = 0;
 			}
 		}
@@ -246,7 +243,7 @@ void Cards::Hand::giveBonusTwoArmies(vector<DummyCountry>* ownedCountries, int c
 	if (!matchingCountries.empty()) 
 	{
 		/// prompt player input to choose which country to give +2 units
-		cout << "Countries you own matches with your exchanged cards:" << endl;
+		cout << endl << "Countries you own matches with your exchanged cards:" << endl;
 		for (DummyCountry c : matchingCountries) 
 			cout << "Country " << c.id << ": " << c.armies << " armies" << endl;
 		
@@ -266,11 +263,11 @@ void Cards::Hand::giveBonusTwoArmies(vector<DummyCountry>* ownedCountries, int c
 					}
 				}
 				/// else if did not break, then choice was invalid
-				cout << "Your choice is invalid. Please try again";
+				cout << endl << "Your choice is invalid. Please try again" << endl;
 			}
 			else
 			{
-				cout << "Invalid input. Please try again.";
+				cout << endl << "Invalid input. Please try again." << endl;
 			}
 		} while (true);
 	}

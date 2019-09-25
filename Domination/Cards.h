@@ -42,7 +42,8 @@ public:
 		bool exchange(vector<DummyCountry>* ownedCountries, bool isMandatory);
 
 	private:
-		std::vector<Card>* playerHand;
+		// TODO dealloc pointer
+		std::vector<Card>* playerHand = new vector<Card>();
 
 		/*	Returns a string version of enum Card_Type
 			@param Card type enum
@@ -65,16 +66,20 @@ public:
 	};
 
 	// TODO remove after testing
-	vector<DummyCountry>* ownedCountries;
+	vector<DummyCountry>* ownedCountries = new vector<DummyCountry>();
 
-	/*	Draws a card from top of deck
-		@return Card object
+	/*	Draws a card from top of deck.
+		Note: null doesnt exist in C++, only nullptr. Hence return pointer instead of object.
+		@return pointer to Card object or nullptr if no more cards are left
 	*/
-	Card draw();
+	Card* draw();
 
 private:
 
-	std::vector<Card>* deck; /// note vector is java's counterpart of arraylist
+	// TODO dealloc pointer
+	vector<Card>* deck = new vector<Card>(); 
+	// Index of current card on top of deck
+	int deckIndex;
 
 	/**	Creates unshuffled deck equal to total number of countries
 		@param total number of countries

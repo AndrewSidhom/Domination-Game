@@ -6,15 +6,38 @@
 
 int main()
 {
-	Cards* c = new Cards(7);
+	Cards* c = new Cards(2);
+	Cards::Card* h = c->draw();
 	c->draw();
-	Cards::Hand* h = new Cards::Hand();
+	c->draw();
+	c->draw();
+	if(h == nullptr) cout << endl << "null";
+	cout << h->countryId;
+	delete c;
+	//c->draw();
+	//Cards::Hand* h = new Cards::Hand();
 	//int i = h->exchange(1, 2, 3);
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
 // Debug program: F5 or Debug > Start Debugging menu
 
+
+/*
+	// TODO remove after testing
+	for (Card c : *deck)
+	{
+		cout << "id: " << c.countryId << " type: ";
+		switch (c.type)
+		{
+		case INFANTRY: cout << "Infantry"; break;
+		case ARTILLERY: cout << "Artillery"; break;
+		case CAVALRY: cout << "Cavalry"; break;
+		case WILD: cout << "Wild";
+		}
+		cout << endl;
+	}
+*/
 // Tips for Getting Started: 
 //   1. Use the Solution Explorer window to add/manage files
 //   2. Use the Team Explorer window to connect to source control
