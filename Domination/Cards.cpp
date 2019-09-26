@@ -99,7 +99,7 @@ Cards::Card Cards::draw() {
 /*	Check if deck has no more cards
 	@return deck is empty boolean	
  */ 
-bool Cards::isEmpty() {
+inline bool Cards::isEmpty() {
 
 	return deck->empty();
 }
