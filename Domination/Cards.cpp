@@ -10,10 +10,9 @@ Cards::Cards(int totalCountries) {
 
 	createDeck(totalCountries);
 	shuffleDeck();
-	deckIndex = totalCountries - 1;
 
 	// TODO Remove after testing
-	createDummyCountries(totalCountries);
+	//createDummyCountries(totalCountries);
 }
 
 /*	Creates unshuffled deck equal to total number of countries
@@ -86,24 +85,23 @@ void Cards::createDummyCountries(int n) {
 	}
 }
 
-/*	Draws a card from top of deck.
-		Note: null doesnt exist in C++, only nullptr. Hence return pointer instead of object.
-		@return pointer to Card object or nullptr if no more cards are left
+/*	Draws a card from top of deck. IMPORTANT: always use isEmpty on deck first to check.
+	@return Card object
 */
-Cards::Card* Cards::draw() {
+Cards::Card Cards::draw() {
 
-	Card* last;
-
-	if(deckIndex != -1) {
-		last = &(deck->at(deckIndex));
-		deckIndex--;
-	}
-	else {
-		cout << endl << "No cards left in the deck.";
-		last = nullptr;
-	}
+	Card last = deck->back();
+	deck->pop_back();
 
 	return last;
+}
+
+/*	Check if deck has no more cards
+	@return deck is empty boolean	
+ */ 
+bool Cards::isEmpty() {
+
+	return deck->empty();
 }
 
 //*** IMPLEMENTATION FOR HAND ***//
@@ -112,10 +110,23 @@ Cards::Card* Cards::draw() {
 */
 void Cards::Hand::showHand() {
 
-	cout << "Your hand:" << endl << "--------------" << endl;
+	cout << "Your hand:" << endl << "---------/" << endl;
+	int i = 1;
+
 	for (Card c : *playerHand) {
-		cout << "C1: country: " << c.countryId << ", type: " << getEnumString(c.type);
+		cout << "CARD " << i << " | "<< 
+				"country: " << c.countryId << 
+				", type: " << getEnumString(c.type) << endl;
+		i++;
 	}
+}
+
+/*	Add card to hand.
+	@param Card object
+*/
+void Cards::Hand::addCardToHand(Card c) {
+
+	playerHand->push_back(c);
 }
 
 /*	Exchange 3 cards in hand for armies

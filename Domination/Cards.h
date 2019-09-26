@@ -34,6 +34,11 @@ public:
 		*/
 		void showHand();
 
+		/*	Add card to hand.
+			@param Card object
+		*/
+		void addCardToHand(Card c);
+
 		/*  Exchange 3 cards in hand for armies
 			@param ownedCountries[] reference to list of owned countries
 			@param isMandatory if exchange is mandatory
@@ -68,18 +73,20 @@ public:
 	// TODO remove after testing
 	vector<DummyCountry>* ownedCountries = new vector<DummyCountry>();
 
-	/*	Draws a card from top of deck.
-		Note: null doesnt exist in C++, only nullptr. Hence return pointer instead of object.
-		@return pointer to Card object or nullptr if no more cards are left
+	/*	Draws a card from top of deck. IMPORTANT: always use isEmpty on deck first to check.
+		@return Card object
 	*/
-	Card* draw();
+	Card draw();
+
+	/*	Check if deck has no more cards
+		@return deck is empty boolean	
+ 	*/ 
+	bool isEmpty();
 
 private:
 
 	// TODO dealloc pointer
 	vector<Card>* deck = new vector<Card>(); 
-	// Index of current card on top of deck
-	int deckIndex;
 
 	/**	Creates unshuffled deck equal to total number of countries
 		@param total number of countries

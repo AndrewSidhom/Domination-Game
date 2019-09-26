@@ -6,17 +6,15 @@
 
 int main()
 {
-	Cards* c = new Cards(2);
-	Cards::Card* h = c->draw();
-	c->draw();
-	c->draw();
-	c->draw();
-	if(h == nullptr) cout << endl << "null";
-	cout << h->countryId;
-	delete c;
-	//c->draw();
-	//Cards::Hand* h = new Cards::Hand();
-	//int i = h->exchange(1, 2, 3);
+	Cards c = Cards(8);
+	Cards::Hand h;
+
+	if(!c.isEmpty()) {
+		h.addCardToHand(c.draw());
+		h.addCardToHand(c.draw());
+		h.addCardToHand(c.draw());
+	}
+	h.showHand();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
