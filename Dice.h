@@ -1,22 +1,22 @@
 #pragma once
 #include <iostream>
+#include <list>
 using namespace std;
 
 class Dice {
 public:
 	Dice();
 	~Dice();
-	int *roll();
+	list<int> roll();
+	void showInfo(); 
 
-	/*int *rollCounters;
-	int *totalRolls;
-	double *stats;*/
 private:
 	int *rollCounters;
 	int *totalRolls;
 	double *stats;
 
 	int queryDice();
-	void update(int container[], int size);
-	int *rngAndSort(int numOfDice);
+	void update(list<int> container);
+	list<int> rngAndSort(int numOfDice);
+	
 };

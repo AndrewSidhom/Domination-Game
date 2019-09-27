@@ -1,14 +1,12 @@
 #include <iostream>
 #include <random>
-#include <ctime>
-#include <algorithm>
 #include <functional>
 #include <string>
 #include "Dice.h"
 using namespace std;
 
 /**
-* Initializes two arrays of size 6 and sets every element to 0.
+* Constructor that initializes two arrays of size 6 and sets every element to 0.
 * Initializes totalRolls to 0.
 */
 Dice::Dice() {
@@ -25,19 +23,30 @@ Dice::Dice() {
 	}
 }
 
+/**
+* Destructor that deallocates rollCounters, totalRolls, and stats.
+*/
 Dice::~Dice() {
 	delete rollCounters, totalRolls, stats;
 }
 
-int * Dice::roll()
+/**
+* Asks user how many dice to roll, rolls the apporopriate amount of dice, and updates the percentage
+* @return dice in a container
+*/
+list<int> Dice::roll()
 {
 	int numOfDice = queryDice(); //Asks user how many dice will be rolled
-	cout << "Rolling " << numOfDice << " dice..." << endl; 
-	int *container = rngAndSort(numOfDice);
-	update(container, numOfDice);
+	cout << "Rolling " << numOfDice << " dice..." << endl;
+	list<int> container = rngAndSort(numOfDice);
+	update(container);
 	return container;
 }
 
+/**
+* Requests input from the user and validates the input.
+* @return the number of dice to be rolled.
+*/
 int Dice::queryDice() {
 	string input;
 	bool isValid = false;
@@ -53,29 +62,52 @@ int Dice::queryDice() {
 	return numOfDice;
 }
 
-void Dice::update(int container[], int size) {
+/**
+* Updates number of times a certain number has been rolled and computes the percentage.
+*/
+void Dice::update(list<int> container)
+{
 	int index;
-	for (int i = 1; i <= size; i++) {
-		index = container[i]; //Index corresponds to value rolled
+	list <int> ::iterator it;
+	for (it = container.begin(); it != container.end(); ++it) {
+		index = *it;
 		rollCounters[index] += 1; //Increment value
 	}
-	*totalRolls += size;
+	*totalRolls += container.size();
 	for (int i = 0; i < 6; i++) {
-		stats[i] = (double)rollCounters[i] / *totalRolls; //Computes percentage of values compared to rolls
+		stats[i] = ((double)rollCounters[i] / *totalRolls) * 100; //Computes percentage of values compared to rolls
 	}
 }
 
 /*
+* Randomly generate numbers between 0 and 5 according to the number of dice selected, stores in a container and sorts it in descending order.
+* @param number of dice to be rolled.
+* @return container of sorted dice
 *  CODE FOR RNG WILL PROBABLY CHANGE
 */
-int * Dice::rngAndSort(int numOfDice)
+list<int> Dice::rngAndSort(int numOfDice)
 {
-	srand(time(NULL)); //Used to generate different sequences
-	int *container = new int[numOfDice+1]; //Create container of size numOfDice + 1 to store size as head 
-	container[0] = 6*numOfDice;
+	random_device rd;
+	mt19937 mt(rd());
+	uniform_int_distribution<int> dist(0, 5);
+	list<int> container;
 	for (int i = 1; i <= numOfDice; i++) {
-		container[i] = rand() % 6; // Generates random numbers 0-5 (code will probably change with next lab)
+		container.push_back(dist(mt));
 	}
-	sort(container, container + numOfDice + 1, greater<int>()); //Sorts array in descending order (can change depending on specifications)
+	container.sort(greater<int>());
 	return container;
+}
+
+/**
+* Displays the info of total number of rolls, number of individual values rolled, and perecentage of individual values rolled.
+* THIS IS USED FOR TESTING PURPOSES
+*/
+void Dice::showInfo() {
+	for (int i = 0; i < 6; i++) {
+		cout << "# of " << i + 1 << "'s rolled = " << rollCounters[i] << endl;
+	}
+	cout << "Total Rolls = " << *(totalRolls) << endl;
+	for (int i = 0; i < 6; i++) {
+		cout << "% of " << i + 1 << "'s rolled = " << stats[i] << endl;
+	}
 }
