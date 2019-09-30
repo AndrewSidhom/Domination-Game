@@ -1,8 +1,11 @@
 #pragma once
 
+#include "Map.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <sstream>
 using namespace std;
 
 class MapLoader {
@@ -11,9 +14,13 @@ public:
 	void loadMapFile(string fileName);
 
 private:
-	void processMapName(string name);
-	void processContinent(string data);
-	void processCountry(string data);
-	void processBorder(string data);
+	int* continentId;
+	string* processedSection;
+	string* mapName;
+
+
+	void processContinent(string line);
+	void processCountry(string line);
+	void processBorder(string line);
 
 };
