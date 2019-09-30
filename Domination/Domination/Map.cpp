@@ -6,6 +6,7 @@
 #include "Map.h"
 using namespace std;
 
+
 //GRAPH CLASS
 
 //constructor
@@ -27,9 +28,9 @@ bool Graph::isConnected()
 		id = queue.front();
 		queue.pop_front();
 
-		// Get all adjacent nodes of the dequeued node id. If an adjacent node has not been visited, then mark it visited and enqueue it 
+		// Get all adjacent nodes of the dequeued node id. If an adjacent node has not been visited (and belongs to the graph), then mark it visited and enqueue it 
 		for (int a : (*adjLists)[id]){
-			if (visited.count(a)==0){
+			if (visited.count(a)==0 && adjLists->count(a)==1){
 				visited.insert(a);
 				queue.push_back(a);
 			}
@@ -44,3 +45,37 @@ bool Graph::isConnected()
 }
 
 
+//COUNTRY STRUCTURE
+
+//constructor
+Country::Country(int id, string name, list<int> neighbors) : id(id), name(name), neighbors(neighbors) {}
+
+
+//CONTINENT CLASS
+
+//constructor
+Continent::Continent(int id, string name, int worth) : id(new int(id)), name(new string(name)), worth(new int(worth)), countries(new list<Country*>()), innerGraph(nullptr), validated(new bool(false)), isValid(new bool(false)) {}
+
+//destructor
+Continent::~Continent(){
+	delete id; delete name; delete countries; delete innerGraph; delete validated; delete isValid;
+}
+
+//adds a country to the continent. Note: Country will NOT be added if continent has already been validated and found valid, at which point its list of countries is final.
+void Continent::addCountry(Country* country)
+{
+	if (!validated || !isValid)
+		countries->push_back(country);
+}
+
+//Constructs the continent's "innerGraph", checks if it is connected, sets the isValid variable accordingly.
+bool Continent::validate()
+{
+	map<int, list<int> >* adjLists = new map<int, list<int> >();
+	for (Country* countryPtr : *countries)
+		(*adjLists)[countryPtr->id] = countryPtr->neighbors;
+	innerGraph = new Graph(adjLists);
+	*validated = true;
+	*isValid = innerGraph->isConnected();
+	return *isValid;
+}
