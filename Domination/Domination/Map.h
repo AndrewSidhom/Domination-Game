@@ -21,10 +21,11 @@ public:
 //Representation of a country
 struct Country {
 	int id;
+	int continentId;   //the continent this country belong to
 	string name;
 	list<int> neighbors;  //ids of countries adjacent to this one
 
-	Country(int id, string name, list<int> neighbors);
+	Country(int id, int continentId, string name, list<int> neighbors);
 };
 
 
@@ -55,7 +56,7 @@ public:
 
 	//methods
 	void addCountry(Country* country); //Note: Country will NOT be added if continent has already been validated and found valid, at which point its list of countries is final.
-	bool validate(); //Constructs the continent's "innerGraph" and "neighbors", checks if innerGraph is connected, sets the isValid variable accordingly.
+	bool validate(); //Constructs the continent's "innerGraph", checks if innerGraph is connected, sets the isValid variable accordingly.
 };
 
 
@@ -87,4 +88,7 @@ public:
 	//methods
 	bool validate(); //calls each continent's validate() method, proceeds if valid, constructs the map's full graph, checks if it is connected. Sets the isValid variable accordingly.
 	Country* getCountryById(int id);
+	Continent* getContinentById(int id);
+	void addCountry(Country* country); //Note: Country will NOT be added if continent has already been validated and found valid, at which point its list of countries is final.
+
 };
