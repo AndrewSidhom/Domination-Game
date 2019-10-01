@@ -71,7 +71,7 @@ void Dice::update(list<int> container)
 	list <int> ::iterator it;
 	for (it = container.begin(); it != container.end(); ++it) {
 		index = *it;
-		rollCounters[index] += 1; //Increment value
+		rollCounters[index-1] += 1; //Increment value
 	}
 	*totalRolls += container.size();
 	for (int i = 0; i < 6; i++) {
@@ -89,7 +89,7 @@ list<int> Dice::rngAndSort(int numOfDice)
 {
 	random_device rd;
 	mt19937 mt(rd());
-	uniform_int_distribution<int> dist(0, 5);
+	uniform_int_distribution<int> dist(1, 6);
 	list<int> container;
 	for (int i = 1; i <= numOfDice; i++) {
 		container.push_back(dist(mt));
