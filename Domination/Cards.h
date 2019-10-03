@@ -13,6 +13,10 @@ public:
 	*/
 	Cards(int totalCountries);
 
+	/*	Deconstructor of Cards class.
+	*/
+	~Cards();
+
 	/*** Struct ***/
 	struct Card {
 		enum Card_Type type;
@@ -29,6 +33,10 @@ public:
 	class Hand 
 	{
 	public:
+
+		/*	Deconstructor of Hand class.
+		*/
+		~Hand();
 
 		/* Display cards in player's hand
 		*/

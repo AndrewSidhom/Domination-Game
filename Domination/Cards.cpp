@@ -15,6 +15,10 @@ Cards::Cards(int totalCountries) {
 	//createDummyCountries(totalCountries);
 }
 
+Cards::~Cards() {
+	delete deck, ownedCountries;
+}
+
 /*	Creates unshuffled deck equal to total number of countries
 	@param total number of countries
 */
@@ -106,6 +110,12 @@ inline bool Cards::isEmpty() {
 
 //*** IMPLEMENTATION FOR HAND ***//
 
+/*	Deconstructor of Hand class.
+*/
+Cards::Hand::~Hand() {
+	delete playerHand;
+}
+
 /*	Display cards in player's hand
 */
 void Cards::Hand::showHand() {
@@ -137,7 +147,7 @@ void Cards::Hand::addCardToHand(Card c) {
 bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandatory) {
 
 	bool isSuccessful = false;
-	int index = 0, cardsIndexToExchange[3];
+	int index = 0, cardsToExchangeIndex[3];
 	char playerInput;
 
 	/// display hand to player
@@ -160,14 +170,14 @@ bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandator
 		}
 		else if (isdigit(playerInput))
 		{
-			/// note vector->size() code blow this returns a size_t, NOT int
+			/// note vector->size() code below this returns a size_t, NOT int
 			/// hence why its declared size_t
 			size_t selectedCardIndex = playerInput - '0'; /// implicitly cast char to int
 			
 			/// make sure index is within hand's card count
 			if (selectedCardIndex <= playerHand->size()) 
 			{
-				cardsIndexToExchange[index] = playerInput - '0';
+				cardsToExchangeIndex[index] = playerInput - '0';
 				index++;
 			}
 			else cout << endl << "Your choice must be within your hand's cards.";
@@ -179,14 +189,14 @@ bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandator
 
 		if (index == 3) /// if 3 cards are picked
 		{
-			if (isValidExchangeCards(cardsIndexToExchange[0], cardsIndexToExchange[1], cardsIndexToExchange[2]))
+			if (isValidExchangeCards(cardsToExchangeIndex[0], cardsToExchangeIndex[1], cardsToExchangeIndex[2]))
 			{
 				/// give bonus +2 armies if cards match owned countries
-				giveBonusTwoArmies(ownedCountries, cardsIndexToExchange);
+				giveBonusTwoArmies(ownedCountries, cardsToExchangeIndex);
 				/// remove exchanged cards from hand
-				playerHand->erase(playerHand->begin() + cardsIndexToExchange[0]);
-				playerHand->erase(playerHand->begin() + cardsIndexToExchange[1]);
-				playerHand->erase(playerHand->begin() + cardsIndexToExchange[2]);
+				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[0]);
+				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]);
+				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]);
 				/// exchange is successful
 				isSuccessful = true;
 			}
