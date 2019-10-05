@@ -1,17 +1,26 @@
-#include <map>
-#include <list>
-#include <unordered_set>
-#include <string>
-#include <iostream>
 #include "Map.h"
+#include <iostream>
+#include <unordered_set>
 using namespace std;
 
 
 
 //GRAPH CLASS
+//Representation of a graph using adjacency lists. Nodes are referred to by ids. Each node maps to a list of its adjacent nodes.
 
 //constructor
-Graph::Graph(map<int, list<int> >* adjLists) : adjLists(adjLists) {}
+Graph::Graph() : adjLists(new map<int, list<int> >()) {}
+
+//destructor
+Graph::~Graph() { delete adjLists; };
+
+//copy constructor
+Graph::Graph(const Graph& old) { adjLists = new map<int, list<int> >(*old.adjLists); }
+
+//adds a node to the graph
+void Graph::addNode(int id, list<int> neighbors){
+	(*adjLists)[id] = neighbors;
+}
 
 //checks if the graph is a connected graph using BFS traversal
 bool Graph::isConnected()
@@ -49,7 +58,8 @@ bool Graph::isConnected()
 
 //COUNTRY STRUCTURE
 
-//constructor
+//constructors
+Country::Country(int id, int continentId, string name) : id(id), continentId(continentId), name(name) {}
 Country::Country(int id, int continentId, string name, list<int> neighbors) : id(id), continentId(continentId), name(name), neighbors(neighbors) {}
 
 
@@ -57,29 +67,38 @@ Country::Country(int id, int continentId, string name, list<int> neighbors) : id
 //CONTINENT CLASS
 
 //constructor
-Continent::Continent(int id, string name, int worth) : id(new int(id)), name(new string(name)), worth(new int(worth)), countries(new list<Country*>()), innerGraph(nullptr), validated(new bool(false)), isValid(new bool(false)) {}
+Continent::Continent(int id, string name, int worth) : id(new int(id)), name(new string(name)), worth(new int(worth)), size(new int(0)), innerGraph(new Graph()), validated(new bool(false)), isValid(new bool(false)) {}
 
 //destructor
 Continent::~Continent(){
-	delete id; delete name; delete countries; delete innerGraph; delete validated; delete isValid;
+	delete id; delete name; delete worth, delete innerGraph; delete validated; delete isValid;
 }
 
-//adds a country to the continent. Note: Country will NOT be added if continent has already been validated and found valid, at which point its list of countries is final.
-void Continent::addCountry(Country* country)
+//copy constructor
+Continent::Continent(const Continent& old) {
+	id = new int(*old.id);
+	name = new string(*old.name);
+	worth = new int(*old.worth);
+	size = new int(*old.size);
+	innerGraph = new Graph(*old.innerGraph);
+	validated = new bool(*old.validated);
+	isValid = new bool(*old.isValid);
+}
+
+//adds a country to the continent's innerGraph, increments continent size. Sets "validated" to false because now the continent has been modified, it needs to be validated again.
+void Continent::addCountryToGraph(Country country)
 {
-	if (!validated || !isValid)
-		countries->push_back(country);
+	innerGraph->addNode(country.id, country.neighbors);
+	size++; 
+	*validated = false;
+	*isValid = false;
 }
 
-//Constructs the continent's "innerGraph", checks if it is connected, sets the isValid variable accordingly.
+//Checks if the continent's "innerGraph" is connected, sets the isValid variable accordingly.
 bool Continent::validate()
 {
-	map<int, list<int> >* adjLists = new map<int, list<int> >();
-	for (Country* countryPtr : *countries)
-		(*adjLists)[countryPtr->id] = countryPtr->neighbors;
-	innerGraph = new Graph(adjLists);
-	*validated = true;
 	*isValid = innerGraph->isConnected();
+	*validated = true;
 	return *isValid;
 }
 
@@ -88,66 +107,76 @@ bool Continent::validate()
 //MAP CLASS
 
 //constructor
-Map::Map(int id, string name, list<Continent*>* continents) : id(new int(id)), name(new string(name)), continents(continents), graph(nullptr), countries(new list<Country*>()), validated(new bool(false)), isValid(new bool(false)) {}
+Map::Map(int id, string name) : id(new int(id)), name(new string(name)), continents(new list<Continent>()), graph(new Graph()), countries(new list<Country>()), validated(new bool(false)), isValid(new bool(false)) {}
 
 //destructor
 Map::~Map() {
-	delete id; 
-	delete name;
-	for (Continent* continentPtr : *continents)
-		delete continentPtr;
-	delete continents;
-	for (Country* countryPtr : *countries)
-		delete countryPtr;
-	delete countries; 
-	delete graph; 
-	delete validated; 
-	delete isValid;
+	delete id; delete name; delete continents; delete countries;  delete graph;  delete validated;  delete isValid;
+}
+
+//copy constructor
+Map::Map(const Map& old) {
+	id = new int(*old.id);
+	name = new string(*old.name);
+	continents = new list<Continent>(*old.continents);
+	graph = new Graph(*old.graph);
+	countries = new list<Country>(*old.countries);
+	validated = new bool(*old.validated);
+	isValid = new bool(*old.isValid);
+}
+
+//adds a country to the Map and to its corresponding Continent's graph. Sets "validated" to false because now the map has been modified, it needs to be validated again.
+void Map::addCountry(Country country) {
+	countries->push_back(country);
+	try {
+		getContinentById(country.continentId)->addCountryToGraph(country);
+	}
+	catch (invalid_argument e) {
+		cout << "Unable to add country with ID " << country.id << " to continent with ID " << country.continentId << " because this continent ID was not found";
+		return;
+	}
+	*validated = false;
+	*isValid = false;
+}
+
+//adds a continent to the Map. Sets "validated" to false because now the map has been modified, it needs to be validated again.
+void Map::addContinent(Continent continent) {
+	continents->push_back(continent);
+	*validated = false;
+	*isValid = false;
 }
 
 //calls each continent's validate() method, proceeds if valid, constructs the map's full graph, checks if it is connected. Sets the isValid variable accordingly.
 bool Map::validate() {
-	for(Continent* continent : *continents)
-		if (!continent->validate()) {
-			cout << "Continent with ID " << continent->getId() << "is invalid.";
+	for(Continent continent : *continents)
+		if (!continent.validate()) {
+			cout << "Continent with ID " << continent.getId() << "is invalid.";
 			*validated = true;
 			*isValid = false;
 			return *isValid;
 		}
 	//At this point, all continents were found valid, so construct map's full graph, check if connected.
-	map<int, list<int> >* adjLists = new map<int, list<int> >();
-	for (Country* countryPtr : *countries)
-		(*adjLists)[countryPtr->id] = countryPtr->neighbors;
-	graph = new Graph(adjLists);
-	*validated = true;
+	for (Country country : *countries)
+		graph->addNode(country.id, country.neighbors);
 	*isValid = graph->isConnected();
+	*validated = true;
 	return *isValid;
 }
 
-//returns pointer to the country having this id. nullptr is returned if no country was found with this id.
+//THROWS EXCEPTION if no country was found with this id. Otherwise, returns a pointer to the Country.
 Country* Map::getCountryById(int id) {
-	for (Country* country : *countries) {
-		if (country->id == id)
-			return country;
+	for (Country country : *countries) {
+		if (country.id == id)
+			return &country;
 	}
-	return nullptr;
+	throw invalid_argument("No country found with this ID");
 }
 
-//returns pointer to the continent having this id. nullptr is returned if no continent was found with this id.
+//THROWS EXCEPTION if no continent was found with this id. Otherwise, returns a pointer to the Continent.
 Continent* Map::getContinentById(int id) {
-	for (Continent* continent : *continents) {
-		if (continent->getId == id)
-			return continent;
+	for (Continent continent : *continents) {
+		if (continent.getId() == id)
+			return &continent;
 	}
-	return nullptr;
-}
-
-//adds a country to the Map and to its corresponding Continent. Note: Country will NOT be added if map has already been validated and found valid, at which point its list of countries is final.
-void Map::addCountry(Country* country){
-	if (!validated || !isValid) {
-		countries->push_back(country);
-		Continent* continent = getContinentById(country->continentId);
-		continent->addCountry(country);
-	}
-
+	throw invalid_argument("No continent found with this ID");
 }
