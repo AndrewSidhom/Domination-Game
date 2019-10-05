@@ -15,6 +15,8 @@ Cards::Cards(int totalCountries) {
 	//createDummyCountries(totalCountries);
 }
 
+/*	Destructor of Cards class.
+*/
 Cards::~Cards() {
 	delete deck, ownedCountries;
 }
@@ -110,7 +112,7 @@ inline bool Cards::isEmpty() {
 
 //*** IMPLEMENTATION FOR HAND ***//
 
-/*	Deconstructor of Hand class.
+/*	Destructor of Hand class.
 */
 Cards::Hand::~Hand() {
 	delete playerHand;
