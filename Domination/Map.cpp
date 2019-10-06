@@ -89,7 +89,7 @@ Continent::Continent(const Continent& old) {
 void Continent::addCountryToGraph(Country country)
 {
 	innerGraph->addNode(country.id, country.neighbors);
-	size++; 
+	(*size)++; 
 	*validated = false;
 	*isValid = false;
 }
@@ -165,7 +165,7 @@ bool Map::validate() {
 
 //THROWS EXCEPTION if no country was found with this id. Otherwise, returns a pointer to the Country.
 Country* Map::getCountryById(int id) {
-	for (Country country : *countries) {
+	for (Country& country : *countries) {
 		if (country.id == id)
 			return &country;
 	}
@@ -174,7 +174,7 @@ Country* Map::getCountryById(int id) {
 
 //THROWS EXCEPTION if no continent was found with this id. Otherwise, returns a pointer to the Continent.
 Continent* Map::getContinentById(int id) {
-	for (Continent continent : *continents) {
+	for (Continent& continent : *continents) {
 		if (continent.getId() == id)
 			return &continent;
 	}
