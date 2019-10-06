@@ -117,12 +117,6 @@ Map* MapLoader::loadMapFile(std::string fileName) {
 
 	inputFile.close();
 
-	if (*processedSection == "") {
-		cout << "No map information was loaded from " << fileName << ".map; the file may be empty or missing [keywords]." << endl;
-		delete(aMap);
-		return nullptr;
-	}
-
 	if (!aMap->validate()) {
 		cout << "The map information read from " << fileName << ".map is invalid." << endl;
 		delete(aMap);
