@@ -7,56 +7,167 @@
 #include <sstream>
 using namespace std;
 
-//TODO: throw error if map file order not respected (such as countries defined before any continent is defined)
-//TODO: throw error at any point that the syntax of the map file does not correspond to expected syntax
+// Initialize static data members
+int* MapLoader::continentId = new int(1);
+string* MapLoader::processedSection = new string("");
+string* MapLoader::mapName = new string("");
 
-void MapLoader::loadMapFile(std::string fileName) {
-	ifstream inputFile("test.map.txt");
+// If any issue was encountered while loading the map file, a nullptr is returned
+Map* MapLoader::loadMapFile(std::string fileName) {
+	// Create the file reading stream
+	ifstream inputFile("maps/" + fileName + ".map");
 
-	continentId = new int(1);
-	processedSection = new string("");
-	mapName = new string("");
+	// Check if the file could be opened
+	if (inputFile.fail()) {
+		cout << "Opening the file " << fileName << ".map in the /maps directory failed." << endl;
+		return nullptr;
+	}
+
+	Map* aMap = nullptr;
+	// Reset static data members
+	*continentId = 1;
+	*processedSection = "";
+	*mapName = "";
 
 	string line;
 	stringstream lineStream;
 	string lineItem;
-	while (getline(inputFile, line)) {
-		if (line.compare("[continents]") == 0) {
-			*processedSection = "continents";
-			continue;
-		} else if (line.compare("[countries]") == 0) {
-			*processedSection = "countries";
-			continue;
-		}
 
+	// Read the file line by line
+	while (getline(inputFile, line)) {
+		// Check which [section] is being processed right now
+		try {
+			if (processSection(line)) {
+				continue;
+			}
+		} catch (const exception e) {
+			cout << e.what() << endl;
+			return nullptr;
+		}
+		
+		// If line is empty, skip it
 		if (line == "") {
 			continue;
 		}
 
-		if ((*processedSection).compare("") == 0) {
+		// If no specific [section] is being processed right now,
+		// check if line contains the map name which should be defined before any [section]
+		if (processedSection->length() == 0) {
 			stringstream lineStream(line);
 			string lineItem;
 			getline(lineStream, lineItem, ' ');
 
-			if (lineItem.compare("name") == 0) {
+			if (lineItem == "name") {
 				getline(lineStream, lineItem, ' ');
 				*mapName = lineItem;
+				aMap = new Map(0, *mapName);
 			}
-		}
+		} else if (*processedSection == "continents") {
+			try {
+				aMap->addContinent(processContinent(line));
+			} catch (const invalid_argument e) {
+				cout << "An invalid continent definition was found." << endl;
+				delete(aMap);
+				return nullptr;
+			}
+		} else if (*processedSection == "countries") {
+			try {
+				aMap->addCountry(processCountry(line));
+			} catch (...) {
+				cout << "An invalid country definition was found." << endl;
+				delete(aMap);
+				return nullptr;
+			}
+		} else if (*processedSection == "borders") {
+			int countryId;
 
-		if ((*processedSection).compare("continents") == 0) {
-			processContinent(line);
-		} else if ((*processedSection).compare("countries") == 0) {
-			processCountry(line);
+			stringstream lineStream(line);
+			string lineItem;
+
+			getline(lineStream, lineItem, ' ');
+
+			// Get the Country for which the borders are being processed
+			try {
+				aMap->getContinentById(2);
+				countryId = stoi(lineItem);
+			} catch (const invalid_argument e) {
+				cout << "An invalid border definition was found." << endl;
+				delete(aMap);
+				return nullptr;
+			}
+
+			Country* aCountry = nullptr;
+			try {
+				aCountry = aMap->getCountryById(countryId);
+			} catch (const invalid_argument e) {
+				cout << "An invalid country ID was found in a border definition." << endl;
+				delete(aMap);
+				return nullptr;
+			}
+			
+			try {
+				processBorder(line, aCountry);
+			} catch (...) {
+				cout << "An invalid border definition was found." << endl;
+				delete(aMap);
+				return nullptr;
+			}
 		}
 	}
 
 	inputFile.close();
 
-	return;
+	if (*processedSection == "") {
+		cout << "No map information was loaded from " << fileName << ".map; the file may be empty or missing [keywords]." << endl;
+		delete(aMap);
+		return nullptr;
+	}
+
+	if (!aMap->validate()) {
+		cout << "The map information read from " << fileName << ".map is invalid." << endl;
+		delete(aMap);
+		return nullptr;
+	}
+
+	return aMap;
 }
 
-void MapLoader::processContinent(string line) {
+// If a recognized [section] is found, the processedSection is updated accordingly
+// Only the following processing order is accepted: map name > [continents] > [countries] > [borders]
+// Any other order is considered invalid and will return false
+bool MapLoader::processSection(string line) {
+	if (line == "[continents]") {
+		if (*mapName == "") {
+			throw exception("Invalid file syntax; missing map name.");
+		}
+
+		*processedSection = "continents";
+		return true;
+	}
+	
+	if (line == "[countries]") {
+		if (*processedSection != "continents") {
+			throw exception("Invalid file syntax; no continents were defined before defining countries.");
+		}
+
+		*processedSection = "countries";
+		return true;
+	}
+	
+	if (line == "[borders]") {
+		if (*processedSection != "countries") {
+			throw exception("Invalid file syntax; no countries were defined before defining borders.");
+		}
+
+		*processedSection = "borders";
+		return true;
+	}
+
+	return false;
+}
+
+// Returns a Continent with a generated id, and a name and worth read from line
+Continent MapLoader::processContinent(string line) {
 	string continentName;
 	int continentWorth;
 
@@ -69,16 +180,15 @@ void MapLoader::processContinent(string line) {
 	getline(lineStream, lineItem, ' ');
 	continentWorth = stoi(lineItem);
 
-	//TODO: create continent and add it to list of continents
+	Continent aContinent = Continent(*continentId, continentName, continentWorth);
 
-	//Continent aContinent = Continent(*continentId, continentName, continentWorth);
-	
-	*continentId++;
+	*continentId = *continentId + 1;
 
-	//return aContinent;
+	return aContinent;
 }
 
-void MapLoader::processCountry(string line) {
+// Returns a Country with the id, continent id and name read from line
+Country MapLoader::processCountry(string line) {
 	int countryId;
 	string countryName;
 	int countryContinentId;
@@ -95,20 +205,18 @@ void MapLoader::processCountry(string line) {
 	getline(lineStream, lineItem, ' ');
 	countryContinentId = stoi(lineItem);
 
-	//TODO: create country struct with name and id, but empty list of neighbours
-	//TODO: add country to list of countries of a continent and to overall list of countries
+	return Country(countryId, countryContinentId, countryName, list<int>());
 }
 
-void MapLoader::processBorder(string line) {
-	int countryId;
-
+// Updates a Country's neighbour list according to the borders specified in line
+void MapLoader::processBorder(string line, Country* aCountry) {
 	stringstream lineStream(line);
 	string lineItem;
 
+	// skip first item which contains the (unneeded) country id
 	getline(lineStream, lineItem, ' ');
-	countryId = stoi(lineItem);
 
 	while (getline(lineStream, lineItem, ' ')) {
-		//TODO: Find country with current id and add it to current country's neighbours
+		aCountry->neighbors.push_back(stoi(lineItem));
 	}
 }
