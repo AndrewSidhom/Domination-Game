@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
 using namespace std;
 
 class Cards
@@ -13,7 +14,7 @@ public:
 	*/
 	Cards(int totalCountries);
 
-	/*	Deconstructor of Cards class.
+	/*	Destructor of Cards class.
 	*/
 	~Cards();
 
@@ -34,7 +35,7 @@ public:
 	{
 	public:
 
-		/*	Deconstructor of Hand class.
+		/*	Destructor of Hand class.
 		*/
 		~Hand();
 
