@@ -60,7 +60,7 @@ Map* MapLoader::loadMapFile(std::string fileName) {
 			if (lineItem == "name") {
 				getline(lineStream, lineItem, ' ');
 				*mapName = lineItem;
-				aMap = new Map(0, *mapName);
+				aMap = new Map(*mapName);
 			}
 		} else if (*processedSection == "continents") {
 			try {
@@ -116,12 +116,6 @@ Map* MapLoader::loadMapFile(std::string fileName) {
 	}
 
 	inputFile.close();
-
-	if (*processedSection == "") {
-		cout << "No map information was loaded from " << fileName << ".map; the file may be empty or missing [keywords]." << endl;
-		delete(aMap);
-		return nullptr;
-	}
 
 	if (!aMap->validate()) {
 		cout << "The map information read from " << fileName << ".map is invalid." << endl;
