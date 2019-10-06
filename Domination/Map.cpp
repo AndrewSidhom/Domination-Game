@@ -1,11 +1,14 @@
 #include "Map.h"
+#include <map>
+#include <list>
+#include <string>
 #include <iostream>
 #include <unordered_set>
 using namespace std;
 
 
 
-//GRAPH CLASS
+// CLASS
 //Representation of a graph using adjacency lists. Nodes are referred to by ids. Each node maps to a list of its adjacent nodes.
 
 //constructor
@@ -16,6 +19,11 @@ Graph::~Graph() { delete adjLists; };
 
 //copy constructor
 Graph::Graph(const Graph& old) { adjLists = new map<int, list<int> >(*old.adjLists); }
+
+//get map of nodes
+map<int, list<int>>* Graph::getNodes(){
+	return adjLists;
+}
 
 //adds a node to the graph
 void Graph::addNode(int id, list<int> neighbors){
@@ -107,16 +115,15 @@ bool Continent::validate()
 //MAP CLASS
 
 //constructor
-Map::Map(int id, string name) : id(new int(id)), name(new string(name)), continents(new list<Continent>()), graph(new Graph()), countries(new list<Country>()), validated(new bool(false)), isValid(new bool(false)) {}
+Map::Map(string name) : name(new string(name)), continents(new list<Continent>()), graph(new Graph()), countries(new list<Country>()), validated(new bool(false)), isValid(new bool(false)) {}
 
 //destructor
 Map::~Map() {
-	delete id; delete name; delete continents; delete countries;  delete graph;  delete validated;  delete isValid;
+	delete name, continents, countries, graph, validated, isValid;
 }
 
 //copy constructor
 Map::Map(const Map& old) {
-	id = new int(*old.id);
 	name = new string(*old.name);
 	continents = new list<Continent>(*old.continents);
 	graph = new Graph(*old.graph);

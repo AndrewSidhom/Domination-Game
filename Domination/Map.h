@@ -18,11 +18,14 @@ using namespace std;
 
 
 
-//Representation of a graph using adjacency lists. Nodes are referred to by ids. Each node maps to a list of its adjacent nodes.
+//Representation of a graph using adjacency lists. Nodes are referred to by ids. 
+//Each node maps to a list of its adjacent nodes.
 class Graph {
+private:
 	map<int, list<int> >* adjLists;
 
 public:
+	map<int, list<int> >* getNodes();
 	Graph();  //constructor
 	~Graph();  //destructor
 	Graph(const Graph& old); //copy constructor
@@ -47,6 +50,8 @@ struct Country {
 
 //Representation of a continent
 class Continent {
+
+private:
 	int* id;
 	string* name;
 	int* worth; //the number of armies a player gets if they acquire the whole continent 
@@ -78,7 +83,7 @@ public:
 
 //Representation of a map
 class Map {
-	int* id;
+private:
 	string* name;
 	list<Continent>* continents;
 	Graph* graph;  //a graph of the full map. Constructed during execution of the map's validate() method.
@@ -88,7 +93,6 @@ class Map {
 
 public:
 	//accessors...
-	int getId() { return *id; };
 	string getName() { return *name; };
 	list<Continent> getContinents() { return *continents; };
 	Graph getGraph() { return *graph; };
@@ -97,7 +101,7 @@ public:
 	bool getIsValid() { return *isValid; };
 
 	//constructor, copy constructor, destructor
-	Map(int id, string name);
+	Map(string name);
 	Map(const Map& old);
 	~Map();
 
