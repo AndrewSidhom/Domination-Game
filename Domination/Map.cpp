@@ -139,7 +139,7 @@ void Map::addCountry(Country country) {
 		getContinentById(country.continentId)->addCountryToGraph(country);
 	}
 	catch (invalid_argument e) {
-		cout << "Unable to add country with ID " << country.id << " to continent with ID " << country.continentId << " because this continent ID was not found";
+		cout << "Unable to add country with ID " << country.id << " to continent with ID " << country.continentId << " because this continent ID was not found" << endl;
 		return;
 	}
 	*validated = false;
@@ -157,7 +157,7 @@ void Map::addContinent(Continent continent) {
 bool Map::validate() {
 	for(Continent continent : *continents)
 		if (!continent.validate()) {
-			cout << "Continent with ID " << continent.getId() << "is invalid.";
+			cout << "Continent with ID " << continent.getId() << " is invalid." << endl;
 			*validated = true;
 			*isValid = false;
 			return *isValid;
