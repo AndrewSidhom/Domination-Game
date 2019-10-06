@@ -1,11 +1,14 @@
 #include "Map.h"
+#include <map>
+#include <list>
+#include <string>
 #include <iostream>
 #include <unordered_set>
 using namespace std;
 
 
 
-//GRAPH CLASS
+// CLASS
 //Representation of a graph using adjacency lists. Nodes are referred to by ids. Each node maps to a list of its adjacent nodes.
 
 //constructor
@@ -89,7 +92,7 @@ Continent::Continent(const Continent& old) {
 void Continent::addCountryToGraph(Country country)
 {
 	innerGraph->addNode(country.id, country.neighbors);
-	size++; 
+	(*size)++; 
 	*validated = false;
 	*isValid = false;
 }
@@ -107,16 +110,15 @@ bool Continent::validate()
 //MAP CLASS
 
 //constructor
-Map::Map(int id, string name) : id(new int(id)), name(new string(name)), continents(new list<Continent>()), graph(new Graph()), countries(new list<Country>()), validated(new bool(false)), isValid(new bool(false)) {}
+Map::Map(string name) : name(new string(name)), continents(new list<Continent>()), graph(new Graph()), countries(new list<Country>()), validated(new bool(false)), isValid(new bool(false)) {}
 
 //destructor
 Map::~Map() {
-	delete id; delete name; delete continents; delete countries;  delete graph;  delete validated;  delete isValid;
+	delete name, continents, countries, graph, validated, isValid;
 }
 
 //copy constructor
 Map::Map(const Map& old) {
-	id = new int(*old.id);
 	name = new string(*old.name);
 	continents = new list<Continent>(*old.continents);
 	graph = new Graph(*old.graph);
@@ -165,7 +167,7 @@ bool Map::validate() {
 
 //THROWS EXCEPTION if no country was found with this id. Otherwise, returns a pointer to the Country.
 Country* Map::getCountryById(int id) {
-	for (Country country : *countries) {
+	for (Country& country : *countries) {
 		if (country.id == id)
 			return &country;
 	}
@@ -174,7 +176,7 @@ Country* Map::getCountryById(int id) {
 
 //THROWS EXCEPTION if no continent was found with this id. Otherwise, returns a pointer to the Continent.
 Continent* Map::getContinentById(int id) {
-	for (Continent continent : *continents) {
+	for (Continent& continent : *continents) {
 		if (continent.getId() == id)
 			return &continent;
 	}
