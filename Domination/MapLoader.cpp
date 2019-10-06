@@ -60,7 +60,7 @@ Map* MapLoader::loadMapFile(std::string fileName) {
 			if (lineItem == "name") {
 				getline(lineStream, lineItem, ' ');
 				*mapName = lineItem;
-				aMap = new Map(0, *mapName);
+				aMap = new Map(*mapName);
 			}
 		} else if (*processedSection == "continents") {
 			try {
