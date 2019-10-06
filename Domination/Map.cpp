@@ -20,6 +20,11 @@ Graph::~Graph() { delete adjLists; };
 //copy constructor
 Graph::Graph(const Graph& old) { adjLists = new map<int, list<int> >(*old.adjLists); }
 
+//get map of nodes
+map<int, list<int>>* Graph::getNodes(){
+	return adjLists;
+}
+
 //adds a node to the graph
 void Graph::addNode(int id, list<int> neighbors){
 	(*adjLists)[id] = neighbors;

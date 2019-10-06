@@ -21,9 +21,11 @@ using namespace std;
 //Representation of a graph using adjacency lists. Nodes are referred to by ids. 
 //Each node maps to a list of its adjacent nodes.
 class Graph {
+private:
 	map<int, list<int> >* adjLists;
 
 public:
+	map<int, list<int> >* getNodes();
 	Graph();  //constructor
 	~Graph();  //destructor
 	Graph(const Graph& old); //copy constructor

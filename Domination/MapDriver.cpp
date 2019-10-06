@@ -1,32 +1,9 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include <map>
 #include "Map.h"
 using namespace std;
-
-/** Class responsible for the testing of class Map.
- */ 
-int main() {
-
-    cout << "Creating valid map.." << endl;
-    Map m1 = createMap("Test Map 1");
-
-    cout << "\nValidating if map is a connected graph and "
-            << "continents are connected subgraphs.. ";
-    if(m1.validate())
-        cout << "VALID" << endl;
-    else
-        cout << "INVALID" << endl;
-    
-    showGraphAsList(m1);
-
-    Map m2("Test Map 2");
-
-    //the map is a connected graph
-    //continents are connected subgraphs
-    //each country belongs to one and only one continent
-    //The driver must provide test cases for various valid/invalid maps
-}
 
 /*  Create a map.
     @param name of map.
@@ -41,14 +18,14 @@ Map createMap(string name) {
 
     for(int i = 1; i <= numOfConts; i++)
     {
-        Continent cont(i, ("CONTINENT "+i), i++);
+        Continent cont(i, "CONTINENT", 0);
         map.addContinent(cont);
 
-        cout << endl << "# of countries for " << cont.getName() << ": ";
+        cout << "# of countries for CONTINENT " << cont.getId() << ": ";
         cin >> numOfCountries;
 
         if (numOfCountries == 1) {
-            Country c(countryIndex, cont.getId(), ("COUNTRY "+countryIndex));
+            Country c(countryIndex, cont.getId(), ("COUNTRY"));
             countryIndex++;
 
             map.addCountry(c);
@@ -60,12 +37,12 @@ Map createMap(string name) {
             for(int j = 1; j <= numOfCountries; j++)
             {
                 list<int> neighbors;
-                for(int s = start; s <= end; s++) {
+                for(int s = start; s < end; s++) {
                     if(s != countryIndex)
                         neighbors.push_back(s);
                 }
 
-                Country c(countryIndex, cont.getId(), ("COUNTRY "+countryIndex), neighbors);
+                Country c(countryIndex, cont.getId(), ("COUNTRY"), neighbors);
                 countryIndex++;
 
                 map.addCountry(c);
@@ -76,15 +53,80 @@ Map createMap(string name) {
     return map;
 }
 
-/*  Output if valid or not.
+/*  Validate if continent's subgraph are connected.
 */
-void showGraphAsList(Map m) {
+void testContinentSubgraph(Map &m) {
 
-    cout << "\nGraph as list:\n-------------\n";
-    cout << "Sort by Continent:\n\n";
-
-    for(Continent cont : m.getContinents) 
+    for(Continent cont : m.getContinents()) 
     {
-        cout << cont.getName << ": "
+        cout << "Continent " << cont.getId() << ": ";
+        if(cont.getInnerGraph().isConnected())
+            cout << "VALID\n";
+        else
+            cout << "INVALID\n";
     }
+}
+
+/*  Validate if map's graph is connected.
+*/
+void testMapgraph(Map &m) {
+
+    cout << "Validating '" << m.getName() << "': ";
+    m.validate();
+    if(m.getValidated() && m.getIsValid())
+        cout << "VALID\n";
+    else
+        cout << "INVALID\n";
+}
+
+/*  Show a readable list representation of a graph.
+*/
+void showGraphAsList(Map &m) {
+
+    for(Continent cont : m.getContinents()) 
+    {
+        cout << cont.getName() << " (id: " << cont.getId() << ")\n";
+        map<int, list<int>>* countryNodes = cont.getInnerGraph().getNodes();
+
+        // loop through subgraph (continent)
+        map<int, list<int>>::iterator countryIter;
+        for(countryIter = countryNodes->begin(); countryIter != countryNodes->end(); ++countryIter) 
+        {    
+            cout << "country id: " << countryIter->first 
+                << ", continent: " << m.getCountryById(countryIter->first)->continentId
+                << ", neighbors: { ";
+
+            // loop through neighbors of this country
+            list<int>::iterator neighborIter = countryIter->second.begin();
+            for(int i = 0, size = countryIter->second.size(); i < size; i++) 
+            {
+                cout << *neighborIter << " ";
+                neighborIter++;
+            }
+
+            cout << "}\n";
+        }
+        cout << "---\n";
+    }
+}
+
+/** Class responsible for the testing of class Map.
+ */ 
+int main() {
+
+    cout << "Create a valid map:" << endl;
+    Map m1 = createMap("Test Map 1");
+
+    cout << "Validating if continents are connected subgraphs..\n";
+    testContinentSubgraph(m1);
+
+    cout << "\nValidating if map is a connected graph..\n";
+    testMapgraph(m1);
+
+    cout << "\nShow that each country has only one continent:\n ------\n";
+    showGraphAsList(m1);
+
+    //cout << "Test for invalid maps:";
+    //Map m2 = createMap("Test Map 2");
+    //The driver must provide test cases for various valid/invalid maps
 }
