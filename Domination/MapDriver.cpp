@@ -86,11 +86,11 @@ void showGraphAsList(Map &m) {
     for(Continent cont : m.getContinents()) 
     {
         cout << cont.getName() << " (id: " << cont.getId() << ")\n";
-        map<int, list<int>>* countryNodes = cont.getInnerGraph().getNodes();
+        map<int, list<int>> countryNodes = cont.getInnerGraph().getNodes();
 
         // loop through subgraph (continent)
         map<int, list<int>>::iterator countryIter;
-        for(countryIter = countryNodes->begin(); countryIter != countryNodes->end(); ++countryIter) 
+        for(countryIter = countryNodes.begin(); countryIter != countryNodes.end(); ++countryIter) 
         {    
             cout << "country id: " << countryIter->first 
                 << ", continent: " << m.getCountryById(countryIter->first)->continentId

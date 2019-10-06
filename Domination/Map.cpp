@@ -21,8 +21,8 @@ Graph::~Graph() { delete adjLists; };
 Graph::Graph(const Graph& old) { adjLists = new map<int, list<int> >(*old.adjLists); }
 
 //get map of nodes
-map<int, list<int>>* Graph::getNodes(){
-	return adjLists;
+map<int, list<int>> Graph::getNodes(){
+	return *adjLists;
 }
 
 //adds a node to the graph
