@@ -29,7 +29,7 @@ public:
 	Graph();  //constructor
 	~Graph();  //destructor
 	Graph(const Graph& old); //copy constructor
-	void addNode(int id, list<int> neighbors);
+	void addOrUpdateNode(int id, list<int> neighbors); //update if node with this id exists, add otherwise.
 	bool isConnected();
 };
 
@@ -76,6 +76,7 @@ public:
 
 	//methods
 	void addCountryToGraph(Country country); //adds a country to the continent's innerGraph, increments continent size. Sets "validated" to false because now the continent has been modified, it needs to be validated again.
+	void updateCountryInGraph(Country country); //used if a country's neighbors were modified. Sets "validated" to false because now the continent has been modified, it needs to be validated again.
 	bool validate(); //Checks if the continent's "innerGraph" is connected, sets the isValid variable accordingly.
 };
 
@@ -108,6 +109,7 @@ public:
 	//methods
 	void addCountry(Country country); //adds a country to the Map and to its corresponding Continent's graph. Sets "validated" to false because now the map has been modified, it needs to be validated again.
 	void addContinent(Continent country); //adds a continent to the Map. Sets "validated" to false because now the map has been modified, it needs to be validated again.
+	void updateContinentsGraphs(); //updates graphs in case a country's neighbors were modified after the country was added to the map.
 	bool validate(); //calls each continent's validate() method, proceeds if valid, constructs the map's full graph, checks if it is connected. Sets the isValid variable accordingly.
 	Country* getCountryById(int id); //THROWS EXCEPTION if no country was found with this id. Otherwise, returns a pointer to the Country.
 	Continent* getContinentById(int id); //THROWS EXCEPTION if no continent was found with this id. Otherwise, returns a pointer to the Continent.

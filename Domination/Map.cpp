@@ -26,7 +26,7 @@ map<int, list<int>> Graph::getNodes(){
 }
 
 //adds a node to the graph
-void Graph::addNode(int id, list<int> neighbors){
+void Graph::addOrUpdateNode(int id, list<int> neighbors){
 	(*adjLists)[id] = neighbors;
 }
 
@@ -96,8 +96,16 @@ Continent::Continent(const Continent& old) {
 //adds a country to the continent's innerGraph, increments continent size. Sets "validated" to false because now the continent has been modified, it needs to be validated again.
 void Continent::addCountryToGraph(Country country)
 {
-	innerGraph->addNode(country.id, country.neighbors);
+	innerGraph->addOrUpdateNode(country.id, country.neighbors);
 	(*size)++; 
+	*validated = false;
+	*isValid = false;
+}
+
+//used if a country's neighbors were modified. Sets "validated" to false because now the continent has been modified, it needs to be validated again.
+void Continent::updateCountryInGraph(Country country)
+{
+	innerGraph->addOrUpdateNode(country.id, country.neighbors);
 	*validated = false;
 	*isValid = false;
 }
@@ -153,18 +161,32 @@ void Map::addContinent(Continent continent) {
 	*isValid = false;
 }
 
+void Map::updateContinentsGraphs()
+{
+	for (Country country : *countries) {
+		try {
+			getContinentById(country.continentId)->updateCountryInGraph(country);
+		}
+		catch (invalid_argument e) {
+			cout << "Unable to update country with ID " << country.id << " in continent with ID " << country.continentId << " because this continent ID was not found" << endl;
+			return;
+		}
+	}
+}
+
 //calls each continent's validate() method, proceeds if valid, constructs the map's full graph, checks if it is connected. Sets the isValid variable accordingly.
 bool Map::validate() {
+	updateContinentsGraphs();
 	for(Continent continent : *continents)
 		if (!continent.validate()) {
-			cout << "Continent with ID " << continent.getId() << " is invalid." << endl;
+			cout << "Continent with ID " << continent.getId() << " is invalid (its graph is not connected)." << endl;
 			*validated = true;
 			*isValid = false;
 			return *isValid;
 		}
 	//At this point, all continents were found valid, so construct map's full graph, check if connected.
 	for (Country country : *countries)
-		graph->addNode(country.id, country.neighbors);
+		graph->addOrUpdateNode(country.id, country.neighbors);
 	*isValid = graph->isConnected();
 	*validated = true;
 	return *isValid;
