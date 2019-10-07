@@ -25,7 +25,7 @@ map<int, list<int>> Graph::getNodes(){
 	return *adjLists;
 }
 
-//adds a node to the graph
+//update if node with this id exists, add otherwise.
 void Graph::addOrUpdateNode(int id, list<int> neighbors){
 	(*adjLists)[id] = neighbors;
 }
@@ -33,9 +33,13 @@ void Graph::addOrUpdateNode(int id, list<int> neighbors){
 //checks if the graph is a connected graph using BFS traversal
 bool Graph::isConnected()
 {
+	//Trivial case: if a graph is empty, it is connected
+	if (adjLists->empty())
+		return true;  
+	
 	unordered_set<int> visited;
 	list<int> queue;
-	
+
 	// Get id of the first node of the graph, mark it as visited and enqueue it 
 	int id = adjLists->begin()->first;
 	visited.insert(id);
@@ -169,7 +173,6 @@ void Map::updateContinentsGraphs()
 		}
 		catch (invalid_argument e) {
 			cout << "Unable to update country with ID " << country.id << " in continent with ID " << country.continentId << " because this continent ID was not found" << endl;
-			return;
 		}
 	}
 }
