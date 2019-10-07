@@ -6,25 +6,22 @@
 /*	Constructor that creates and shuffles the deck
 	@param total number of countries
 */
-Cards::Cards(int totalCountries) {
+Deck::Deck(int totalCountries) {
 
 	createDeck(totalCountries);
 	shuffleDeck();
-
-	// TODO Remove after testing
-	//createDummyCountries(totalCountries);
 }
 
 /*	Destructor of Cards class.
 */
-Cards::~Cards() {
-	delete deck, ownedCountries;
+Deck::~Deck() {
+	delete cardDeck;
 }
 
 /*	Creates unshuffled deck equal to total number of countries
 	@param total number of countries
 */
-void Cards::createDeck(int totalCountries) {
+void Deck::createDeck(int totalCountries) {
 
 	int n = 0;
 	do 
@@ -45,7 +42,7 @@ void Cards::createDeck(int totalCountries) {
 		/// assign country id starting from 1 and up
 		c.countryId = ++n;
 		/// insert new card to end of vector
-		deck->push_back(c);
+		cardDeck->push_back(c);
 	} 
 	while (n < totalCountries - 2); /// last 2 for wild cards
 
@@ -56,48 +53,37 @@ void Cards::createDeck(int totalCountries) {
 	w1.countryId = n + 1;
 	w2.countryId = n + 2;
 
-	deck->push_back(w1);
-	deck->push_back(w2);
+	cardDeck->push_back(w1);
+	cardDeck->push_back(w2);
 };
 
 /*	Shuffle the deck
 */
-void Cards::shuffleDeck() {
+void Deck::shuffleDeck() {
 
 	/// riffle shuffle is in linear time, faster than knuth shuffle
 	/// https://dev.to/s_awdesh/everyday-im-shuffling-im-a-card--fire-1f8b
 
-	int deckSize = deck->size();
+	int deckSize = cardDeck->size();
 
 	for (int i = 0; i < deckSize; i++)
 	{
 		/// generate random num between 0 to deck size
 		int rnd = rand() % deckSize;
 		/// each card will swap ONCE with another random card
-		Card temp = deck->at(i);
-		deck->at(i) = deck->at(rnd);
-		deck->at(rnd) = temp;
-	}
-}
-
-// TODO remove after testing
-void Cards::createDummyCountries(int n) {
-
-	for (int i = 0; i < n; i++) {
-		DummyCountry c;
-		c.id = i + 1;
-		c.armies = (rand() % 99) + 1;
-		ownedCountries->push_back(c);
+		Card temp = cardDeck->at(i);
+		cardDeck->at(i) = cardDeck->at(rnd);
+		cardDeck->at(rnd) = temp;
 	}
 }
 
 /*	Draws a card from top of deck. IMPORTANT: always use isEmpty on deck first to check.
 	@return Card object
 */
-Cards::Card Cards::draw() {
+Card Deck::draw() {
 
-	Card last = deck->back();
-	deck->pop_back();
+	Card last = cardDeck->back();
+	cardDeck->pop_back();
 
 	return last;
 }
@@ -105,22 +91,22 @@ Cards::Card Cards::draw() {
 /*	Check if deck has no more cards
 	@return deck is empty boolean	
  */ 
-inline bool Cards::isEmpty() {
+inline bool Deck::isEmpty() {
 
-	return deck->empty();
+	return cardDeck->empty();
 }
 
 //*** IMPLEMENTATION FOR HAND ***//
 
 /*	Destructor of Hand class.
 */
-Cards::Hand::~Hand() {
+Hand::~Hand() {
 	delete playerHand;
 }
 
 /*	Display cards in player's hand
 */
-void Cards::Hand::showHand() {
+void Hand::showHand() {
 
 	cout << "Your hand:" << endl << "---------/" << endl;
 	int i = 1;
@@ -136,7 +122,7 @@ void Cards::Hand::showHand() {
 /*	Add card to hand.
 	@param Card object
 */
-void Cards::Hand::addCardToHand(Card c) {
+void Hand::addCardToHand(Card c) {
 
 	playerHand->push_back(c);
 }
@@ -146,7 +132,7 @@ void Cards::Hand::addCardToHand(Card c) {
 	@param isMandatory if exchange is mandatory
 	@return if exchange was successful, false if exchange cancelled
 */
-bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandatory) {
+bool Hand::exchange(map<int,int>* ownedCountries, bool isMandatory) {
 
 	bool isSuccessful = false;
 	int index = 0, cardsToExchangeIndex[3];
@@ -177,7 +163,7 @@ bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandator
 			size_t selectedCardIndex = playerInput - '0'; /// implicitly cast char to int
 			
 			/// make sure index is within hand's card count
-			if (selectedCardIndex <= playerHand->size()) 
+			if (selectedCardIndex <= playerHand->size() && selectedCardIndex > 0) 
 			{
 				cardsToExchangeIndex[index] = playerInput - '0';
 				index++;
@@ -217,7 +203,7 @@ bool Cards::Hand::exchange(vector<DummyCountry>* ownedCountries, bool isMandator
 /*	Returns a string version of enum Card_Type
 	@param Card type enum
 */
-string Cards::Hand::getEnumString(Card_Type type) {
+string Hand::getEnumString(Card_Type type) {
 
 	switch (type)
 	{
@@ -232,7 +218,7 @@ string Cards::Hand::getEnumString(Card_Type type) {
 	@param int i, j, k being the index of chosen card in hand
 	@return true if valid, else false
 */
-bool Cards::Hand::isValidExchangeCards(int i, int j, int k) {
+bool Hand::isValidExchangeCards(int i, int j, int k) {
 
 	return ( /// if matching
 		(playerHand->at(i).type == playerHand->at(j).type &&
@@ -249,26 +235,26 @@ bool Cards::Hand::isValidExchangeCards(int i, int j, int k) {
 	@param owned countries
 	@param index of cards in player's hand that will be exchanged
 */
-void Cards::Hand::giveBonusTwoArmies(vector<DummyCountry>* ownedCountries, int cardsToExchange[]) {
+void Hand::giveBonusTwoArmies(map<int,int>* ownedCountries, int cardsToExchange[]) {
 
-	vector<DummyCountry> matchingCountries;
+	vector<int> matchingCountries;
 	char playerInput;
 
 	/// check if exchanged cards matches owned countries
 	for (int i = 0; i < 3; i++) {
-		for (DummyCountry &c : *ownedCountries)
+		for (map<int,int>::iterator iter = ownedCountries->begin(); iter != ownedCountries->end(); ++iter)
 		{
-			if (c.id == playerHand->at(cardsToExchange[i]).countryId)
-				matchingCountries.push_back(c); /// store country by reference
+			if (iter->first == playerHand->at(cardsToExchange[i]).countryId)
+				matchingCountries.push_back(iter->first); /// store country by reference
 		}
 	}
 
 	if (!matchingCountries.empty()) 
 	{
 		/// prompt player input to choose which country to give +2 units
-		cout << endl << "Countries you own matches with your exchanged cards:" << endl;
-		for (DummyCountry c : matchingCountries) 
-			cout << "Country " << c.id << ": " << c.armies << " armies" << endl;
+		cout << "\nCountries you own matches with your exchanged cards:\n";
+		for (int id : matchingCountries) 
+			cout << "Country " << id << "|" << endl;
 		
 		do {
 			cout << "Choose a country to give 2 additional armies: ";
@@ -277,21 +263,18 @@ void Cards::Hand::giveBonusTwoArmies(vector<DummyCountry>* ownedCountries, int c
 			if (isdigit(playerInput))
 			{
 				int selectedCountry = playerInput - '0'; /// implicitly cast char to int
-
-				for (DummyCountry &c : matchingCountries) /// grab country by reference
+				for (int id : matchingCountries) /// grab country by reference
 				{
-					if (c.id == selectedCountry) {
-						c.armies += 2;
+					if (id == selectedCountry) {
+						(*ownedCountries)[id] += 2;
 						break;
 					}
 				}
 				/// else if did not break, then choice was invalid
 				cout << endl << "Your choice is invalid. Please try again" << endl;
 			}
-			else
-			{
-				cout << endl << "Invalid input. Please try again." << endl;
-			}
+			else cout << endl << "Invalid input. Please try again." << endl;
+			
 		} while (true);
 	}
 	

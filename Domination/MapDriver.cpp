@@ -12,6 +12,7 @@ Map createMap(string name) {
     
     Map map(name);
     int numOfConts, numOfCountries, countryIndex = 1;
+    list<int> allCountriesId;
     
     cout << "# of continents: ";
     cin >> numOfConts;
@@ -24,30 +25,24 @@ Map createMap(string name) {
         cout << "# of countries for CONTINENT " << cont.getId() << ": ";
         cin >> numOfCountries;
 
-        if (numOfCountries == 1) {
+        for(int j = 1; j <= numOfCountries; j++)
+        {
             Country c(countryIndex, cont.getId(), ("COUNTRY"));
             countryIndex++;
 
             map.addCountry(c);
+            allCountriesId.push_back(c.id);
         }
-        else {
-            int start = countryIndex;
-            int end = countryIndex + numOfCountries;
+    }
 
-            for(int j = 1; j <= numOfCountries; j++)
-            {
-                list<int> neighbors;
-                for(int s = start; s < end; s++) {
-                    if(s != countryIndex)
-                        neighbors.push_back(s);
-                }
-
-                Country c(countryIndex, cont.getId(), ("COUNTRY"), neighbors);
-                countryIndex++;
-
-                map.addCountry(c);
-            }
+    // make every country have every other countries as neighbors
+    for(Country c : map.getCountries()) {
+        list<int> neighbors;
+        for(int id : allCountriesId) {
+            // make sure it doesn't add itself as its own neighbor
+            if(id != c.id) neighbors.push_back(id);
         }
+        map.getCountryById(c.id)->neighbors = neighbors;
     }
 
     return map;

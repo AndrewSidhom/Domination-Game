@@ -3,84 +3,27 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <map>
+#include "Map.h"
 using namespace std;
 
-class Cards
+struct Card
+{
+	enum Card_Type type;
+	int countryId;
+};
+
+class Deck
 {
 public:
-
 	/*	Constructor that creates and shuffles the deck
 		@param total number of countries
 	*/
-	Cards(int totalCountries);
+	Deck(int totalCountries);
 
-	/*	Destructor of Cards class.
+	/*	Destructor of Deck class.
 	*/
-	~Cards();
-
-	/*** Struct ***/
-	struct Card {
-		enum Card_Type type;
-		int countryId;
-	};
-
-	// TODO remove after testing
-	struct DummyCountry {
-		int id;
-		int armies;
-	};
-	
-	/*** Inner Class ***/
-	class Hand 
-	{
-	public:
-
-		/*	Destructor of Hand class.
-		*/
-		~Hand();
-
-		/* Display cards in player's hand
-		*/
-		void showHand();
-
-		/*	Add card to hand.
-			@param Card object
-		*/
-		void addCardToHand(Card c);
-
-		/*  Exchange 3 cards in hand for armies
-			@param ownedCountries[] reference to list of owned countries
-			@param isMandatory if exchange is mandatory
-			@return if exchange was successful, false if exchange cancelled
-		*/
-		bool exchange(vector<DummyCountry>* ownedCountries, bool isMandatory);
-
-	private:
-		// TODO dealloc pointer
-		std::vector<Card>* playerHand = new vector<Card>();
-
-		/*	Returns a string version of enum Card_Type
-			@param Card type enum
-		*/
-		string getEnumString(Card_Type type);
-
-		/*  Validate if the 3 selected cards are matchings or consecutives
-			@param int i, j, k being the index of chosen card in hand
-			@return true if valid, else false
-		*/
-		bool isValidExchangeCards(int i, int j, int k);
-
-		/*	Check if exchanged cards match a country the player owns. If so, 
-			prompt the player to choose which country to give +2 units.
-			@param owned countries
-			@param index of cards in player's hand that will be exchanged
-		*/
-		// TODO modify after removing dummy country
-		void giveBonusTwoArmies(vector<DummyCountry>* ownedCountries, int cardsToExchange[]);
-	};
-
-	// TODO remove after testing
-	vector<DummyCountry>* ownedCountries = new vector<DummyCountry>();
+	~Deck();
 
 	/*	Draws a card from top of deck. IMPORTANT: always use isEmpty on deck first to check.
 		@return Card object
@@ -89,13 +32,11 @@ public:
 
 	/*	Check if deck has no more cards
 		@return deck is empty boolean	
- 	*/ 
+ 	*/
 	bool isEmpty();
 
 private:
-
-	// TODO dealloc pointer
-	vector<Card>* deck = new vector<Card>(); 
+	vector<Card> *cardDeck = new vector<Card>();
 
 	/**	Creates unshuffled deck equal to total number of countries
 		@param total number of countries
@@ -105,12 +46,55 @@ private:
 	/*	Shuffle the deck
 	*/
 	void shuffleDeck();
-
-	// TODO remove after testing
-	void createDummyCountries(int totalCountries);
 };
 
-enum Card_Type {
+class Hand
+{
+public:
+	/*	Destructor of Hand class.
+	*/
+	~Hand();
+
+	/* Display cards in player's hand
+	*/
+	void showHand();
+
+	/*	Add card to hand.
+		@param Card object
+	*/
+	void addCardToHand(Card c);
+
+	/*  Exchange 3 cards in hand for armies
+		@param ownedCountries[] reference to list of owned countries
+		@param isMandatory if exchange is mandatory
+		@return if exchange was successful, false if exchange cancelled
+	*/
+	bool exchange(map<int,int> *ownedCountries, bool isMandatory);
+
+private:
+	vector<Card> *playerHand = new vector<Card>();
+
+	/*	Returns a string version of enum Card_Type
+		@param Card type enum
+	*/
+	string getEnumString(Card_Type type);
+
+	/*  Validate if the 3 selected cards are matchings or consecutives
+		@param int i, j, k being the index of chosen card in hand
+		@return true if valid, else false
+	*/
+	bool isValidExchangeCards(int i, int j, int k);
+
+	/*	Check if exchanged cards match a country the player owns. If so, 
+		prompt the player to choose which country to give +2 units.
+		@param owned countries
+		@param index of cards in player's hand that will be exchanged
+	*/
+	void giveBonusTwoArmies(map<int,int> *ownedCountries, int cardsToExchange[]);
+};
+
+enum Card_Type
+{
 	INFANTRY,
 	ARTILLERY,
 	CAVALRY,
