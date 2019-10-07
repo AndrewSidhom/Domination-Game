@@ -25,7 +25,7 @@ private:
 	map<int, list<int> >* adjLists;
 
 public:
-	map<int, list<int> >* getNodes();
+	map<int, list<int> > getNodes();
 	Graph();  //constructor
 	~Graph();  //destructor
 	Graph(const Graph& old); //copy constructor
