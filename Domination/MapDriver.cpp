@@ -56,9 +56,9 @@ void testContinentSubgraph(Map &m) {
     {
         cout << "Continent " << cont.getId() << ": ";
         if(cont.validate())
-            cout << "VALID\n";
+            cout << "VALID\n\n";
         else
-            cout << "INVALID\n";
+            cout << "INVALID\n\n";
     }
 }
 
@@ -69,9 +69,9 @@ void testMapgraph(Map &m) {
     cout << "Validating '" << m.getName() << "': ";
     m.validate();
     if(m.getValidated() && m.getIsValid())
-        cout << "VALID\n";
+        cout << "VALID";
     else
-        cout << "INVALID\n";
+        cout << "INVALID";
 }
 
 /*  Show a readable list representation of a graph.
@@ -105,23 +105,79 @@ void showGraphAsList(Map &m) {
     }
 }
 
+/*  Test invalid map:
+    Expect invalid results.
+ */ 
+void testMapWithContinentWithoutCountry() {
+
+    Map map("Test: Continents without Country");
+
+    for(int i = 1; i <= 3; i++)
+    {
+        Continent cont(i, "CONTINENT", 0);
+        map.addContinent(cont);
+    }
+    // does not add country here
+
+    testMapgraph(map);
+}
+
+/*  Test invalid map:
+    Expect invalid results.
+ */ 
+void testCountriesWithNoContinent() {
+
+    Map map("Test: Countries without assigned continent");
+
+    cout << "\nValidating '" << map.getName() << "':\n";
+    Country c1(1, 1, ("COUNTRY"), list<int>{2,3});
+    Country c2(2, 1, ("COUNTRY"), list<int>{1});
+    Country c3(3, 1, ("COUNTRY"), list<int>{1});
+    map.addCountry(c1);
+    map.addCountry(c2);
+    map.addCountry(c3);
+    // does not add continent here
+}
+
+/*  Test invalid map:
+    Expect invalid results.
+ */ 
+void testIsolatedCountryAndContinent() {
+
+    Map map("Test: Isolated Country and Continent (not connected)");
+
+    Continent cont1(1, "VALID CONTINENT", 0);
+    Continent cont2(2, "ISOLATED CONTINENT", 0);
+    Country c1(1, 1, ("COUNTRY"), list<int>{2});
+    Country c2(2, 1, ("COUNTRY"), list<int>{1});
+    Country c3(3, 2, ("ISOLATED COUNTRY"), list<int>{}); // no neighbors
+    map.addContinent(cont1);
+    map.addContinent(cont2);
+    map.addCountry(c1);
+    map.addCountry(c2);
+    map.addCountry(c3);
+
+    testMapgraph(map);
+}
+
 /** Class responsible for the testing of class Map.
  */ 
 int main() {
 
-    cout << "Create a valid map:" << endl;
+    /*cout << "Create a valid map:" << endl;
     Map m1 = createMap("Test Map 1");
+
+    cout << "\nValidating if map is a connected graph..\n\n";
+    testMapgraph(m1);
 
     cout << "Validating if continents are connected subgraphs..\n";
     testContinentSubgraph(m1);
 
-    cout << "\nValidating if map is a connected graph..\n";
-    testMapgraph(m1);
-
     cout << "\nShow that each country has only one continent:\n ------\n";
-    showGraphAsList(m1);
+    showGraphAsList(m1);*/
 
-    //cout << "Test for invalid maps:";
-    //Map m2 = createMap("Test Map 2");
-    //The driver must provide test cases for various valid/invalid maps
+    cout << "\nTest for invalid maps:\n";
+    testMapWithContinentWithoutCountry();
+    testCountriesWithNoContinent();
+    testIsolatedCountryAndContinent();
 }
