@@ -55,7 +55,7 @@ void testContinentSubgraph(Map &m) {
     for(Continent cont : m.getContinents()) 
     {
         cout << "Continent " << cont.getId() << ": ";
-        if(cont.getInnerGraph().isConnected())
+        if(cont.validate())
             cout << "VALID\n";
         else
             cout << "INVALID\n";

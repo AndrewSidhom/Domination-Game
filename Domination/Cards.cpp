@@ -10,6 +10,7 @@ Deck::Deck(int totalCountries) {
 
 	createDeck(totalCountries);
 	shuffleDeck();
+	*exchangeArmies = 0;
 }
 
 /*	Destructor of Cards class.
@@ -96,6 +97,24 @@ inline bool Deck::isEmpty() {
 	return cardDeck->empty();
 }
 
+/*	Get bonus army from successful exchange.
+*/
+int Deck::getExchangedArmies() {
+
+	int n = *exchangeArmies;
+
+	if (n == 0)	// first bonus
+		*exchangeArmies += 4;
+	else if (n >= 4 && n <= 10) // between 4 and 10, +2
+		*exchangeArmies += 2;
+	else if (n >= 12 && n < 15) // at 12, +3
+		*exchangeArmies += 3;
+	else if (n >= 15)			// at 15 or above, +5
+		*exchangeArmies += 5;
+
+	return *exchangeArmies;
+}
+
 //*** IMPLEMENTATION FOR HAND ***//
 
 /*	Destructor of Hand class.
@@ -130,11 +149,11 @@ void Hand::addCardToHand(Card c) {
 /*	Exchange 3 cards in hand for armies
     @param ownedCountries[] reference to list of owned countries
 	@param isMandatory if exchange is mandatory
-	@return if exchange was successful, false if exchange cancelled
+	@return exchanged armies, if false, return 0
 */
-bool Hand::exchange(map<int,int>* ownedCountries, bool isMandatory) {
+int Hand::exchange(map<int,int> *ownedCountries, Deck *deck, bool isMandatory) {
 
-	bool isSuccessful = false;
+	int exchangedArmies = 0;
 	int index = 0, cardsToExchangeIndex[3];
 	char playerInput;
 
@@ -186,7 +205,7 @@ bool Hand::exchange(map<int,int>* ownedCountries, bool isMandatory) {
 				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]);
 				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]);
 				/// exchange is successful
-				isSuccessful = true;
+				exchangedArmies = deck->getExchangedArmies();
 			}
 			else 
 			{
@@ -197,7 +216,7 @@ bool Hand::exchange(map<int,int>* ownedCountries, bool isMandatory) {
 
 	} while (index != 3);
 
-	return isSuccessful;
+	return exchangedArmies;
 }
 
 /*	Returns a string version of enum Card_Type

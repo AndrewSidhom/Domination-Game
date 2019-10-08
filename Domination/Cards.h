@@ -35,8 +35,14 @@ public:
  	*/
 	bool isEmpty();
 
+	/*	Get bonus army from successful exchange.
+	*/
+	int getExchangedArmies();
+
 private:
 	vector<Card> *cardDeck = new vector<Card>();
+	// Number of bonus armies given after a successful exchange
+	int *exchangeArmies;
 
 	/**	Creates unshuffled deck equal to total number of countries
 		@param total number of countries
@@ -69,7 +75,7 @@ public:
 		@param isMandatory if exchange is mandatory
 		@return if exchange was successful, false if exchange cancelled
 	*/
-	bool exchange(map<int,int> *ownedCountries, bool isMandatory);
+	int exchange(map<int,int> *ownedCountries, Deck *deck, bool isMandatory);
 
 private:
 	vector<Card> *playerHand = new vector<Card>();
