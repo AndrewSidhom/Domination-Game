@@ -79,7 +79,7 @@ public:
 		@param isMandatory if exchange is mandatory
 		@return if exchange was successful, false if exchange cancelled
 	*/
-	int exchange(map<int,int> *ownedCountries, Deck *deck, bool isMandatory);
+	int exchange(map<int,int>* ownedCountries, Deck* deck, bool isMandatory);
 
 private:
 	vector<Card> *playerHand;
@@ -100,7 +100,7 @@ private:
 		@param owned countries
 		@param index of cards in player's hand that will be exchanged
 	*/
-	void giveBonusTwoArmies(map<int,int> *ownedCountries, int cardsToExchange[]);
+	void giveBonusTwoArmies(map<int,int>* ownedCountries, int* cardsToExchange[]);
 };
 
 enum Card_Type
