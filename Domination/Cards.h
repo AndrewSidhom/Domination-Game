@@ -51,6 +51,9 @@ private:
 class Hand
 {
 public:
+	//THIS WILL BE REMOVED AFTER TESTING
+	int *armies;
+
 	Hand();
 	/*	Destructor of Hand class.
 	*/

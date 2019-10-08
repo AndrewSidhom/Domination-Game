@@ -104,11 +104,19 @@ bool Deck::isEmpty() {
 //*** IMPLEMENTATION FOR HAND ***//
 Hand::Hand() {
 	playerHand = new vector<Card>();
+	
+	//REMOVE AFTER TESTING
+	armies = new int[3];
+	for (int i=0;i<3;i++)
+		armies[i] = 0;
 }
 /*	Destructor of Hand class.
 */
 Hand::~Hand() {
 	delete playerHand;
+
+	//REMOVE AFTER TESTING
+	delete armies; 
 }
 
 /*	Display cards in player's hand
@@ -214,9 +222,9 @@ string Hand::getEnumString(Card_Type type) {
 
 	switch (type)
 	{
-	case INFANTRY: return "Infantry";
-	case ARTILLERY: return "Artillery";
-	case CAVALRY: return "Cavalry";
+	case INFANTRY: armies[0] += 1; return "Infantry";
+	case ARTILLERY: armies[1] += 1; return "Artillery";
+	case CAVALRY: armies[2] += 1; return "Cavalry";
 	case WILD: return "Wild";
 	}
 }
