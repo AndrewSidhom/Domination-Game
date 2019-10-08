@@ -1,13 +1,15 @@
 #include "Cards.h"
 #include <cstdlib>
 #include <iomanip>
+#include <random>
 
 
 /*	Constructor that creates and shuffles the deck
 	@param total number of countries
 */
 Deck::Deck(int totalCountries) {
-
+	
+	cardDeck = new vector<Card>();
 	createDeck(totalCountries);
 	shuffleDeck();
 	*exchangeArmies = 0;
@@ -66,11 +68,14 @@ void Deck::shuffleDeck() {
 	/// https://dev.to/s_awdesh/everyday-im-shuffling-im-a-card--fire-1f8b
 
 	int deckSize = cardDeck->size();
+	random_device rd;
+	mt19937 mt(rd());
+	uniform_int_distribution<int> dist(0, deckSize-1);
 
 	for (int i = 0; i < deckSize; i++)
 	{
 		/// generate random num between 0 to deck size
-		int rnd = rand() % deckSize;
+		int rnd = dist(mt);
 		/// each card will swap ONCE with another random card
 		Card temp = cardDeck->at(i);
 		cardDeck->at(i) = cardDeck->at(rnd);
@@ -92,7 +97,7 @@ Card Deck::draw() {
 /*	Check if deck has no more cards
 	@return deck is empty boolean	
  */ 
-inline bool Deck::isEmpty() {
+bool Deck::isEmpty() {
 
 	return cardDeck->empty();
 }
@@ -116,11 +121,21 @@ int Deck::getExchangedArmies() {
 }
 
 //*** IMPLEMENTATION FOR HAND ***//
-
+Hand::Hand() {
+	playerHand = new vector<Card>();
+	
+	//REMOVE AFTER TESTING
+	armies = new int[3];
+	for (int i=0;i<3;i++)
+		armies[i] = 0;
+}
 /*	Destructor of Hand class.
 */
 Hand::~Hand() {
 	delete playerHand;
+
+	//REMOVE AFTER TESTING
+	delete armies; 
 }
 
 /*	Display cards in player's hand
@@ -226,9 +241,9 @@ string Hand::getEnumString(Card_Type type) {
 
 	switch (type)
 	{
-	case INFANTRY: return "Infantry";
-	case ARTILLERY: return "Artillery";
-	case CAVALRY: return "Cavalry";
+	case INFANTRY: armies[0] += 1; return "Infantry";
+	case ARTILLERY: armies[1] += 1; return "Artillery";
+	case CAVALRY: armies[2] += 1; return "Cavalry";
 	case WILD: return "Wild";
 	}
 }

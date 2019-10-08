@@ -40,7 +40,7 @@ public:
 	int getExchangedArmies();
 
 private:
-	vector<Card> *cardDeck = new vector<Card>();
+	vector<Card> *cardDeck;
 	// Number of bonus armies given after a successful exchange
 	int *exchangeArmies;
 
@@ -57,6 +57,10 @@ private:
 class Hand
 {
 public:
+	//THIS WILL BE REMOVED AFTER TESTING
+	int *armies;
+
+	Hand();
 	/*	Destructor of Hand class.
 	*/
 	~Hand();
@@ -78,7 +82,7 @@ public:
 	int exchange(map<int,int> *ownedCountries, Deck *deck, bool isMandatory);
 
 private:
-	vector<Card> *playerHand = new vector<Card>();
+	vector<Card> *playerHand;
 
 	/*	Returns a string version of enum Card_Type
 		@param Card type enum
