@@ -18,7 +18,7 @@ Deck::Deck(int totalCountries) {
 /*	Destructor of Cards class.
 */
 Deck::~Deck() {
-	delete cardDeck;
+	delete cardDeck, exchangeArmies;
 }
 
 /*	Creates unshuffled deck equal to total number of countries
