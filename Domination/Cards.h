@@ -36,7 +36,7 @@ public:
 	bool isEmpty();
 
 private:
-	vector<Card> *cardDeck = new vector<Card>();
+	vector<Card> *cardDeck;
 
 	/**	Creates unshuffled deck equal to total number of countries
 		@param total number of countries
@@ -51,6 +51,7 @@ private:
 class Hand
 {
 public:
+	Hand();
 	/*	Destructor of Hand class.
 	*/
 	~Hand();
@@ -72,7 +73,7 @@ public:
 	bool exchange(map<int,int> *ownedCountries, bool isMandatory);
 
 private:
-	vector<Card> *playerHand = new vector<Card>();
+	vector<Card> *playerHand;
 
 	/*	Returns a string version of enum Card_Type
 		@param Card type enum

@@ -1,13 +1,15 @@
 #include "Cards.h"
 #include <cstdlib>
 #include <iomanip>
+#include <random>
 
 
 /*	Constructor that creates and shuffles the deck
 	@param total number of countries
 */
 Deck::Deck(int totalCountries) {
-
+	
+	cardDeck = new vector<Card>();
 	createDeck(totalCountries);
 	shuffleDeck();
 }
@@ -65,11 +67,14 @@ void Deck::shuffleDeck() {
 	/// https://dev.to/s_awdesh/everyday-im-shuffling-im-a-card--fire-1f8b
 
 	int deckSize = cardDeck->size();
+	random_device rd;
+	mt19937 mt(rd());
+	uniform_int_distribution<int> dist(0, deckSize-1);
 
 	for (int i = 0; i < deckSize; i++)
 	{
 		/// generate random num between 0 to deck size
-		int rnd = rand() % deckSize;
+		int rnd = dist(mt);
 		/// each card will swap ONCE with another random card
 		Card temp = cardDeck->at(i);
 		cardDeck->at(i) = cardDeck->at(rnd);
@@ -91,13 +96,15 @@ Card Deck::draw() {
 /*	Check if deck has no more cards
 	@return deck is empty boolean	
  */ 
-inline bool Deck::isEmpty() {
+bool Deck::isEmpty() {
 
 	return cardDeck->empty();
 }
 
 //*** IMPLEMENTATION FOR HAND ***//
-
+Hand::Hand() {
+	playerHand = new vector<Card>();
+}
 /*	Destructor of Hand class.
 */
 Hand::~Hand() {
