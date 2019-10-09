@@ -72,7 +72,7 @@ Map* MapLoader::loadMapFile(std::string fileName) {
 			}
 		} else if (*processedSection == "countries") {
 			try {
-				aMap->addCountry(processCountry(line));
+				aMap->addCountry(processCountry(line, aMap));
 			} catch (...) {
 				cout << "An invalid country definition was found." << endl;
 				delete(aMap);
@@ -121,6 +121,8 @@ Map* MapLoader::loadMapFile(std::string fileName) {
 		cout << "The map information read from " << fileName << ".map is invalid." << endl;
 		delete(aMap);
 		return nullptr;
+	} else {
+		cout << "The " << *mapName << " map is valid and has been properly loaded." << endl;
 	}
 
 	return aMap;
@@ -182,7 +184,7 @@ Continent MapLoader::processContinent(string line) {
 }
 
 // Returns a Country with the id, continent id and name read from line
-Country MapLoader::processCountry(string line) {
+Country MapLoader::processCountry(string line, Map* aMap) {
 	int countryId;
 	string countryName;
 	int countryContinentId;
@@ -192,6 +194,13 @@ Country MapLoader::processCountry(string line) {
 
 	getline(lineStream, lineItem, ' ');
 	countryId = stoi(lineItem);
+
+	try {
+		aMap->getCountryById(countryId);
+		throw exception("There are duplicate countries.");
+	} catch (const invalid_argument e) {
+		// do nothing, this is actually the good case; the country does not already exist
+	}
 
 	getline(lineStream, lineItem, ' ');
 	countryName = lineItem;
@@ -207,10 +216,13 @@ void MapLoader::processBorder(string line, Country* aCountry) {
 	stringstream lineStream(line);
 	string lineItem;
 
-	// skip first item which contains the (unneeded) country id
 	getline(lineStream, lineItem, ' ');
+	int countryId = stoi(lineItem);
 
 	while (getline(lineStream, lineItem, ' ')) {
+		if (countryId == stoi(lineItem)) {
+			throw exception("A country cannot be its own neighbour.");
+		}
 		aCountry->neighbors.push_back(stoi(lineItem));
 	}
 }
