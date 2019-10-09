@@ -147,13 +147,9 @@ Map::Map(const Map& old) {
 //adds a country to the Map and to its corresponding Continent's graph. Sets "validated" to false because now the map has been modified, it needs to be validated again.
 void Map::addCountry(Country country) {
 	countries->push_back(country);
-	try {
-		getContinentById(country.continentId)->addCountryToGraph(country);
-	}
-	catch (invalid_argument e) {
-		cout << "Unable to add country with ID " << country.id << " to continent with ID " << country.continentId << " because this continent ID was not found" << endl;
-		return;
-	}
+
+	getContinentById(country.continentId)->addCountryToGraph(country);
+
 	*validated = false;
 	*isValid = false;
 }
