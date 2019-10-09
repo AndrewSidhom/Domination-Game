@@ -8,7 +8,7 @@ using namespace std;
 
 
 
-// CLASS
+//GRAPH CLASS
 //Representation of a graph using adjacency lists. Nodes are referred to by ids. Each node maps to a list of its adjacent nodes.
 
 //constructor
@@ -145,6 +145,7 @@ Map::Map(const Map& old) {
 }
 
 //adds a country to the Map and to its corresponding Continent's graph. Sets "validated" to false because now the map has been modified, it needs to be validated again.
+//THROWS EXCEPTION invalid_argument if the country's continentId is invalid
 void Map::addCountry(Country country) {
 	countries->push_back(country);
 
@@ -161,6 +162,7 @@ void Map::addContinent(Continent continent) {
 	*isValid = false;
 }
 
+//updates graphs in case a country's neighbors were modified after the country was added to the map.
 void Map::updateContinentsGraphs()
 {
 	for (Country country : *countries) {
@@ -197,7 +199,7 @@ Country* Map::getCountryById(int id) {
 		if (country.id == id)
 			return &country;
 	}
-	throw invalid_argument("No country found with this ID");
+	throw invalid_argument("No country found with this ID: " + to_string(id));
 }
 
 //THROWS EXCEPTION if no continent was found with this id. Otherwise, returns a pointer to the Continent.
@@ -206,5 +208,5 @@ Continent* Map::getContinentById(int id) {
 		if (continent.getId() == id)
 			return &continent;
 	}
-	throw invalid_argument("No continent found with this ID");
+	throw invalid_argument("No continent found with this ID: " + to_string(id));
 }
