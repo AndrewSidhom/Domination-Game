@@ -74,10 +74,11 @@ public:
 	*/
 	void addCardToHand(Card c);
 
-	/*  Exchange 3 cards in hand for armies
-		@param ownedCountries[] reference to list of owned countries
-		@param isMandatory if exchange is mandatory
-		@return if exchange was successful, false if exchange cancelled
+	/*	Exchange 3 cards in hand for armies
+		@param ownedCountries list (ref) to check matching country to give +2 armies
+		@param deck object keeps track of how many armies to give
+		@param isMandatory if exchange is mandatory if player has too many cards
+		@return exchanged armies, if exchange cancelled, return 0
 	*/
 	int exchange(map<int,int>* ownedCountries, Deck* deck, bool isMandatory);
 
