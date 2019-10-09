@@ -12,7 +12,7 @@ Deck::Deck(int totalCountries) {
 	cardDeck = new vector<Card>();
 	createDeck(totalCountries);
 	shuffleDeck();
-	*exchangeArmies = 0;
+	exchangeArmies = new int(0);
 }
 
 /*	Destructor of Cards class.
@@ -135,7 +135,7 @@ Hand::~Hand() {
 	delete playerHand;
 
 	//REMOVE AFTER TESTING
-	delete armies; 
+	delete [] armies; 
 }
 
 /*	Display cards in player's hand
