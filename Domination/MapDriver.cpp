@@ -69,9 +69,9 @@ void testMapgraph(Map &m) {
     cout << "Validating '" << m.getName() << "': ";
     m.validate();
     if(m.getValidated() && m.getIsValid())
-        cout << "VALID";
+        cout << "VALID\n";
     else
-        cout << "INVALID";
+        cout << "INVALID\n";
 }
 
 /*  Show a readable list representation of a graph.
@@ -108,16 +108,35 @@ void showGraphAsList(Map &m) {
 /*  Test invalid map:
     Expect invalid results.
  */ 
-void testMapWithContinentWithoutCountry() {
+void testMapWithNoNodes() {
 
-    Map map("Test: Continents without Country");
+    Map map("Test: Map without nodes");
+    testMapgraph(map);
+}
 
-    for(int i = 1; i <= 3; i++)
-    {
-        Continent cont(i, "CONTINENT", 0);
-        map.addContinent(cont);
-    }
-    // does not add country here
+/*  Test invalid map:
+    Expect invalid results.
+ */ 
+void testIsolatedContinent() {
+
+    Map map("Test: Isolated Continent (not connected)");
+
+    Continent cont1(1, "VALID CONTINENT", 0);
+    Continent cont2(2, "VALID CONTINENT", 0);
+    Continent cont3(3, "ISOLATED CONTINENT", 0);
+    Country c1(1, 1, "COUNTRY", list<int>{2});
+    Country c2(2, 1, "COUNTRY", list<int>{1, 3});
+    Country c3(3, 2, "COUNTRY", list<int>{2});
+    Country c4(4, 3, "COUNTRY", list<int>{5});
+    Country c5(5, 3, "Country", list<int>{4});
+    map.addContinent(cont1);
+    map.addContinent(cont2);
+    map.addContinent(cont3);
+    map.addCountry(c1);
+    map.addCountry(c2);
+    map.addCountry(c3);
+    map.addCountry(c4);
+    map.addCountry(c5);
 
     testMapgraph(map);
 }
@@ -125,37 +144,79 @@ void testMapWithContinentWithoutCountry() {
 /*  Test invalid map:
     Expect invalid results.
  */ 
-void testCountriesWithNoContinent() {
+void testDuplicateContinent() {
 
-    Map map("Test: Countries without assigned continent");
+    Map map("Test: Duplicate Continent");
 
-    cout << "\nValidating '" << map.getName() << "':\n";
-    Country c1(1, 1, ("COUNTRY"), list<int>{2,3});
-    Country c2(2, 1, ("COUNTRY"), list<int>{1});
-    Country c3(3, 1, ("COUNTRY"), list<int>{1});
+    Continent cont1(1, "DUPLICATE CONTINENT", 0);
+    Continent cont2(1, "DUPLICATE CONTINENT", 0);
+    Country c1(1, 1, "COUNTRY", list<int>{2});
+    Country c2(2, 1, "COUNTRY", list<int>{1});
+    map.addContinent(cont1);
+    map.addContinent(cont2);
     map.addCountry(c1);
     map.addCountry(c2);
-    map.addCountry(c3);
-    // does not add continent here
+
+    testMapgraph(map);
 }
 
 /*  Test invalid map:
     Expect invalid results.
  */ 
-void testIsolatedCountryAndContinent() {
+void testDuplicateCountry() {
 
-    Map map("Test: Isolated Country and Continent (not connected)");
+    Map map("Test: Duplicate Country");
 
-    Continent cont1(1, "VALID CONTINENT", 0);
-    Continent cont2(2, "ISOLATED CONTINENT", 0);
-    Country c1(1, 1, ("COUNTRY"), list<int>{2});
-    Country c2(2, 1, ("COUNTRY"), list<int>{1});
-    Country c3(3, 2, ("ISOLATED COUNTRY"), list<int>{}); // no neighbors
+    Continent cont1(1, "CONTINENT", 0);
+    Continent cont2(2, "CONTINENT", 0);
+    Country c1(1, 1, "DUPLICATE COUNTRY", list<int>{3});
+    Country c2(1, 1, "DUPLICATE COUNTRY", list<int>{3});
+    Country c3(3, 2, "COUNTRY", list<int>{1});
     map.addContinent(cont1);
     map.addContinent(cont2);
     map.addCountry(c1);
     map.addCountry(c2);
     map.addCountry(c3);
+
+    testMapgraph(map);
+}
+
+/*  Test invalid map:
+    Expect invalid results.
+ */ 
+void testNeighborItself() {
+
+    Map map("Test: Country's neighbor is itself");
+
+    Continent cont1(1, "CONTINENT", 0);
+    Country c1(1, 1, "COUNTRY", list<int>{1});
+    map.addContinent(cont1);
+    map.addCountry(c1);
+
+    testMapgraph(map);
+}
+
+/*  Test invalid map:
+    Expect invalid results.
+ */ 
+void testCountryWithBadPathing() {
+
+    Map map("Test: Country with no path with its continent's countries");
+
+    Continent cont1(1, "CONTINENT", 0);
+    Continent cont2(2, "CONTINENT", 0);
+    Country c1(1, 1, "COUNTRY", list<int>{2});
+    Country c2(2, 1, "COUNTRY", list<int>{1,4});
+    Country c3(3, 1, "COUNTRY", list<int>{4});
+    Country c4(4, 2, "COUNTRY", list<int>{5});
+    Country c5(5, 2, "Country", list<int>{4});
+    map.addContinent(cont1);
+    map.addContinent(cont2);
+    map.addCountry(c1);
+    map.addCountry(c2);
+    map.addCountry(c3);
+    map.addCountry(c4);
+    map.addCountry(c5);
 
     testMapgraph(map);
 }
@@ -177,7 +238,11 @@ int main() {
     showGraphAsList(m1);*/
 
     cout << "\nTest for invalid maps:\n";
-    testMapWithContinentWithoutCountry();
-    testCountriesWithNoContinent();
-    testIsolatedCountryAndContinent();
+    testMapWithNoNodes();
+    testIsolatedContinent();
+    //testDuplicateContinent();
+    //testDuplicateCountry();
+    //testNeighborItself();
+    testCountryWithBadPathing();
+    
 }
