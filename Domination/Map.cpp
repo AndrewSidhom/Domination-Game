@@ -176,6 +176,12 @@ void Map::updateContinentsGraphs()
 //calls each continent's validate() method, proceeds if valid, constructs the map's full graph, checks if it is connected. Sets the isValid variable accordingly.
 bool Map::validate() {
 	updateContinentsGraphs();
+	if(countries->empty() || continents->empty()) {
+			cout << "There are no nodes added within the map." << endl;
+			*validated = true;
+			*isValid = false;
+			return *isValid;
+	}
 	for(Continent continent : *continents)
 		if (!continent.validate()) {
 			cout << "Continent with ID " << continent.getId() << " is invalid (its graph is not connected)." << endl;
