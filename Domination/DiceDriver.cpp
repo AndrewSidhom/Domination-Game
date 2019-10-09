@@ -30,6 +30,7 @@ int main() {
     }
 
     cout << endl << "Test if rolled numbers are distributed equally and show %: " << endl;
+	//Remove for loop and enter 5000 as input 
     for(int i = 0; i < 20; i++) {
         d1.roll();
     }

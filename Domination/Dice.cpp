@@ -27,7 +27,9 @@ Dice::Dice() {
 * Destructor that deallocates rollCounters, totalRolls, and stats.
 */
 Dice::~Dice() {
-	delete rollCounters, totalRolls, stats;
+	delete [] rollCounters;
+	delete totalRolls;
+	delete [] stats;
 }
 
 /**
@@ -53,7 +55,7 @@ int Dice::queryDice() {
 	do {
 		cout << "Enter number of dice you would like to roll (1-3): " << flush;
 		cin >> input;
-		if (input == "1" || input == "2" || input == "3" || /*THIS LAST ONE IS STRICTLY FOR TESTING*/input == "1000")
+		if (input == "1" || input == "2" || input == "3" || /*THIS LAST ONE IS STRICTLY FOR TESTING*/input == "5000")
 			isValid = true;
 		else
 			cout << "Error: Invalid input" << endl;
