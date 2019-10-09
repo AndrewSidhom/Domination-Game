@@ -7,10 +7,10 @@ int main() {
 		******************* A simple valid map ****************************
 	*/
 
-	Map* validMap = MapLoader::loadMapFile("valid");
-
 	cout << "**********************************************************" << endl;
 	cout << "Loading valid.map" << endl;
+
+	Map* validMap = MapLoader::loadMapFile("valid");
 
 	// Print all the continents
 	cout << endl << "------- List of continents of valid.map --------";
@@ -45,10 +45,10 @@ int main() {
 		******************* A valid map taken from the Domination game source files ****************************
 	*/
 
-	Map* amerokiMap = MapLoader::loadMapFile("ameroki");
-
 	cout << endl << "**********************************************************" << endl;
 	cout << "Loading ameroki.map" << endl;
+
+	Map* amerokiMap = MapLoader::loadMapFile("ameroki");
 
 	// Print all the continents
 	cout << endl << "------- List of continents of ameroki.map --------";
@@ -123,6 +123,35 @@ int main() {
 	cout << endl << "**********************************************************" << endl;
 	cout << "Loading invalidBorder.map" << endl << endl;
 	Map* invalidMap7 = MapLoader::loadMapFile("invalidBorder");
+	cout << "**********************************************************" << endl;
+
+	/*
+		**************************** Invalid map files (files with invalid map structures/design) *******************************
+	*/
+
+	// Map containing duplicate Countries (Countries with the same ID)
+	cout << endl << "**********************************************************" << endl;
+	cout << "Loading duplicateCountries.map" << endl << endl;
+	Map* invalidMap8 = MapLoader::loadMapFile("duplicateCountries");
+	cout << "**********************************************************" << endl;
+
+	// Map containing a Country which is defined as its own neighbour
+	cout << endl << "**********************************************************" << endl;
+	cout << "Loading countryIsOwnNeighbour.map" << endl << endl;
+	Map* invalidMap9 = MapLoader::loadMapFile("countryIsOwnNeighbour");
+	cout << "**********************************************************" << endl;
+
+	// Map containing a completely isolated Country
+	cout << endl << "**********************************************************" << endl;
+	cout << "Loading isolatedCountry.map" << endl << endl;
+	Map* invalidMap10 = MapLoader::loadMapFile("isolatedCountry");
+	cout << "**********************************************************" << endl;
+
+	// Map containing a Country that is isolated within its Continent (it is connected to a Country in
+	// another Continent but it is not connected to any Country within its own Continent)
+	cout << endl << "**********************************************************" << endl;
+	cout << "Loading isolatedCountryWithinContinent.map" << endl << endl;
+	Map* invalidMap11 = MapLoader::loadMapFile("isolatedCountryWithinContinent");
 	cout << "**********************************************************" << endl;
 
 	cout << endl;

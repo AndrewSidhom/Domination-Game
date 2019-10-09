@@ -56,9 +56,9 @@ void testContinentSubgraph(Map &m) {
     {
         cout << "Continent " << cont.getId() << ": ";
         if(cont.validate())
-            cout << "VALID\n\n";
+            cout << "VALID\n";
         else
-            cout << "INVALID\n\n";
+            cout << "INVALID\n";
     }
 }
 
@@ -225,24 +225,21 @@ void testCountryWithBadPathing() {
  */ 
 int main() {
 
-    /*cout << "Create a valid map:" << endl;
+    cout << "Create a valid map:" << endl;
     Map m1 = createMap("Test Map 1");
 
-    cout << "\nValidating if map is a connected graph..\n\n";
+    cout << "\nValidating if map is a connected graph..\n";
     testMapgraph(m1);
 
-    cout << "Validating if continents are connected subgraphs..\n";
+    cout << "\nValidating if continents are connected subgraphs..\n";
     testContinentSubgraph(m1);
 
     cout << "\nShow that each country has only one continent:\n ------\n";
-    showGraphAsList(m1);*/
+    showGraphAsList(m1);
 
     cout << "\nTest for invalid maps:\n";
     testMapWithNoNodes();
     testIsolatedContinent();
-    //testDuplicateContinent();
-    //testDuplicateCountry();
-    //testNeighborItself();
     testCountryWithBadPathing();
     
 }

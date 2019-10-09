@@ -28,7 +28,7 @@ private:
 
 	static bool processSection(string line); // Checks which [section] is being processed. Returns true if [section] order is valid, false otherwise
 	static Continent processContinent(string line); // Reads information on a Continent and instantiates one accordingly
-	static Country processCountry(string line); // Reads information on a Country and instantiates one accordingly
+	static Country processCountry(string line, Map* aMap); // Reads information on a Country and instantiates one accordingly
 	static void processBorder(string line, Country* aCountry); // Reads information on a Country's borders and updates the Country accordingly
 
 };
