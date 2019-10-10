@@ -216,14 +216,16 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 				/// give bonus +2 armies if cards match owned countries
 				giveBonusTwoArmies(ownedCountries, cardsToExchangeIndex);
 				/// remove exchanged cards from hand
+				cout << "HID " << playerHand->begin()->countryId;
+				cout << "BYEH " << cardsToExchangeIndex[2];
 				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[0]);
-				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]);
-				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]);
+				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]-1); /// first removal moved original index by 1
+				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]-2); /// removing 2 elements move index by 2
 				/// exchange is successful
 				exchangedArmies = deck->getExchangedArmies();
 			}
 			else {
-				cout << "\nCannot exchange with these cards. Must be a matching or of consecutive types.";
+				cout << "\nCannot exchange with these cards. Must be a matching or of consecutive types.\n";
 				numOfCardsChosen = 0;
 			}
 		}
@@ -287,7 +289,12 @@ int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen) {
 */
 bool Hand::isValidExchangeCards(int i, int j, int k)
 {
-	return ( /// if matching
+	return ( 
+		/// if have at least one wild card
+		(playerHand->at(i).type == WILD ||
+		playerHand->at(j).type == WILD	||
+		playerHand->at(k).type == WILD) ||
+		/// OR if matching
 		(playerHand->at(i).type == playerHand->at(j).type &&
 		 playerHand->at(i).type == playerHand->at(k).type) ||
 		/// OR if consecutive

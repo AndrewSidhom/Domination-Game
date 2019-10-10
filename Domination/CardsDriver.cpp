@@ -44,6 +44,7 @@ int main() {
 	for (int i = 1; i < 8; i++) {
 		cout << "Country " << i << ": " << ownedCountries[i] << " armies" << endl;
 	}
+	h1.showHand();
 
 	system("pause");
 	return 0;
