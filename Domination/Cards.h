@@ -90,6 +90,12 @@ private:
 	*/
 	string getEnumString(Card_Type type);
 
+	/*	Prompt user to choose which card from their hand to exchange.
+		@param if exchange is mandatory
+		@param number of cards that's already been chosen
+	*/
+	int getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen);
+
 	/*  Validate if the 3 selected cards are matchings or consecutives
 		@param int i, j, k being the index of chosen card in hand
 		@return true if valid, else false
@@ -101,7 +107,13 @@ private:
 		@param owned countries
 		@param index of cards in player's hand that will be exchanged
 	*/
-	void giveBonusTwoArmies(map<int,int>* ownedCountries, int* cardsToExchange[]);
+	void giveBonusTwoArmies(map<int,int>* ownedCountries, int cardsToExchange[]);
+
+	/*	Prompt user to choose which country that matches the exchanged cards 
+		to receive +2 bonus armies.
+		@param country ids that matches exchanged cards
+	*/
+	int getMatchingCountryChoice(vector<int> matchingCountries);
 };
 
 enum Card_Type
