@@ -21,7 +21,7 @@ int main() {
 	ownedCountries[6] = 1;
 	ownedCountries[7] = 8;
 
-	cout << "Owned Countries After Exchange:\n----------------" << endl;
+	cout << "Owned Countries Before Exchange:\n----------------" << endl;
 	for (int i = 1; i < 8; i++) {
 		cout << "Country " << i << ": " << ownedCountries[i] << " armies" << endl;
 	}
@@ -39,7 +39,7 @@ int main() {
 
 	cout << "\nTesting exchange..." << endl;
 	h1.exchange(&ownedCountries, &d, true);
-
+	
 	cout << "Owned Countries After Exchange:\n----------------" << endl;
 	for (int i = 1; i < 8; i++) {
 		cout << "Country " << i << ": " << ownedCountries[i] << " armies" << endl;

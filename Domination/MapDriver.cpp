@@ -105,7 +105,7 @@ void showGraphAsList(Map &m) {
     }
 }
 
-/*  Test invalid map:
+/*  Test invalid map: Map without nodes
     Expect invalid results.
  */ 
 void testMapWithNoNodes() {
@@ -114,7 +114,7 @@ void testMapWithNoNodes() {
     testMapgraph(map);
 }
 
-/*  Test invalid map:
+/*  Test invalid map: Isolated Continent (not connected)
     Expect invalid results.
  */ 
 void testIsolatedContinent() {
@@ -141,62 +141,7 @@ void testIsolatedContinent() {
     testMapgraph(map);
 }
 
-/*  Test invalid map:
-    Expect invalid results.
- */ 
-void testDuplicateContinent() {
-
-    Map map("Test: Duplicate Continent");
-
-    Continent cont1(1, "DUPLICATE CONTINENT", 0);
-    Continent cont2(1, "DUPLICATE CONTINENT", 0);
-    Country c1(1, 1, "COUNTRY", list<int>{2});
-    Country c2(2, 1, "COUNTRY", list<int>{1});
-    map.addContinent(cont1);
-    map.addContinent(cont2);
-    map.addCountry(c1);
-    map.addCountry(c2);
-
-    testMapgraph(map);
-}
-
-/*  Test invalid map:
-    Expect invalid results.
- */ 
-void testDuplicateCountry() {
-
-    Map map("Test: Duplicate Country");
-
-    Continent cont1(1, "CONTINENT", 0);
-    Continent cont2(2, "CONTINENT", 0);
-    Country c1(1, 1, "DUPLICATE COUNTRY", list<int>{3});
-    Country c2(1, 1, "DUPLICATE COUNTRY", list<int>{3});
-    Country c3(3, 2, "COUNTRY", list<int>{1});
-    map.addContinent(cont1);
-    map.addContinent(cont2);
-    map.addCountry(c1);
-    map.addCountry(c2);
-    map.addCountry(c3);
-
-    testMapgraph(map);
-}
-
-/*  Test invalid map:
-    Expect invalid results.
- */ 
-void testNeighborItself() {
-
-    Map map("Test: Country's neighbor is itself");
-
-    Continent cont1(1, "CONTINENT", 0);
-    Country c1(1, 1, "COUNTRY", list<int>{1});
-    map.addContinent(cont1);
-    map.addCountry(c1);
-
-    testMapgraph(map);
-}
-
-/*  Test invalid map:
+/*  Test invalid map: Country with no path with its continent's countries.
     Expect invalid results.
  */ 
 void testCountryWithBadPathing() {
