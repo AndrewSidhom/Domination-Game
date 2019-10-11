@@ -38,7 +38,7 @@ public:
 //Representation of a country
 struct Country {
 	int id;
-	int continentId;   //the continent this country belong to
+	int continentId;   //the continent this country belongs to
 	string name;
 	list<int> neighbors;  //ids of countries adjacent to this one
 

@@ -2,14 +2,19 @@
 #include "Dice.h"
 using namespace std;
 
-/** Class responsible for the testing of class Dice.
- */ 
+/*
+	Class responsible for the testing of class Dice.
+
+	For better test results, the last test, which checks for equal distribution in the rolled
+	numbers, allows an input of 5000.
+*/ 
 int main() {
 
     Dice d1;
     Dice d2;
 
     cout << endl << "Testing if can roll from 1 to 3: " << endl;
+	cout << "(Please input values 1, 2 and 3)" << endl;
     for(int i = 0; i < 3; i++) {
         d1.roll();
     }
@@ -29,10 +34,10 @@ int main() {
         cout << i << endl;
     }
 
+	// For better test results, use an input of 5000 here
     cout << endl << "Test if rolled numbers are distributed equally and show %: " << endl;
-	//Remove for loop and enter 5000 as input 
-    for(int i = 0; i < 20; i++) {
-        d1.roll();
-    }
+    d1.rollForTests();
     d1.showInfo();
+
+	system("pause");
 }

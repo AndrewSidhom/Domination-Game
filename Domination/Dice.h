@@ -9,6 +9,7 @@ public:
 	~Dice();
 	list<int> roll();
 	void showInfo(); 
+	list<int> rollForTests();
 
 private:
 	int *rollCounters;
@@ -18,5 +19,5 @@ private:
 	int queryDice();
 	void update(list<int> container);
 	list<int> rngAndSort(int numOfDice);
-	
+	int queryDiceForTests();
 };

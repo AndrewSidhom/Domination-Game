@@ -5,6 +5,14 @@
 #include "Cards.h"
 using namespace std;
 
+/*
+	The CardsDriver tests the Cards classes. It generates Countries and Cards supposedly owned by the user.
+	It then...
+				1. Requests user input for exchanging cards (max number of cards before exchange threshold has been reached)
+				2. Requests user input for where to place armies obtained from the card exchange
+				3. Requests user input again for exchanging cards, but also allows to cancel card exchange
+*/
+
 int main() {
 
 	//Create deck and hand object

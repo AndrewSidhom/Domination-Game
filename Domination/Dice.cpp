@@ -55,7 +55,7 @@ int Dice::queryDice() {
 	do {
 		cout << "Enter number of dice you would like to roll (1-3): " << flush;
 		cin >> input;
-		if (input == "1" || input == "2" || input == "3" || /*THIS LAST ONE IS STRICTLY FOR TESTING*/input == "5000")
+		if (input == "1" || input == "2" || input == "3")
 			isValid = true;
 		else
 			cout << "Error: Invalid input" << endl;
@@ -82,7 +82,7 @@ void Dice::update(list<int> container)
 }
 
 /*
-* Randomly generate numbers between 0 and 5 according to the number of dice selected, stores in a container and sorts it in descending order.
+* Randomly generate numbers between 1 and 6 according to the number of dice selected, stores in a container and sorts it in descending order.
 * @param number of dice to be rolled.
 * @return container of sorted dice
 *  CODE FOR RNG WILL PROBABLY CHANGE
@@ -101,6 +101,29 @@ list<int> Dice::rngAndSort(int numOfDice)
 }
 
 /**
+* ONLY USED FOR TESTING
+* This is a variant of queryDice. Its only difference is that it allows an input 5000 dice for ease 
+* of tests.
+* Requests input from the user and validates the input.
+* @return the number of dice to be rolled.
+*/
+int Dice::queryDiceForTests()
+{
+	string input;
+	bool isValid = false;
+	do {
+		cout << "Enter number of dice you would like to roll (1-3): " << flush;
+		cin >> input;
+		if (input == "1" || input == "2" || input == "3" || input == "5000")
+			isValid = true;
+		else
+			cout << "Error: Invalid input" << endl;
+	} while (!isValid);
+	int numOfDice = stoi(input);
+	return numOfDice;
+}
+
+/**
 * Displays the info of total number of rolls, number of individual values rolled, and perecentage of individual values rolled.
 * THIS IS USED FOR TESTING PURPOSES
 */
@@ -112,4 +135,19 @@ void Dice::showInfo() {
 	for (int i = 0; i < 6; i++) {
 		cout << "% of " << i + 1 << "'s rolled = " << stats[i] << endl;
 	}
+}
+
+/**
+* ONLY USED FOR TESTING
+* This is a variant of roll(). Its only difference is that it calls queryDiceForTests() instead of queryDice().
+* Asks user how many dice to roll, rolls the apporopriate amount of dice, and updates the percentage
+* @return dice in a container
+*/
+list<int> Dice::rollForTests()
+{
+	int numOfDice = queryDiceForTests(); //Asks user how many dice will be rolled
+	cout << "Rolling " << numOfDice << " dice..." << endl;
+	list<int> container = rngAndSort(numOfDice);
+	update(container);
+	return container;
 }

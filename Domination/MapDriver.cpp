@@ -5,6 +5,17 @@
 #include "Map.h"
 using namespace std;
 
+/*
+	The MapDriver takes care of testing the Map class.
+
+		1. It requests number of continents and number of countries per continent input from the user 
+		to generate a custom valid map. The MapDriver then presents all the nodes in that map to prove 
+		that the graph is indeed connected and hence that the map is valid.
+
+		2. It tests hard-coded invalid maps by asserting their validity (the Map class checks if these maps are valid
+		and returns false).
+*/
+
 /*  Create a map.
     @param name of map.
 */
@@ -170,6 +181,8 @@ void testCountryWithBadPathing() {
  */ 
 int main() {
 
+	// Request input for a number of continents and a number of countries
+	// Generate a valid map from this data and validate the map 
     cout << "Create a valid map:" << endl;
     Map m1 = createMap("Test Map 1");
 
@@ -182,9 +195,11 @@ int main() {
     cout << "\nShow that each country has only one continent:\n ------\n";
     showGraphAsList(m1);
 
+	// Test for specific hard-coded invalid maps
     cout << "\nTest for invalid maps:\n";
     testMapWithNoNodes();
     testIsolatedContinent();
     testCountryWithBadPathing();
     
+	system("pause");
 }

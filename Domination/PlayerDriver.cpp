@@ -89,6 +89,8 @@ int main() {
 	cin >> armies;
 	p.fortify(from, to, armies);
 	cout << endl;
+
+	system("pause");
 }
 
 void display(map<int, int> ownedArmies) {
