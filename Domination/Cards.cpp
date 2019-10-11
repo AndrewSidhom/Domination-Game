@@ -8,7 +8,6 @@
 */
 Deck::Deck(int totalCountries)
 {
-
 	cardDeck = new vector<Card>();
 	createDeck(totalCountries);
 	shuffleDeck();
@@ -27,7 +26,6 @@ Deck::~Deck()
 */
 void Deck::createDeck(int totalCountries)
 {
-
 	int n = 0;
 	do
 	{
@@ -66,7 +64,6 @@ void Deck::createDeck(int totalCountries)
 */
 void Deck::shuffleDeck()
 {
-
 	/// riffle shuffle is in linear time, faster than knuth shuffle
 	/// https://dev.to/s_awdesh/everyday-im-shuffling-im-a-card--fire-1f8b
 
@@ -91,7 +88,6 @@ void Deck::shuffleDeck()
 */
 Card Deck::draw()
 {
-
 	Card last = cardDeck->back();
 	cardDeck->pop_back();
 
@@ -103,7 +99,6 @@ Card Deck::draw()
  */
 bool Deck::isEmpty()
 {
-
 	return cardDeck->empty();
 }
 
@@ -111,7 +106,6 @@ bool Deck::isEmpty()
 */
 int Deck::getExchangedArmies()
 {
-
 	int n = *exchangeArmies;
 
 	if (n == 0) // first bonus
@@ -126,7 +120,8 @@ int Deck::getExchangedArmies()
 	return *exchangeArmies;
 }
 
-//*** IMPLEMENTATION FOR HAND ***//
+/*	Default constructor.
+*/
 Hand::Hand()
 {
 	playerHand = new vector<Card>();
@@ -136,6 +131,7 @@ Hand::Hand()
 	for (int i = 0; i < 3; i++)
 		armies[i] = 0;
 }
+
 /*	Destructor of Hand class.
 */
 Hand::~Hand()
@@ -150,15 +146,12 @@ Hand::~Hand()
 */
 void Hand::showHand()
 {
-
-	cout << "Your hand:" << endl
-		 << "---------/" << endl;
+	cout << "Your hand:\n-------|\n";
 	int i = 1;
 
 	for (Card c : *playerHand)
 	{
-		cout << "CARD " << i << " | "
-			 << "country: " << c.countryId << ", type: " << getEnumString(c.type) << endl;
+		cout << "CARD " << i << " | " << "country: " << c.countryId << ", type: " << getEnumString(c.type) << endl;
 		i++;
 	}
 }
@@ -168,7 +161,6 @@ void Hand::showHand()
 */
 void Hand::addCardToHand(Card c)
 {
-
 	playerHand->push_back(c);
 }
 
@@ -178,9 +170,8 @@ void Hand::addCardToHand(Card c)
 	@param isMandatory if exchange is mandatory if player has too many cards
 	@return exchanged armies, if exchange cancelled, return 0
 */
-int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
+int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory) 
 {
-
 	int exchangedArmies = 0;
 	int numOfCardsChosen = 0;
 	int cardsToExchangeIndex[3];
@@ -200,8 +191,7 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 		/// process valid player input
 		if (selectedCardIndex == 0 && !isMandatory)
 		{
-			cout << endl
-				 << "Exchange action cancelled.";
+			cout << "\nExchange action cancelled.\n";
 			break;
 		}
 		else
@@ -216,8 +206,6 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 				/// give bonus +2 armies if cards match owned countries
 				giveBonusTwoArmies(ownedCountries, cardsToExchangeIndex);
 				/// remove exchanged cards from hand
-				cout << "HID " << playerHand->begin()->countryId;
-				cout << "BYEH " << cardsToExchangeIndex[2];
 				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[0]);
 				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]-1); /// first removal moved original index by 1
 				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]-2); /// removing 2 elements move index by 2
@@ -239,7 +227,6 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 */
 string Hand::getEnumString(Card_Type type)
 {
-
 	switch (type)
 	{
 	case INFANTRY:
@@ -256,8 +243,12 @@ string Hand::getEnumString(Card_Type type)
 	}
 }
 
-int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen) {
-
+/*	Prompt user to choose which card from their hand to exchange.
+	@param if exchange is mandatory
+	@param number of cards that's already been chosen
+*/
+int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen) 
+{
 	int selectedCardIndex;
 	bool validInput = false;
 	do
@@ -337,8 +328,8 @@ void Hand::giveBonusTwoArmies(map<int, int> *ownedCountries, int cardsToExchange
 	to receive +2 bonus armies.
 	@param country ids that matches exchanged cards
 */
-int Hand::getMatchingCountryChoice(vector<int> matchingCountries) {
-
+int Hand::getMatchingCountryChoice(vector<int> matchingCountries) 
+{
 	int selectedCountryId;
 	bool validInput = false;
 	do

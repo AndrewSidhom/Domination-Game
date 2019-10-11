@@ -46,6 +46,9 @@ int main() {
 	}
 	h1.showHand();
 
+	cout << "\nTest cancelling exchange..." << endl;
+	h1.exchange(&ownedCountries, &d, false);
+
 	system("pause");
 	return 0;
 }

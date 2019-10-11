@@ -57,12 +57,12 @@ private:
 class Hand
 {
 public:
-	//THIS WILL BE REMOVED AFTER TESTING
+	//THIS WILL BE REMOVED AFTER TESTING PHASE
 	int *armies;
 
+	// constructor
 	Hand();
-	/*	Destructor of Hand class.
-	*/
+	// destructor
 	~Hand();
 
 	/* Display cards in player's hand
