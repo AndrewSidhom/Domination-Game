@@ -88,7 +88,6 @@ Map* MapLoader::loadMapFile(std::string fileName) {
 
 			// Get the Country for which the borders are being processed
 			try {
-				aMap->getContinentById(2);
 				countryId = stoi(lineItem);
 			} catch (const invalid_argument e) {
 				cout << "An invalid border definition was found." << endl;
