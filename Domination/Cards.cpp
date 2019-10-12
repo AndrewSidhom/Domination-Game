@@ -206,9 +206,25 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 				/// give bonus +2 armies if cards match owned countries
 				giveBonusTwoArmies(ownedCountries, cardsToExchangeIndex);
 				/// remove exchanged cards from hand
+				/// Any elements with an index higher than the removed element's gets their index shifted by one (minus one).
+				/// Otherwise, their index remains unchanged.
 				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[0]);
-				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]-1); /// first removal moved original index by 1
-				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]-2); /// removing 2 elements move index by 2
+				if (cardsToExchangeIndex[1] > cardsToExchangeIndex[0]) {
+					playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1] - 1);
+				} else {
+					playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]);
+				}
+		
+				if (cardsToExchangeIndex[2] > cardsToExchangeIndex[0]) {
+					if (cardsToExchangeIndex[2] > cardsToExchangeIndex[1]) {
+						playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2] - 2);
+					} else {
+						playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2] - 1);
+					}
+				} else {
+					playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]);
+				}
+
 				/// exchange is successful
 				exchangedArmies = deck->getExchangedArmies();
 			}
