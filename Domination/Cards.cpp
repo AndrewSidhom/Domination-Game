@@ -227,6 +227,7 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 */
 string Hand::getEnumString(Card_Type type)
 {
+	// TODO Remove armies after testing
 	switch (type)
 	{
 	case INFANTRY:

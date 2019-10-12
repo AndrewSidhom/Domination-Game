@@ -8,9 +8,9 @@ using namespace std;
 /*
 	The CardsDriver tests the Cards classes. It generates Countries and Cards supposedly owned by the user.
 	It then...
-				1. Requests user input for exchanging cards (max number of cards before exchange threshold has been reached)
-				2. Requests user input for where to place armies obtained from the card exchange
-				3. Requests user input again for exchanging cards, but also allows to cancel card exchange
+		1. Requests user input for exchanging cards (max number of cards before exchange threshold has been reached)
+		2. Requests user input for where to place armies obtained from the card exchange
+		3. Requests user input again for exchanging cards, but also allows to cancel card exchange
 */
 
 int main() {
@@ -21,7 +21,6 @@ int main() {
 	Hand h2;
 	map<int, int> ownedCountries;
 	map<int, int> ownedCountries2;
-
 
 	//Make country data
 	ownedCountries[1] = 3;
@@ -40,20 +39,20 @@ int main() {
 	ownedCountries2[13] = 1;
 	ownedCountries2[14] = 8;
 
-
-
 	//Draw all cards from deck and show hand
 	while (!d.isEmpty()) {
 		h1.addCardToHand(d.draw());
-		h2.addCardToHand(d.draw());
+
+		if(!d.isEmpty())				// double check h1 didnt already take the last card from deck
+			h2.addCardToHand(d.draw());	// otherwise, theres none for h2 to draw
 	}
+
 	cout << "Hand 1:\n--------" << endl;
 	h1.showHand();
-
 	cout << "\nHand 2:\n--------" << endl;
 	h2.showHand();
 
-	//Show distribution
+	cout << "\nShow distribution of types in deck:";
 	cout << "\nInfantry count: " << h1.armies[0] + h2.armies[0] << endl;
 	cout << "Artillery count: " << h1.armies[1] + h2.armies[1] << endl;
 	cout << "Cavalry count: " << h1.armies[2] + h2.armies[2] << endl;
@@ -63,8 +62,6 @@ int main() {
 	for (int i = 1; i < 8; i++) {
 		cout << "Country " << i << ": " << ownedCountries[i] << " armies" << endl;
 	}
-
-
 	h1.exchange(&ownedCountries, &d, true);
 
 	cout << "Owned Countries After Exchange:\n----------------" << endl;
@@ -77,7 +74,6 @@ int main() {
 	for (int i = 8; i < 15; i++) {
 		cout << "Country " << i << ": " << ownedCountries2[i] << " armies" << endl;
 	}
-
 	h2.exchange(&ownedCountries2, &d, false);
 
 	cout << "Owned Countries After Exchange:\n----------------" << endl;
