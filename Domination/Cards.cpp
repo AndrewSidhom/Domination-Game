@@ -206,11 +206,10 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 				/// give bonus +2 armies if cards match owned countries
 				giveBonusTwoArmies(ownedCountries, cardsToExchangeIndex);
 				/// remove exchanged cards from hand
+				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[0]);
 				/// Any elements with an index higher than the removed element's gets their index shifted by one (minus one).
 				/// Otherwise, their index remains unchanged.
-				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[0]);
 				if (cardsToExchangeIndex[1] > cardsToExchangeIndex[0]) {
-					cout << "hey" << endl;
 					playerHand->erase(playerHand->begin() + (cardsToExchangeIndex[1] - 1));
 				} else {
 					playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]);
@@ -218,7 +217,6 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 		
 				if (cardsToExchangeIndex[2] > cardsToExchangeIndex[0]) {
 					if (cardsToExchangeIndex[2] > cardsToExchangeIndex[1]) {
-						cout << "hi" << endl;
 						playerHand->erase(playerHand->begin() + (cardsToExchangeIndex[2] - 2));
 					} else {
 						playerHand->erase(playerHand->begin() + (cardsToExchangeIndex[2] - 1));
