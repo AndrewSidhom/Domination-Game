@@ -210,16 +210,18 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 				/// Otherwise, their index remains unchanged.
 				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[0]);
 				if (cardsToExchangeIndex[1] > cardsToExchangeIndex[0]) {
-					playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1] - 1);
+					cout << "hey" << endl;
+					playerHand->erase(playerHand->begin() + (cardsToExchangeIndex[1] - 1));
 				} else {
 					playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]);
 				}
 		
 				if (cardsToExchangeIndex[2] > cardsToExchangeIndex[0]) {
 					if (cardsToExchangeIndex[2] > cardsToExchangeIndex[1]) {
-						playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2] - 2);
+						cout << "hi" << endl;
+						playerHand->erase(playerHand->begin() + (cardsToExchangeIndex[2] - 2));
 					} else {
-						playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2] - 1);
+						playerHand->erase(playerHand->begin() + (cardsToExchangeIndex[2] - 1));
 					}
 				} else {
 					playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]);
