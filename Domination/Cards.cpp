@@ -187,15 +187,13 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 
 	do {
 		/// get player input
-		int selectedCardIndex = getPlayersCardOfChoice(isMandatory, numOfCardsChosen);
-		/// process valid player input
-		if (selectedCardIndex == 0 && !isMandatory)
-		{
+		int selectedCardIndex = getPlayersCardOfChoice(isMandatory, numOfCardsChosen, cardsToExchangeIndex);
+
+		if (selectedCardIndex == 0 && !isMandatory) {	/// if player wants to cance
 			cout << "\nExchange action cancelled.\n";
 			break;
 		}
-		else
-		{
+		else {	/// store chosen card
 			cardsToExchangeIndex[numOfCardsChosen] = selectedCardIndex - 1;
 			numOfCardsChosen++;
 		}
@@ -264,7 +262,7 @@ string Hand::getEnumString(Card_Type type)
 	@param if exchange is mandatory
 	@param number of cards that's already been chosen
 */
-int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen) 
+int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen, int cardsToExchangeIndex[]) 
 {
 	int selectedCardIndex;
 	bool validInput = false;
@@ -273,7 +271,7 @@ int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen)
 		cout << "Card " << (numOfCardsChosen + 1) << ": ";
 
 		cin >> selectedCardIndex;
-		if (!cin.good())	/// !good() when input isnt integer
+		if (!cin.good())	/// !good() when input doesnt match declared type
 		{
 			cout << "\nInvalid number input. Please try again.\n";
 			cin.clear();		   /// clear error flag
@@ -283,6 +281,9 @@ int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen)
 			cout << "\nYou've reached the card limit and must exchange.\n";
 		else if (selectedCardIndex < 0 || selectedCardIndex > playerHand->size())
 			cout << "\nYour choice must be within your hand's cards.\n";
+		else if (selectedCardIndex == cardsToExchangeIndex[0]+1 || 
+				selectedCardIndex == cardsToExchangeIndex[1]+1)
+			cout << "\nYou have already selected this card.\n";
 		else
 			validInput = true;
 	} 

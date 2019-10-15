@@ -94,7 +94,7 @@ private:
 		@param if exchange is mandatory
 		@param number of cards that's already been chosen
 	*/
-	int getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen);
+	int getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen, int cardsToExchange[]);
 
 	/*  Validate if the 3 selected cards are matchings or consecutives
 		@param int i, j, k being the index of chosen card in hand
