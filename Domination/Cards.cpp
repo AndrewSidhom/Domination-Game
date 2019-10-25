@@ -157,6 +157,14 @@ void Hand::showHand()
 	}
 }
 
+/*  Get number of cards in player's hand.
+	@return num of cards in hand
+*/
+int Hand::getHandCount() {
+
+	return playerHand->size();
+}
+
 /*	Add card to hand.
 	@param Card object
 */

@@ -32,7 +32,7 @@ int main() {
 	display(p.getOwnedArmies());
 
 	cout << "The player obtains country 3 and places on it 1 army..." << endl;
-	p.obtainCountry(c3, 1);
+	p.claimCountry(c3, 1);
 	display(p.getOwnedArmies());
 
 	cout << "The player loses country 1..." << endl;

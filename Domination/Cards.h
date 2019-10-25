@@ -69,6 +69,11 @@ public:
 	*/
 	void showHand();
 
+	/*  Get number of cards in player's hand.
+		@return num of cards in hand
+	*/
+	int getHandCount();
+
 	/*	Add card to hand.
 		@param Card object
 	*/
