@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include <random>
+#include <algorithm>
 
 /*	Constructor that creates and shuffles the deck
 	@param total number of countries
@@ -204,25 +205,12 @@ int Hand::exchange(map<int, int> *ownedCountries, Deck *deck, bool isMandatory)
 				/// give bonus +2 armies if cards match owned countries
 				giveBonusTwoArmies(ownedCountries, cardsToExchangeIndex);
 				/// remove exchanged cards from hand
+				/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
+				/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
+				sort(begin(cardsToExchangeIndex), end(cardsToExchangeIndex), greater<int>());
 				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[0]);
-				/// Any elements with an index higher than the removed element's gets their index shifted by one (minus one).
-				/// Otherwise, their index remains unchanged.
-				if (cardsToExchangeIndex[1] > cardsToExchangeIndex[0]) {
-					playerHand->erase(playerHand->begin() + (cardsToExchangeIndex[1] - 1));
-				} else {
-					playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]);
-				}
-		
-				if (cardsToExchangeIndex[2] > cardsToExchangeIndex[0]) {
-					if (cardsToExchangeIndex[2] > cardsToExchangeIndex[1]) {
-						playerHand->erase(playerHand->begin() + (cardsToExchangeIndex[2] - 2));
-					} else {
-						playerHand->erase(playerHand->begin() + (cardsToExchangeIndex[2] - 1));
-					}
-				} else {
-					playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]);
-				}
-
+				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]);
+				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]);
 				/// exchange is successful
 				exchangedArmies = deck->getExchangedArmies();
 			}
@@ -255,6 +243,8 @@ string Hand::getEnumString(Card_Type type)
 		return "Cavalry";
 	case WILD:
 		return "Wild";
+	default:
+		return "Card type not defined.";
 	}
 }
 

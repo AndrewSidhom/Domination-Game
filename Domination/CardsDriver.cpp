@@ -69,7 +69,7 @@ int main() {
 		cout << "Country " << i << ": " << ownedCountries[i] << " armies" << endl;
 	}
 
-	cout << "\nTesting optional exchange on hand 2..." << endl;
+	/*cout << "\nTesting optional exchange on hand 2..." << endl;
 	cout << "Owned Countries Before Exchange:\n----------------" << endl;
 	for (int i = 8; i < 15; i++) {
 		cout << "Country " << i << ": " << ownedCountries2[i] << " armies" << endl;
@@ -79,7 +79,7 @@ int main() {
 	cout << "Owned Countries After Exchange:\n----------------" << endl;
 	for (int i = 8; i < 15; i++) {
 		cout << "Country " << i << ": " << ownedCountries2[i] << " armies" << endl;
-	}
+	}*/
 
 	system("pause");
 	return 0;
