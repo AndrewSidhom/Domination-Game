@@ -105,13 +105,13 @@ void PlayerHuman::reinforce(Deck *deck) {
 	Hand* handPtr = getHand();
 	handPtr->showHand();
 	
-	if(handPtr->getHandCount() >= 5) {
+	if(handPtr->getHandCount() >= 5) {	// force exchange if have 5+ cards in hand
 		//reinforcements += handPtr->exchange(getOwnedCountries(), deck, true);
 		if(handPtr->getHandCount() >= 3) 
 			cout << "\nYou still have " << handPtr->getHandCount() << " left.\n";
 	}
 
-	if(handPtr->getHandCount() >= 3) {
+	if(handPtr->getHandCount() >= 3) {	// ask for exchange if have 3+ cards in hand
 		cout << "Would you like to exchange your cards? (y/n): ";
 		string input = getValidExchangeInput();
 		
