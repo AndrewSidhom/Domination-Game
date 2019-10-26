@@ -4,52 +4,55 @@
 using namespace std;
 
 //constructor, destructor
-Player::Player(int id, string name): id(new int(id)), name(new string(name)), ownedCountries(nullptr), ownedArmies(new map<int,int>()), hand(new Hand()), dice(new Dice()){}
-Player::~Player() { delete id; delete name; delete ownedCountries; delete ownedArmies; delete hand; delete dice; }
+Player::Player(int id, string name): id(new int(id)), name(new string(name)), ownedCountries(new map<int, Country*>), hand(new Hand()), dice(new Dice()){}
+Player::~Player() { delete id; delete name; delete ownedCountries; delete hand; delete dice; }
 
-//used in the set-up phase of the game. Also sets ownedArmies with 1 army on each owned country.
-void Player::setOwnedCountries(map<int, Country*> ownedCountries_) 
+//used in the startup phase of the game. Stores all owned countries and places 1 army on each.
+void Player::setOwnedCountries(list<Country*> countriesList) 
 { 
-	this->ownedCountries = new map<int, Country*>(ownedCountries_); 
-	for (const auto& kv : ownedCountries_) {
-		(*ownedArmies)[kv.first] = 1;
+	for (Country* country : countriesList) {
+		(*ownedCountries)[country->id] = country;
+		country->playerId = *id;
+		country->armies = 1;
 	}
 }
 
-//adds this country to the ones owned by the player, places on it this many armies 
-void Player::claimCountry(Country* country, int armies)
-{
-	int id = country->id;
-	(*ownedCountries)[id] = country;
-	(*ownedArmies)[id] = armies;
-}
-
-//returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned.
+//used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned.
 Country* Player::loseCountry(int id)
 {
 	if (ownedCountries->count(id) == 0)
 		return nullptr;
 	else {
-		Country* c = (*ownedCountries)[id];
+		Country* country = (*ownedCountries)[id];
 		ownedCountries->erase(id);
-		ownedArmies->erase(id);
-		return c;
+		country->playerId = -1;
+		country->armies = -1;
+		return country;
 	}
 }
 
-//armies can be a +ve or -ve integer, meaning add or remove this many armies. THROWS EXCEPTION if country is not owned or if the number of armies to remove >= current number of armies.
-void Player::addOrRemoveArmies(int countryId, int armies)
+//used during attack(). Adds this country to the ones owned by the player, places on it this many armies .
+void Player::claimCountry(Country* country, int armies)
 {
-	if (ownedArmies->count(countryId) == 0)
-		throw invalid_argument("Could not add/remove armies because the country with id " + to_string(countryId) + " is not owned by Player " + to_string(*id));
-	else {
-		int currentArmies = (*ownedArmies)[countryId];
-		if (currentArmies + armies < 1)
-			throw invalid_argument("Could not remove " + to_string(abs(armies)) + " armies from country with id " + to_string(countryId) + " because it currently has " + to_string(currentArmies) + " armies.");
-		else
-			(*ownedArmies)[countryId] = currentArmies + armies;
-	}
+	(*ownedCountries)[country->id] = country;
+	country->playerId = *id;
+	country->armies = armies;
 }
+
+//armies can be a +ve or -ve integer, meaning add or remove this many armies. THROWS EXCEPTION if country is not owned or if the number of armies to remove >= current number of armies.
+//void Player::addOrRemoveArmies(int countryId, int armies)
+//{
+//	Country* country = map.getCountryById(countryId);
+//	if (ownedCountries->count(countryId) == 0)
+//		throw invalid_argument("Could not add/remove armies because the country with id " + to_string(countryId) + " is not owned by Player " + to_string(*id));
+//	else {
+//		int currentArmies = country->armies;
+//		if (currentArmies + armies < 1)
+//			throw invalid_argument("Could not remove " + to_string(abs(armies)) + " armies from country with id " + to_string(countryId) + " because it currently has " + to_string(currentArmies) + " armies.");
+//		else
+//			country->armies = currentArmies + armies;
+//	}
+//}
 
 //rolls this number of dice, returns dice results
 vector<int> Player::rollDice(int howMany)
@@ -61,16 +64,16 @@ vector<int> Player::rollDice(int howMany)
 // Base method. Get reinforcement armies and let player distribute given armies.
 void Player::reinforce(Deck* deck) {}
 
-//an attack "from" an owned country "to" a country of another player
-void Player::attack(int from, int to)
+//the player carries out a number of attacks
+void Player::attack()
 {
-	cout << "Attacking from country " << from << " to country " << to << endl;
+	//TODO
 }
 
-//move this many armies "from" an owned country "to" another owned country
-void Player::fortify(int from, int to, int armies)
+//move a number of armies from an owned country to another owned neighboring country
+void Player::fortify()
 {
-	cout << "Fortifying from country " << from << " to country " << to << ". Moving " << armies << " armies." << endl;
+	//TODO
 }
 
 /*	Get armies from total countries divided by 3, removing fractions.

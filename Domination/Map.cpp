@@ -30,7 +30,7 @@ void Graph::addOrUpdateNode(int id, list<int> neighbors){
 	(*adjLists)[id] = neighbors;
 }
 
-//checks if the graph is a connected graph using BFS traversal
+//checks if the graph is a connected graph using BFS traversal. This code is adapted from the one found at https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
 bool Graph::isConnected()
 {
 	//Trivial case: if a graph is empty, it is connected
@@ -71,8 +71,8 @@ bool Graph::isConnected()
 //COUNTRY STRUCTURE
 
 //constructors
-Country::Country(int id, int continentId, string name) : id(id), continentId(continentId), name(name) {}
-Country::Country(int id, int continentId, string name, list<int> neighbors) : id(id), continentId(continentId), name(name), neighbors(neighbors) {}
+Country::Country(int id, int continentId, string name) : id(id), continentId(continentId), name(name), playerId(-1), armies(-1) {}
+Country::Country(int id, int continentId, string name, list<int> neighbors) : id(id), continentId(continentId), name(name), neighbors(neighbors), playerId(-1), armies(-1) {}
 
 
 
