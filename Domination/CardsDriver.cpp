@@ -17,8 +17,6 @@ int main() {
 
 	//Create deck and hand object
 	Deck d(14);
-	Hand h1;
-	Hand h2;
 	map<int, int> ownedCountries;
 	map<int, int> ownedCountries2;
 
@@ -38,12 +36,15 @@ int main() {
 	ownedCountries2[12] = 5;
 	ownedCountries2[13] = 1;
 	ownedCountries2[14] = 8;
+	
+	Hand h1(&d, &ownedCountries);
+	Hand h2(&d, &ownedCountries2);
 
 	//Draw all cards from deck and show hand
 	while (!d.isEmpty()) {
 		h1.addCardToHand(d.draw());
 
-		if(!d.isEmpty())				// double check h1 didnt already take the last card from deck
+		if(!d.isEmpty() && h2.getHandCount() < 4)				// double check h1 didnt already take the last card from deck
 			h2.addCardToHand(d.draw());	// otherwise, theres none for h2 to draw
 	}
 
@@ -62,24 +63,24 @@ int main() {
 	for (int i = 1; i < 8; i++) {
 		cout << "Country " << i << ": " << ownedCountries[i] << " armies" << endl;
 	}
-	h1.exchange(&ownedCountries, &d, true);
+	h1.exchange();
 
 	cout << "Owned Countries After Exchange:\n----------------" << endl;
 	for (int i = 1; i < 8; i++) {
 		cout << "Country " << i << ": " << ownedCountries[i] << " armies" << endl;
 	}
 
-	/*cout << "\nTesting optional exchange on hand 2..." << endl;
+	cout << "\nTesting optional exchange on hand 2..." << endl;
 	cout << "Owned Countries Before Exchange:\n----------------" << endl;
 	for (int i = 8; i < 15; i++) {
 		cout << "Country " << i << ": " << ownedCountries2[i] << " armies" << endl;
 	}
-	h2.exchange(&ownedCountries2, &d, false);
+	h2.exchange();
 
 	cout << "Owned Countries After Exchange:\n----------------" << endl;
 	for (int i = 8; i < 15; i++) {
 		cout << "Country " << i << ": " << ownedCountries2[i] << " armies" << endl;
-	}*/
+	}
 
 	system("pause");
 	return 0;
