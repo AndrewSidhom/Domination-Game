@@ -4,17 +4,37 @@
 using namespace std;
 
 //constructor, destructor
-Player::Player(int id, string name): id(new int(id)), name(new string(name)), ownedCountries(new map<int, Country*>), hand(new Hand()), dice(new Dice()){}
+Player::Player(int id, string name, Deck *deck): id(new int(id)), name(new string(name)), ownedCountries(new map<int, Country*>), hand(new Hand(deck, ownedCountries)), dice(new Dice()){}
 Player::~Player() { delete id; delete name; delete ownedCountries; delete hand; delete dice; }
 
 //used in the startup phase of the game. Stores all owned countries and places 1 army on each.
 void Player::setOwnedCountries(list<Country*> countriesList) 
 { 
 	for (Country* country : countriesList) {
-		(*ownedCountries)[country->id] = country;
 		country->playerId = *id;
 		country->armies = 1;
+		(*ownedCountries)[country->id] = country;
 	}
+}
+
+/*	Get armies from total countries divided by 3, removing fractions.
+	@return army reinforcement from owned country count
+*/
+int Player::getCountryReinforcement() {
+
+	int reinforcements = (ownedCountries->size() / 3);
+	if(reinforcements < 3)
+		reinforcements = 3;	// 3 being minimum
+
+	return reinforcements;
+}
+
+// TODO imple
+int Player::getContinentReinforcement() {
+	
+	int reinforcements = 0;
+
+	return reinforcements;
 }
 
 //used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned.
@@ -62,7 +82,7 @@ vector<int> Player::rollDice(int howMany)
 }
 
 // Base method. Get reinforcement armies and let player distribute given armies.
-void Player::reinforce(Deck* deck) {}
+void Player::reinforce() {}
 
 //the player carries out a number of attacks
 void Player::attack()
@@ -76,76 +96,30 @@ void Player::fortify()
 	//TODO
 }
 
-/*	Get armies from total countries divided by 3, removing fractions.
-	@return army reinforcement from owned country count
+/*	Return number of owned countries.
 */
-int Player::getCountryReinforcement() {
-
-	int reinforcements = (ownedCountries->size() / 3);
-	if(reinforcements < 3)
-		reinforcements = 3;	// 3 being minimum
-
-	return reinforcements;
+int Player::getNumOfOwnedCountries() {
+	return ownedCountries->size();
 }
 
-// TODO imple
-int Player::getContinentReinforcement() {
-	
-	int reinforcements = 0;
-}
-
-PlayerHuman::PlayerHuman(int id, string name) : Player(id, name) {}
+PlayerHuman::PlayerHuman(int id, string name, Deck *deck) : Player(id, name, deck) {}
 PlayerHuman::~PlayerHuman() {}
 
 /*	Overridden method. Get reinforcement armies and let player distribute given armies.
 */
-void PlayerHuman::reinforce(Deck *deck) {
+void PlayerHuman::reinforce() {
 
-	int reinforcements = 0;
-	reinforcements += getCountryReinforcement(); // inherited func
-	reinforcements += getContinentReinforcement(); // inherited func
+	int reinforcements = 0, r = 0;
+	reinforcements += Player::getCountryReinforcement(); // inherited func
+	reinforcements += Player::getContinentReinforcement(); // inherited func
 
 	Hand* handPtr = getHand();
-	handPtr->showHand();
-	
-	if(handPtr->getHandCount() >= 5) {	// force exchange if have 5+ cards in hand
-		//reinforcements += handPtr->exchange(getOwnedCountries(), deck, true);
-		if(handPtr->getHandCount() >= 3) 
-			cout << "\nYou still have " << handPtr->getHandCount() << " left.\n";
+	while(handPtr->getHandCount() >= 3) {
+		r += handPtr->exchange();
+		if(r == 0)
+			break;
+		else if(handPtr->getHandCount() >= 3)
+			cout << "\nYou still have " << handPtr->getHandCount() << " left.\n"; 
 	}
-
-	if(handPtr->getHandCount() >= 3) {	// ask for exchange if have 3+ cards in hand
-		cout << "Would you like to exchange your cards? (y/n): ";
-		string input = getValidExchangeInput();
-		
-		//if(input.compare("y") == 0) // 0 means equal
-			//reinforcements += handPtr->exchange(getOwnedCountries(), deck, false);
-	}
-}
-
-/*	Get valid input of string 'y' or 'n'
-	@return string input of y or n
-*/
-string PlayerHuman::getValidExchangeInput() {
-
-	string input;
-	bool validInput = false;
-	do {
-		cout << "Would you like to exchange? (y/n)" << endl;
-		cin >> input;
-		
-		if (!cin.good()) /// !good() when input isnt a string
-		{
-			cout << "\nInvalid input. Please try again.\n";
-			cin.clear();		   /// clear error flag
-			cin.ignore(100, '\n'); /// clear buffer
-		}
-		else if(input.compare("y") != 0 || input.compare("n") != 0)  // 0 means equal
-			cout << "\nInput must be 'y' or 'n'\n";
-		else
-			validInput = true;
-	} 
-	while (!validInput);
-
-	return input;
+	reinforcements += r;
 }
