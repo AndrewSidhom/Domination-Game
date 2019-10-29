@@ -4,9 +4,9 @@
 using namespace std;
 
 //constructor, destructor
-Player::Player() : id(new int(*currentId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numCountriesInContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
-Player::Player(string name, Deck *deck) : id(new int(*currentId)), name(new string(name)), ownedCountries(new map<int, Country*>), numCountriesInContinent(new map<int,int>), hand(new Hand(deck, ownedCountries)), dice(new Dice()){ genNextID(); }
-Player::~Player() { delete id, name, ownedCountries, numCountriesInContinent, hand, dice; }
+Player::Player() : id(new int(*currentGenId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
+Player::Player(string name, Deck *deck) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int,int>), hand(new Hand(deck, ownedCountries)), dice(new Dice()){ genNextID(); }
+Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice; }
 
 //used in the startup phase of the game. Stores all owned countries and places 1 army on each
 // And sets how many owned countries are in each continent for reinforcing armies.
@@ -16,7 +16,7 @@ void Player::setOwnedCountries(list<Country*> countriesList)
 		country->playerId = *id;
 		country->armies = 1;
 		(*ownedCountries)[country->id] = country;
-		(*numCountriesInContinent)[country->continentId] += 1;
+		(*numOfOwnedCountriesPerContinent)[country->continentId] += 1;
 	}
 }
 
@@ -53,7 +53,7 @@ void Player::claimCountry(Country* country, int armies)
 	country->playerId = *id;
 	country->armies = armies;
 	(*ownedCountries)[country->id] = country;
-	(*numCountriesInContinent)[country->id] += 1;
+	(*numOfOwnedCountriesPerContinent)[country->id] += 1;
 }
 
 //used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned.
@@ -62,7 +62,7 @@ Country* Player::loseCountry(int id)
 	if (ownedCountries->count(id) == 0)
 		return nullptr;
 	else {
-		(*numCountriesInContinent)[id] -= 1;
+		(*numOfOwnedCountriesPerContinent)[id] -= 1;
 
 		Country* country = (*ownedCountries)[id];
 		ownedCountries->erase(id);
@@ -135,4 +135,7 @@ void PlayerHuman::reinforce() {
 			cout << "\nYou still have " << handPtr->getHandCount() << " left.\n"; 
 	}
 	reinforcements += r;
+	// distribute reinforcements
+	
+	delete handPtr;
 }

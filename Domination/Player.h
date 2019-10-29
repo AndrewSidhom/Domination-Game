@@ -10,11 +10,12 @@
 class Player {
 
 private:
-	static int* currentId;
+	static int* currentGenId;
 	int* id;
 	string* name;
 	map<int, Country*>* ownedCountries;  //maps each owned country id to a pointer to the Country object
-	map<int,int>* numCountriesInContinent;	// key: continent id, val: number of country in that continent
+	map<int,int>* numOfOwnedCountriesPerContinent;	// key: continent id, val: number of player's owned countries in that continent
+	Map* mapPtr;
 	Hand* hand;
 	Dice* dice;
 
@@ -35,7 +36,7 @@ public:
 	Player(string name, Deck *deck); 
 	~Player(); 
 
-	static int genNextID() { return (*currentId)++; }
+	static int genNextID() { return (*currentGenId)++; }
 	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries); }
 
 	//service methods for reinforce, attack, fortify
