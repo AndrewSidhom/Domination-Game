@@ -4,7 +4,8 @@
 using namespace std;
 
 //constructor, destructor
-Player::Player(int id, string name, Deck *deck): id(new int(id)), name(new string(name)), ownedCountries(new map<int, Country*>), numCountriesInContinent(new map<int,int>), hand(new Hand(deck, ownedCountries)), dice(new Dice()){}
+Player::Player() : id(new int(*currentId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numCountriesInContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
+Player::Player(string name, Deck *deck) : id(new int(*currentId)), name(new string(name)), ownedCountries(new map<int, Country*>), numCountriesInContinent(new map<int,int>), hand(new Hand(deck, ownedCountries)), dice(new Dice()){ genNextID(); }
 Player::~Player() { delete id, name, ownedCountries, numCountriesInContinent, hand, dice; }
 
 //used in the startup phase of the game. Stores all owned countries and places 1 army on each
@@ -114,7 +115,7 @@ int Player::getNumOfOwnedCountries() {
 	return ownedCountries->size();
 }
 
-PlayerHuman::PlayerHuman(int id, string name, Deck *deck) : Player(id, name, deck) {}
+PlayerHuman::PlayerHuman(int id, string name, Deck *deck) : Player(name, deck) {}
 PlayerHuman::~PlayerHuman() {}
 
 /*	Overridden method. Get reinforcement armies and let player distribute given armies.

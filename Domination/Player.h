@@ -10,6 +10,7 @@
 class Player {
 
 private:
+	static int* currentId;
 	int* id;
 	string* name;
 	map<int, Country*>* ownedCountries;  //maps each owned country id to a pointer to the Country object
@@ -30,8 +31,12 @@ public:
 	string getName() { return *name; };
 	
 	//constructor, destructor
-	Player(int id, string name, Deck *deck); 
+	Player();
+	Player(string name, Deck *deck); 
 	~Player(); 
+
+	static int genNextID() { return (*currentId)++; }
+	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries); }
 
 	//service methods for reinforce, attack, fortify
 	void setOwnedCountries(list<Country*> ownedCountries); //used in the startup phase of the game. Stores all owned countries and places 1 army on each.
