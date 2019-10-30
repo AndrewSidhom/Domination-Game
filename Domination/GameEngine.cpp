@@ -68,7 +68,7 @@ void GameEngine::startGameLoop() {
         //players[curPlayerIndex].attack();
         //players[curPlayerIndex].fortify();
 
-        if(curPlayerIndex == NUM_OF_PLAYERS - 1)
+        if(curPlayerIndex == *NUM_OF_PLAYERS - 1)
             { curPlayerIndex = 0; }
     } 
     while(!aPlayerOwnsAllCountries());
@@ -76,8 +76,8 @@ void GameEngine::startGameLoop() {
 
 bool GameEngine::aPlayerOwnsAllCountries() {
 
-    for(int i = 0; i < NUM_OF_PLAYERS; i++) {
-        if(players[i].getNumOfOwnedCountries() == NUM_OF_COUNTRIES) 
+    for(int i = 0; i < *NUM_OF_PLAYERS; i++) {
+        if(players[i].getNumOfOwnedCountries() == *NUM_OF_COUNTRIES) 
             return true;
     }
 

@@ -66,6 +66,7 @@ public:
 	//accessors...
 	int getId() { return *id; };
 	string getName() { return *name; };
+	int getSize() { return *size; };
 	int getWorth() { return *worth; };
 	Graph getInnerGraph() { return *innerGraph; };
 	bool getValidated() { return *validated; };

@@ -5,7 +5,7 @@ using namespace std;
 
 //constructor, destructor
 Player::Player() : id(new int(*currentGenId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
-Player::Player(string name, Deck *deck) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int,int>), hand(new Hand(deck, ownedCountries)), dice(new Dice()){ genNextID(); }
+Player::Player(string name, Deck *deck, Map *mapPtr) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int,int>), mapPtr(mapPtr), hand(new Hand(deck, ownedCountries)), dice(new Dice()){ genNextID(); }
 Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice; }
 
 //used in the startup phase of the game. Stores all owned countries and places 1 army on each
@@ -32,18 +32,18 @@ int Player::getCountryReinforcement() {
 	return reinforcements;
 }
 
-// TODO imple
+/*	Get armies from owning any continent.
+	@return army reinforcement from owned continent
+*/
 int Player::getContinentReinforcement() {
 	
 	int reinforcements = 0;
-
-	/*
-	for(Continent* c : allContinents) {
-		if (c->size == (*numCountriesInContinent)[c->continentId])
-			reinforcements += c->worth;
+	list<Continent> allContinents = mapPtr->getContinents();
+	
+	for(Continent c : allContinents) {
+		if (c.getSize() == (*numOfOwnedCountriesPerContinent)[c.getId])
+			reinforcements += c.getWorth();
 	}
-	*/
-
 	return reinforcements;
 }
 
@@ -94,8 +94,24 @@ vector<int> Player::rollDice(int howMany)
 	return vector<int>();
 }
 
-// Base method. Get reinforcement armies and let player distribute given armies.
-void Player::reinforce() {}
+/*	Get reinforcement armies and let player distribute given armies.
+*/
+void Player::reinforce() {
+
+	int reinforcements = 0, r = 0;
+	reinforcements += getCountryReinforcement();
+	reinforcements += getContinentReinforcement(); 
+
+	while(hand->getHandCount() >= 3) {
+		r += hand->exchange();
+		if(r == 0)	// note 0 means user cancelled exchange action
+			break;
+		else if(hand->getHandCount() >= 3)
+			cout << "\nYou still have " << hand->getHandCount() << " left.\n"; 
+	}
+	reinforcements += r;
+	// prompt to distribute reinforcements
+}
 
 //the player carries out a number of attacks
 void Player::attack()
@@ -113,29 +129,4 @@ void Player::fortify()
 */
 int Player::getNumOfOwnedCountries() {
 	return ownedCountries->size();
-}
-
-PlayerHuman::PlayerHuman(int id, string name, Deck *deck) : Player(name, deck) {}
-PlayerHuman::~PlayerHuman() {}
-
-/*	Overridden method. Get reinforcement armies and let player distribute given armies.
-*/
-void PlayerHuman::reinforce() {
-
-	int reinforcements = 0, r = 0;
-	reinforcements += Player::getCountryReinforcement(); // inherited func
-	reinforcements += Player::getContinentReinforcement(); // inherited func
-
-	Hand* handPtr = getHand();
-	while(handPtr->getHandCount() >= 3) {
-		r += handPtr->exchange();
-		if(r == 0)
-			break;
-		else if(handPtr->getHandCount() >= 3)
-			cout << "\nYou still have " << handPtr->getHandCount() << " left.\n"; 
-	}
-	reinforcements += r;
-	// distribute reinforcements
-	
-	delete handPtr;
 }
