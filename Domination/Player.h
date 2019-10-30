@@ -19,12 +19,12 @@ private:
 	Hand* hand;
 	Dice* dice;
 
-protected:
-	Hand* getHand() { return hand; };
-	map<int, Country*>* getOwnedCountries() { return ownedCountries; };
-
+	// internal service methods
 	int getCountryReinforcement(); // Get armies from total countries divided by 3
 	int getContinentReinforcement(); // Get armies bonus from claiming entire continent
+
+protected:
+	map<int, Country*>* getOwnedCountries() { return ownedCountries; };
 	
 public:
 	//accessors (some return copies not pointers to prevent modifications from outside).
@@ -33,7 +33,7 @@ public:
 	
 	//constructor, destructor
 	Player();
-	Player(string name, Deck *deck); 
+	Player(string name, Deck *deck, Map *mapPtr); 
 	~Player(); 
 
 	static int genNextID() { return (*currentGenId)++; }
@@ -47,30 +47,10 @@ public:
 	void addOrRemoveArmies(int countryId, int armies); //armies can be a +ve or -ve integer, meaning add or remove this many armies. THROWS EXCEPTION if country is not owned or if the number of armies to remove >= current number of armies.
 	vector<int> rollDice(int howMany); //rolls this number of dice, returns dice results
 
-	virtual void reinforce() = 0; // Get reinforcement armies and let player distribute given armies
+	void reinforce(); // Get reinforcement armies and let player distribute given armies
 	void attack(); //the player carries out a number of attacks
 	void fortify(); //move a number of armies from an owned country to another owned neighboring country
 
 	// service methods for external classes (i.e. GameEngine)
 	int getNumOfOwnedCountries();
 };
-
-class PlayerHuman : public Player {
-
-public:
-	/// constructor, destructor
-	PlayerHuman(int id, string name, Deck *deck);
-	~PlayerHuman();
-
-	/// override methods
-	void reinforce(); // Get reinforcement armies and let player distribute given armies
-
-private:
-
-};
-
-/*
-class PlayerAI : public Player {
-
-};
-*/
