@@ -16,4 +16,5 @@ private:
     int NUM_OF_COUNTRIES; // number of total countries in the game; do not modify
 
     bool aPlayerOwnsAllCountries(); // Checks if a player owns all countries on the map.
+	int queryNumOfPlayers(string name); //Queries user and validates number of players
 };

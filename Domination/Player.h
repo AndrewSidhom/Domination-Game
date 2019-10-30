@@ -38,6 +38,7 @@ public:
 
 	static int genNextID() { return (*currentGenId)++; }
 	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries); }
+	void setName(string newName) { *name = newName; }
 
 	//service methods for reinforce, attack, fortify
 	void setOwnedCountries(list<Country*> ownedCountries); //used in the startup phase of the game. Stores all owned countries and places 1 army on each.
