@@ -20,33 +20,6 @@ void Player::setOwnedCountries(list<Country*> countriesList)
 	}
 }
 
-/*	Get armies from total countries divided by 3, removing fractions.
-	@return army reinforcement from owned country count
-*/
-int Player::getCountryReinforcement() {
-
-	int reinforcements = (ownedCountries->size() / 3);
-	if(reinforcements < 3)
-		reinforcements = 3;	// 3 being minimum
-
-	return reinforcements;
-}
-
-/*	Get armies from owning any continent.
-	@return army reinforcement from owned continent
-*/
-int Player::getContinentReinforcement() {
-	
-	int reinforcements = 0;
-	list<Continent> allContinents = mapPtr->getContinents();
-	
-	for(Continent c : allContinents) {
-		if (c.getSize() == (*numOfOwnedCountriesPerContinent)[c.getId])
-			reinforcements += c.getWorth();
-	}
-	return reinforcements;
-}
-
 //used during attack(). Adds this country to the ones owned by the player, places on it this many armies.
 void Player::claimCountry(Country* country, int armies)
 {
@@ -72,21 +45,6 @@ Country* Player::loseCountry(int id)
 	}
 }
 
-//armies can be a +ve or -ve integer, meaning add or remove this many armies. THROWS EXCEPTION if country is not owned or if the number of armies to remove >= current number of armies.
-//void Player::addOrRemoveArmies(int countryId, int armies)
-//{
-//	Country* country = map.getCountryById(countryId);
-//	if (ownedCountries->count(countryId) == 0)
-//		throw invalid_argument("Could not add/remove armies because the country with id " + to_string(countryId) + " is not owned by Player " + to_string(*id));
-//	else {
-//		int currentArmies = country->armies;
-//		if (currentArmies + armies < 1)
-//			throw invalid_argument("Could not remove " + to_string(abs(armies)) + " armies from country with id " + to_string(countryId) + " because it currently has " + to_string(currentArmies) + " armies.");
-//		else
-//			country->armies = currentArmies + armies;
-//	}
-//}
-
 //rolls this number of dice, returns dice results
 vector<int> Player::rollDice(int howMany)
 {
@@ -98,9 +56,10 @@ vector<int> Player::rollDice(int howMany)
 */
 void Player::reinforce() {
 
-	int reinforcements = 0, r = 0;
-	reinforcements += getCountryReinforcement();
-	reinforcements += getContinentReinforcement(); 
+	cout << "**Reinforcement Phase**\n";
+	int armies = 0, r = 0;
+	armies += getCountryReinforcement();
+	armies += getContinentReinforcement(); 
 
 	while(hand->getHandCount() >= 3) {
 		r += hand->exchange();
@@ -109,8 +68,8 @@ void Player::reinforce() {
 		else if(hand->getHandCount() >= 3)
 			cout << "\nYou still have " << hand->getHandCount() << " left.\n"; 
 	}
-	reinforcements += r;
-	// prompt to distribute reinforcements
+	armies += r;
+	distributeArmies(armies);
 }
 
 //the player carries out a number of attacks
@@ -125,8 +84,109 @@ void Player::fortify()
 	//TODO
 }
 
-/*	Return number of owned countries.
+/*	Get armies from total countries divided by 3, removing fractions.
+	@return army reinforcement from owned country count
 */
-int Player::getNumOfOwnedCountries() {
-	return ownedCountries->size();
+int Player::getCountryReinforcement() {
+
+	int reinforcements = (ownedCountries->size() / 3);
+	if(reinforcements < 3)
+		reinforcements = 3;	// 3 being minimum
+
+	return reinforcements;
+}
+
+/*	Get armies from owning any continent.
+	@return army reinforcement from owned continent
+*/
+int Player::getContinentReinforcement() {
+	
+	int reinforcements = 0;
+	list<Continent> allContinents = mapPtr->getContinents();
+
+	for(Continent c : allContinents) {
+		if (c.getSize() == (*numOfOwnedCountriesPerContinent)[c.getId])
+			reinforcements += c.getWorth();
+	}
+	return reinforcements;
+}
+
+/*	Prompt user to choose which countries to distribute their reinforcement armies
+	@param total armies from reinforcement to distribute
+*/
+void Player::distributeArmies(int totalArmies) {
+
+	int countryInput, armiesInput, int i = 0;
+
+	displayOwnedCountries();
+	while(totalArmies > 0) 
+	{
+		cout << "\nYou have " << totalArmies << " armies" << i++? " left.\n" : ". Deploy your armies!\n";
+		try {
+			cout << "Country: ";
+			countryInput = promptNumberInput();
+			if(ownedCountries->count(countryInput) == 0)
+				throw "\nYou do not own this country.";
+
+			cout << "\tArmies: ";
+			armiesInput = promptNumberInput();
+			if(armiesInput > totalArmies || armiesInput < 0)
+				throw "\nYou must enter armies between 1 and " + totalArmies;
+			
+			addOrRemoveArmies(countryInput, armiesInput);
+			totalArmies -= armiesInput;
+		}
+		catch(const char* msg) {
+			cout << msg << endl;
+		}
+	}
+}
+
+/*	Armies can be a +ve or -ve integer, meaning add or remove this many armies. 
+	@exception throws if country is not owned or if the number of armies to remove >= current number of armies.
+*/
+void Player::addOrRemoveArmies(int countryId, int armies)
+{
+	if (ownedCountries->count(countryId) == 0)
+		throw invalid_argument("Could not add/remove armies because the country with id " + to_string(countryId) + " is not owned by Player " + to_string(*id));
+	else {
+		int currentArmies = (*ownedCountries)[countryId]->armies;
+		if (currentArmies + armies < 1)
+			throw invalid_argument("Could not remove " + to_string(abs(armies)) + " armies from country with id " + to_string(countryId) + " because it currently has " + to_string(currentArmies) + " armies.");
+		else
+			(*ownedCountries)[countryId]->armies = currentArmies + armies;
+	}
+}
+
+/*	Prompt user to input a NUMBER only.
+	@return valid number input
+*/
+int Player::promptNumberInput() {
+
+	int n;
+	do {
+		cin >> n;
+		if (!cin.good()) {	/// !good() when input doesnt match declared type
+			cout << "\nInvalid number input. Please try again.\n";
+			cin.clear();		   /// clear error flag
+			cin.ignore(100, '\n'); /// clear buffer
+		}
+		else break;
+	} while (true);
+
+	return n;
+}
+
+/*	Display owned countries' armies and continent id.
+*/
+void Player::displayOwnedCountries() {
+
+	cout << "\nYour owned countries:\n\t\t\tArmies\tContinent"
+			<< "======================";
+	map<int,Country*>::iterator iter = ownedCountries->begin();
+	for(;iter != ownedCountries->end(); ++iter) 
+	{
+		cout << "Country " << iter->first << " \t|| " << iter->second->armies << "\t|| " << iter->second->continentId;
+	}
+
 }
