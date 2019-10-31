@@ -34,6 +34,7 @@ public:
 	//constructor, destructor
 	Player();
 	Player(string name, Deck *deck); 
+	Player(const Player &p);
 	~Player(); 
 
 	static int genNextID() { return (*currentGenId)++; }
