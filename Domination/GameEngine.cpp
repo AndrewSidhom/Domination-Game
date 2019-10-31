@@ -19,12 +19,11 @@ GameEngine::GameEngine() {
 	cout << "Hello " << name << "! Enter the name of the map you would like to load (without the .map extension): ";
 	cin >> mapName;
 	Map *gameMap = MapLoader::loadMapFile(mapName);
-	/*while (gameMap = nullptr) {
-		cout << "Invalid! ";
+	while (gameMap == nullptr) {
 		cout << "Enter the name of the map you would like to load (without the .map extension): ";
 		cin >> mapName;
 		gameMap = MapLoader::loadMapFile(mapName);
-	}*/
+	}
 	list<Country> countries = gameMap->getCountries();
 	numOfCountries = (int)countries.size();
 	NUM_OF_COUNTRIES = new int(numOfCountries);

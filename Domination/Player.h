@@ -16,7 +16,10 @@ public:
 	
 	//constructor, destructor
 	Player();
+
+	Player(string name, Deck *deck); 
 	Player(string name, Deck *deck, Map *mapPtr); 
+	Player(const Player &p);
 	~Player(); 
 
 	static int genNextID() { return (*currentGenId)++; }
