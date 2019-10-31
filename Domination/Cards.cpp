@@ -249,23 +249,16 @@ string Hand::getEnumString(Card_Type type)
 bool Hand::playerWantsToExchange() 
 {
 	string input;
-	bool validInput = false;
 	do {
 		cout << "Would you like to exchange your cards? (y/n): " << endl;
 		cin >> input;
-		
-		if (!cin.good()) /// !good() when input isnt a string
-		{
-			cout << "\nInvalid input. Please try again.\n";
-			cin.clear();		   /// clear error flag
-			cin.ignore(100, '\n'); /// clear buffer
-		}
-		else if(input.compare("y") != 0 || input.compare("n") != 0)  // 0 means equal
-			cout << "\nInput must be 'y' or 'n'\n";
+
+		if(input.compare("y") == 0 || input.compare("n") == 0)  // 0 means equal
+			break;
 		else
-			validInput = true;
+			cout << "\nInput must be 'y' or 'n'\n";
 	} 
-	while (!validInput);
+	while (true);
 
 	return (input.compare("y") == 0);
 }
@@ -278,7 +271,6 @@ bool Hand::playerWantsToExchange()
 int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen, int cardsToExchangeIndex[]) 
 {
 	int selectedCardIndex;
-	bool validInput = false;
 	do
 	{
 		cout << "Card " << (numOfCardsChosen + 1) << ": ";
@@ -298,9 +290,9 @@ int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen, int car
 				selectedCardIndex == cardsToExchangeIndex[1]+1)
 			cout << "\nYou have already selected this card.\n";
 		else
-			validInput = true;
+			break;
 	} 
-	while (!validInput);
+	while (true);
 
 	return selectedCardIndex;
 }
