@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-int* currentGenId = 0;
+int* Player::currentGenId = 0;
 
 //constructor, destructor
 Player::Player() : id(new int(*currentGenId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
