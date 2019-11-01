@@ -3,10 +3,12 @@
 #include <iostream>
 using namespace std;
 
+int* currentGenId = 0;
+
 //constructor, destructor
 Player::Player() : id(new int(*currentGenId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
 Player::Player(string name, Deck *deck, Map *mapPtr) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int,int>), mapPtr(mapPtr), hand(new Hand(deck, ownedCountries)), dice(new Dice()){ genNextID(); }
-Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), numCountriesInContinent(p.numCountriesInContinent), hand(p.hand), dice(p.dice) {}
+Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), hand(p.hand), dice(p.dice) {}
 Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice; }
 
 //used in the startup phase of the game. Stores all owned countries and places 1 army on each
