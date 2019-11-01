@@ -64,6 +64,7 @@ void GameEngine::startGameLoop() {
             { curPlayerIndex ++; }  // skip turn if current player has no countries left
 
 		cout << "\nPLAYER " << curPlayerIndex + 1 << "'s Turn!\n";
+		cout << "Calling player's reinforce, attack, and fortify funcs\n";
         //players[curPlayerIndex].reinforce();
         //players[curPlayerIndex].attack();
         //players[curPlayerIndex].fortify();
