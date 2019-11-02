@@ -132,12 +132,34 @@ void GameEngine::randomOrder() {
 }
 
 void GameEngine::assignCountriesToPlayers(Map *gameMap) {
-	list<Country> countries = gameMap->getCountries();
-	vector<Country> c{ make_move_iterator(begin(countries)), make_move_iterator(end(countries)) };
-	Country country = c.at(3);
-	cout << "id: " << country.id << "\nname: " << country.name << endl;
-	cout << "size: " << c.size() << endl;
-	c.erase(c.begin() + 4);
-	cout << "size: " << c.size() << endl;
+	list<Country> c = gameMap->getCountries();
+	vector<Country> countries{ make_move_iterator(begin(c)), make_move_iterator(end(c)) };
+	const int COLUMNS = 6;
+	int index = 0;
+	list<Country*> ownedCountries[COLUMNS];
+	int rnd;
+	random_device rd;
+	mt19937 mt(rd());
+	
+	for (int i = 0; i < *NUM_OF_COUNTRIES; i++) {
+		uniform_int_distribution<int> dist(0, countries.size() - 1);
+		cout << "size: " << countries.size() << endl;
+		rnd = dist(mt);
+		cout << "rnd: " << rnd << endl;
+		Country* country = &countries.at(rnd);
+		ownedCountries[index].push_back(country);
+		countries.erase(countries.begin() + rnd);
+		index = (index + 1) % *NUM_OF_PLAYERS;
+	}
+	cout << "Set method" << endl;
+	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
+		cout << "Player " << i + 1 << " countries:" << endl;
+		for (Country* x : ownedCountries[i]) {
+			cout << x->name << endl;
+		}
+	}
+	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
+		players[i].setOwnedCountries(ownedCountries[i]);
+	}
 	//WORK IN PROGRESS...
 }

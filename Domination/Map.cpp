@@ -71,6 +71,7 @@ bool Graph::isConnected()
 //COUNTRY STRUCTURE
 
 //constructors
+Country::Country() {}
 Country::Country(int id, int continentId, string name) : id(id), continentId(continentId), name(name), player(nullptr), armies(-1) {}
 Country::Country(int id, int continentId, string name, list<int> neighbors) : id(id), continentId(continentId), name(name), neighbors(neighbors), player(nullptr), armies(-1) {}
 
