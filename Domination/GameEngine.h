@@ -13,7 +13,7 @@ public:
 
 private:
 
-    Player* players; // can be STL containers if needed, otherwise keep as array
+    Player* players; // dynamic array
     const int *NUM_OF_PLAYERS; // number of total players in the game; do not modify
     const int *NUM_OF_COUNTRIES; // number of total countries in the game; do not modify
 
