@@ -1,6 +1,7 @@
 #include "Player.h"
 
 #include <iostream>
+#include <ctime>
 using namespace std;
 
 int* Player::currentGenId = new int(0);
@@ -87,7 +88,39 @@ void Player::attack()
 //move a number of armies from an owned country to another owned neighboring country
 void Player::fortify()
 {
-	//TODO
+	cout << "**Fortification Phase**\n";
+	srand((int)time(0));
+	cout << "A random source country will be chosen from the list of countries owned by the player" << endl;
+	Country* source;
+	Country* destination;
+	bool validSource = false;
+	do {
+		source = getFortifySource();
+		destination = getFortifyDestination(source);
+		if(source->armies <= 1)
+			cout << "Choice of source country with id " << source->id << " failed because it has less than 2 armies on it." << endl;
+		else if (destination == nullptr)
+			cout << "Choice of source country with id " << source->id << " failed because it has no neighbors owned by the player." << endl;
+		else
+			validSource = true;
+	} while (!validSource);
+
+	int srcArmies = source->armies;
+	cout << "A valid source country was found with enough armies and an owned neighbor." << endl;
+	cout << "Source ID: " << source->id << "  //  Armies: " << srcArmies << endl;
+	cout << "Destination ID: " << destination->id << endl;
+	cout << "A number of armies to move will be chosen at random in the range from 1 to " << (srcArmies - 1) << endl;
+	int armiesToMove = (rand() % (srcArmies -1)) + 1;
+
+	try {
+		addOrRemoveArmies(source->id, -armiesToMove);
+		addOrRemoveArmies(destination->id, armiesToMove);
+		cout << "Fortification has successfully completed." << endl;
+	}
+	catch (invalid_argument e) {
+		cout << "Exception thrown when trying to add/remove armies:" << endl;
+		cout << e.what() << endl;
+	}
 }
 
 /*	Get armies from total countries divided by 3, removing fractions.
@@ -149,6 +182,21 @@ void Player::distributeArmies(int totalArmies) {
 		}
 	}
 	displayOwnedCountries();
+}
+
+//returns a random owned country
+Country* Player::getFortifySource() {
+	map<int, Country*>::iterator it = next(ownedCountries->begin, rand() % (ownedCountries->size) );
+	return it->second;
+}
+
+//returns the first neighbor of source which is found to be owned by the player, nullptr if there is no such neighbor
+Country* Player::getFortifyDestination(Country* source) {
+	for (int neighbor : source->neighbors) {
+		if (ownedCountries->count(neighbor) == 1) //if the neighbor is owned by the player
+			return ownedCountries->at(neighbor);  //return the first owned neighbor found
+	}
+	return nullptr;
 }
 
 /*	Armies can be a +ve or -ve integer, meaning add or remove this many armies. 
