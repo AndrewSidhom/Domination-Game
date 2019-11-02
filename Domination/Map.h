@@ -94,16 +94,16 @@ private:
 	string* name;
 	list<Continent>* continents;
 	Graph* graph;  //a graph of the full map. Constructed during execution of the map's validate() method.
-	list<Country>* countries;
+	list<Country*>* countries;
 	bool* validated;  //true if the map's validate() method has been called.
 	bool* isValid;  //true if the map's validate() method has been called and found that the map is valid for the game.
 
 public:
-	//accessors...
+	//accessors... (most of them return copies not pointers to prevent modifications from outside)
 	string getName() { return *name; };
 	list<Continent> getContinents() { return *continents; };
 	Graph getGraph() { return *graph; };
-	list<Country>* getCountries() { return countries; };
+	list<Country*>* getCountries() { return countries; };
 	bool getValidated() { return *validated; };
 	bool getIsValid() { return *isValid; };
 

@@ -127,7 +127,7 @@ bool Continent::validate()
 //MAP CLASS
 
 //constructor
-Map::Map(string name) : name(new string(name)), continents(new list<Continent>()), graph(new Graph()), countries(new list<Country>()), validated(new bool(false)), isValid(new bool(false)) {}
+Map::Map(string name) : name(new string(name)), continents(new list<Continent>()), graph(new Graph()), countries(new list<Country*>()), validated(new bool(false)), isValid(new bool(false)) {}
 
 //destructor
 Map::~Map() {
@@ -139,7 +139,7 @@ Map::Map(const Map& old) {
 	name = new string(*old.name);
 	continents = new list<Continent>(*old.continents);
 	graph = new Graph(*old.graph);
-	countries = new list<Country>(*old.countries);
+	countries = new list<Country*>(*old.countries);
 	validated = new bool(*old.validated);
 	isValid = new bool(*old.isValid);
 }
@@ -147,7 +147,7 @@ Map::Map(const Map& old) {
 //adds a country to the Map and to its corresponding Continent's graph. Sets "validated" to false because now the map has been modified, it needs to be validated again.
 //THROWS EXCEPTION invalid_argument if the country's continentId is invalid
 void Map::addCountry(Country country) {
-	countries->push_back(country);
+	countries->push_back(new Country(country));
 
 	getContinentById(country.continentId)->addCountryToGraph(country);
 
@@ -165,12 +165,12 @@ void Map::addContinent(Continent continent) {
 //updates graphs in case a country's neighbors were modified after the country was added to the map.
 void Map::updateContinentsGraphs()
 {
-	for (Country country : *countries) {
+	for (Country* country : *countries) {
 		try {
-			getContinentById(country.continentId)->updateCountryInGraph(country);
+			getContinentById(country->continentId)->updateCountryInGraph(*country);
 		}
 		catch (invalid_argument e) {
-			cout << "Unable to update country with ID " << country.id << " in continent with ID " << country.continentId << " because this continent ID was not found" << endl;
+			cout << "Unable to update country with ID " << country->id << " in continent with ID " << country->continentId << " because this continent ID was not found" << endl;
 		}
 	}
 }
@@ -192,8 +192,8 @@ bool Map::validate() {
 			return *isValid;
 		}
 	//At this point, all continents were found valid, so construct map's full graph, check if connected.
-	for (Country country : *countries)
-		graph->addOrUpdateNode(country.id, country.neighbors);
+	for (Country* country : *countries)
+		graph->addOrUpdateNode(country->id, country->neighbors);
 	*isValid = graph->isConnected();
 	*validated = true;
 	return *isValid;
@@ -201,9 +201,9 @@ bool Map::validate() {
 
 //THROWS EXCEPTION if no country was found with this id. Otherwise, returns a pointer to the Country.
 Country* Map::getCountryById(int id) {
-	for (Country& country : *countries) {
-		if (country.id == id)
-			return &country;
+	for (Country* country : *countries) {
+		if (country->id == id)
+			return country;
 	}
 	throw invalid_argument("No country found with this ID: " + to_string(id));
 }
