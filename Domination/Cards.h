@@ -9,8 +9,12 @@ using namespace std;
 
 struct Card
 {
-	enum Card_Type type;
+	Card() {};
+	Card(int id, enum Card_Type type);
+	Card(const Card &c);
+
 	int countryId;
+	enum Card_Type type;	
 };
 
 enum Card_Type

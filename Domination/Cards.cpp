@@ -4,6 +4,10 @@
 #include <random>
 #include <algorithm>
 
+// Card struct constructor
+Card::Card(int id, Card_Type type) : countryId(id), type(type){}
+Card::Card(const Card &card) : countryId(card.countryId), type(card.type){}
+
 /*	Constructor that creates and shuffles the deck
 	@param total number of countries
 */
@@ -43,22 +47,17 @@ void Deck::createDeck(int totalCountries)
 		case 2:
 			c.type = CAVALRY;
 			break;
+		default: break;
 		}
-		/// assign country id starting from 1 and up
+		// assign country id from 1 and up
 		c.countryId = ++n;
-		/// insert new card to end of vector
+		// insert card to end of vector deck
 		cardDeck->push_back(c);
 	} while (n < totalCountries - 2); /// last 2 for wild cards
 
 	/// add 2 wild cards to complete deck
-	Card w1, w2;
-	w1.type = WILD;
-	w2.type = WILD;
-	w1.countryId = n + 1;
-	w2.countryId = n + 2;
-
-	cardDeck->push_back(w1);
-	cardDeck->push_back(w2);
+	cardDeck->push_back(Card(n+1, WILD));
+	cardDeck->push_back(Card(n+2, WILD));
 };
 
 /*	Shuffle the deck
@@ -139,7 +138,7 @@ Hand::~Hand()
 */
 void Hand::showHand()
 {
-	cout << "Your hand:\n-------|\n";
+	cout << "\nYour hand:\n-------|\n";
 	int i = 1;
 
 	for (Card c : *playerHand)
@@ -174,6 +173,7 @@ int Hand::exchange()
 
 	if(!isMandatory && !playerWantsToExchange()) 
 		return 0; 
+	showHand();
 	if (isMandatory)
 		cout << "You have reached the maximum number of cards and must exchange. ";
 	cout << "Enter 3 cards to exchange";
