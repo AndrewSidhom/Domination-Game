@@ -3,8 +3,9 @@
 #include <map>
 #include <list>
 #include <string>
-#include "Player.h"
 using namespace std;
+
+class Player;
 
 
 /* Intended usage of Map.h/Map.cpp ...

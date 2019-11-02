@@ -60,7 +60,7 @@ void GameEngine::startGameLoop() {
     
     int curPlayerIndex = 0; // index of current player's turn
     do {
-        while(players[curPlayerIndex].getNumOfOwnedCountries == 0) 
+        while(players[curPlayerIndex].getNumOfOwnedCountries() == 0) 
             { curPlayerIndex ++; }  // skip turn if current player has no countries left
 
 		cout << "\nPLAYER " << curPlayerIndex + 1 << "'s Turn!\n";

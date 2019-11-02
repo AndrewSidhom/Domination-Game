@@ -14,20 +14,20 @@ public:
 	
 	//constructor, destructor
 	Player();
-	Player(string name, Deck *deck); 
+	Player(string name, Deck *deck);
 	Player(string name, Deck *deck, Map *mapPtr); 
 	Player(const Player &p);
 	~Player(); 
 
 	//accessors (some return copies not pointers to prevent modifications from outside).
-	static int genNextID() { return (*currentGenId)++; }
+	static int genNextID() { return (*currentGenId)++; };
 	int getId() { return *id; };
 	string getName() { return *name; };
 	Hand* getHand() { return hand; };
 	
 	//mutators
-	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries); }
-	void setName(string newName) { *name = newName; }
+	void setHand(Deck* deck) { hand = new Hand(deck, ownedCountries); };
+	void setName(string newName) { *name = newName; };
 
 	//service methods for reinforce, attack, fortify
 	void setOwnedCountries(list<Country*> ownedCountries); //used in the startup phase of the game. Stores all owned countries and places 1 army on each.
