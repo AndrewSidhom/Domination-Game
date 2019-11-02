@@ -11,8 +11,9 @@ Player::Player(string name, Deck *deck, Map *mapPtr) : id(new int(*currentGenId)
 Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), mapPtr(p.mapPtr), hand(p.hand), dice(p.dice) {}
 Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice, mapPtr; }
 
-//used in the startup phase of the game. Stores all owned countries and places 1 army on each
-// And sets how many owned countries are in each continent for reinforcing armies.
+/*	 Used in the startup phase of the game. Stores all owned countries and places 1 army on each.
+	 And sets how many owned countries are in each continent for reinforcing armies.
+*/
 void Player::setOwnedCountries(list<Country*> countriesList) 
 { 
 	for (Country* country : countriesList) {
@@ -29,7 +30,7 @@ void Player::claimCountry(Country* country, int armies)
 	country->player = this;
 	country->armies = armies;
 	(*ownedCountries)[country->id] = country;
-	(*numOfOwnedCountriesPerContinent)[country->id] += 1;
+	(*numOfOwnedCountriesPerContinent)[country->continentId] += 1;
 }
 
 //used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned.
@@ -38,12 +39,12 @@ Country* Player::loseCountry(int id)
 	if (ownedCountries->count(id) == 0)
 		return nullptr;
 	else {
-		(*numOfOwnedCountriesPerContinent)[id] -= 1;
-
 		Country* country = (*ownedCountries)[id];
 		ownedCountries->erase(id);
 		country->player = nullptr;
 		country->armies = -1;
+		(*numOfOwnedCountriesPerContinent)[country->continentId] -= 1;
+
 		return country;
 	}
 }
@@ -68,14 +69,16 @@ void Player::reinforce() {
 		r += hand->exchange();
 		if(r == 0)	// note 0 means user cancelled exchange action
 			break;
-		else if(hand->getHandCount() >= 3)
-			cout << "\nYou still have " << hand->getHandCount() << " left.\n"; 
+		else if(hand->getHandCount() >= 3) 
+			cout << "\nYou still have " << hand->getHandCount() << " cards left.\n"; 
+		armies += r;
+		cout << "\nArmies from exchanging: " << r << endl;	// TODO remove after testing phase 2
+		r = 0;
 	}
-	armies += r;
-	cout << "\nArmies from exchanging: " << r << endl;	// TODO remove after testing driver
-	cout << "\nTotal reinforcement armies: " << armies << endl;	// TODO remove after testing driver
+	cout << "\nTotal reinforcement armies: " << armies << endl;	// TODO remove after testing phase 2
 	
-	distributeArmies(armies);
+	if(!disableArmyDistribution) // TODO remove after testing phase 2
+		distributeArmies(armies);	
 }
 
 //the player carries out a number of attacks

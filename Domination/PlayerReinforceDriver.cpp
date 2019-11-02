@@ -46,12 +46,11 @@ void populateMap(Map *mapPtr) {
 void testCaseA1(Player *player, Map *mapPtr) {
 
     cout << "-----------------------------------------\n"
-        << "Test Case A1: own 1 country, 0 continents. Expect total armies: 3\n";
-    list<Country*> ownedCountries;
-    ownedCountries.push_back(mapPtr->getCountryById(4));    // country 4, continent 2 (EU)
-    player->setOwnedCountries(ownedCountries);
-
+        << "Test Case A1: own 1 country, 0 continents. Expect total armies: 3\n";  
+    player->claimCountry(mapPtr->getCountryById(4), 1);     // country 4, continent 2 (EU)
     player->reinforce();
+
+    player->loseCountry(4); // reset
 }
 
 /* A2. owns 1 continent & own 4 countries  -> 1.33 -> should get 3 armies
@@ -60,14 +59,14 @@ void testCaseA2(Player *player, Map *mapPtr) {
 
     cout << "-----------------------------------------\n"
         << "Test Case A2: own 4 countries(3), 1 continent(NA)(10). Expect total armies: 13\n";
-    list<Country*> ownedCountries;
-    ownedCountries.push_back(mapPtr->getCountryById(4));    // country 4, continent 2 (EU)
-    ownedCountries.push_back(mapPtr->getCountryById(1));    // country 1, continent 1 (NA)
-    ownedCountries.push_back(mapPtr->getCountryById(2));    // country 2, continent 1 (NA)
-    ownedCountries.push_back(mapPtr->getCountryById(3));    // country 3, continent 1 (NA)
-    player->setOwnedCountries(ownedCountries);
-
+    player->claimCountry(mapPtr->getCountryById(4), 1);     // country 4, continent 2 (EU)
+    player->claimCountry(mapPtr->getCountryById(1), 1);    // country 1, continent 1 (NA)
+    player->claimCountry(mapPtr->getCountryById(2), 1);    // country 2, continent 1 (NA)
+    player->claimCountry(mapPtr->getCountryById(3), 1);    // country 3, continent 1 (NA)
     player->reinforce();
+
+    for(int i = 1; i <= 4; i++)
+        player->loseCountry(i); // reset
 }
 
 /* A3. owns 2 continents & own 47 countries -> 15.66 -> should get 15 armies
@@ -76,57 +75,35 @@ void testCaseA3(Player *player, Map *mapPtr) {
 
     cout << "-----------------------------------------\n"
         << "Test Case A3: own 47 countries(15), 2 continents(12+20). Expect total armies: 47\n";
-    list<Country*> ownedCountries;
     for(int i = 4; i <= 50; i++) {
-        ownedCountries.push_back(mapPtr->getCountryById(i));    // all countries of continent 2 and 3 (EU+AS)
+        player->claimCountry(mapPtr->getCountryById(i), 1);    // all countries of continent 2 and 3 (EU+AS)
     }
-    player->setOwnedCountries(ownedCountries);
-
     player->reinforce();
+
+    for(int i = 4; i <= 50; i++)
+        player->loseCountry(i); // reset
 }
 
 /* A4. receive correct armies from first exchange to 8+ exchange
 */
-void testCaseA4(Player *player, Deck *deckPtr) {
+void testCaseA4(Player *player, Map* mapPtr, Deck *deckPtr) {
 
     cout << "-----------------------------------------\n"
         << "Test Case A4: ensure every exchange gives correct army amount.\n";
+    player->disableArmyDistribution = true; // skip distributing because tested by A1-A3
 
     int correctVals[8] {4, 6, 8, 10, 12, 15, 20, 25};
     for(int i = 1; i <= 8; i++) 
     {
-        cout << "\nExchange " << i << ": expect " << correctVals[i-1] << " armies\n";
-        player->getHand()->addCardToHand(deckPtr->draw());
-        player->getHand()->addCardToHand(deckPtr->draw());
-        player->getHand()->addCardToHand(deckPtr->draw());
+        cout << "\nExchange " << i << ": expect " << correctVals[i-1] << " armies from exchange\n";
+        player->getHand()->addCardToHand(Card(1, INFANTRY));
+        player->getHand()->addCardToHand(Card(1, INFANTRY));
+        player->getHand()->addCardToHand(Card(1, INFANTRY));
         player->reinforce();
     }    
 }
 
-/*  Sets fresh new list of owned countries to test exchange functionality.
-*/
-void setCustomOwnedCountries(Player *player, Map *mapPtr) {
-
-    cout << "-----------------------------------------\n"
-        << "Setting new owned countries to test exchange.\n";
-    list<Country*> ownedCountries;
-    ownedCountries.push_back(mapPtr->getCountryById(3));    // continent 1
-    ownedCountries.push_back(mapPtr->getCountryById(5));    // continent 2
-    ownedCountries.push_back(mapPtr->getCountryById(6));
-    ownedCountries.push_back(mapPtr->getCountryById(7));
-    ownedCountries.push_back(mapPtr->getCountryById(15));
-    ownedCountries.push_back(mapPtr->getCountryById(20));
-    ownedCountries.push_back(mapPtr->getCountryById(30));
-    ownedCountries.push_back(mapPtr->getCountryById(34));    // continent 3
-    ownedCountries.push_back(mapPtr->getCountryById(35));
-    ownedCountries.push_back(mapPtr->getCountryById(36));
-    ownedCountries.push_back(mapPtr->getCountryById(40));
-    ownedCountries.push_back(mapPtr->getCountryById(45));
-    ownedCountries.push_back(mapPtr->getCountryById(50));
-    player->setOwnedCountries(ownedCountries);
-}
-
-/*  B1. have < 3 cards.
+/*  B1. have < 3 cards. Expect: no option to exchange.
 */
 void testCaseB1(Player *player, Deck *deck) {
 
@@ -139,15 +116,62 @@ void testCaseB1(Player *player, Deck *deck) {
     player->reinforce();
 }
 
-/*  B1. have >= 3 cards.
+/*  B2. have 3 cards. Expect: no option to exchange or cancel.
 */
 void testCaseB2(Player *player, Deck *deck) {
 
     cout << "-----------------------------------------\n"
-        << "Test Case B1: have < 3 cards. Expect: no option to exchange.\n";
-    player->getHand()->addCardToHand(deck->draw());
-    player->getHand()->addCardToHand(deck->draw());
-    player->getHand()->addCardToHand(deck->draw());
+        << "Test Case B2: have >= 3 cards. Expect: option to exchange or cancel.\n";
+    player->setHand(deck);  /// reset Hand
+    player->getHand()->addCardToHand(Card(1, INFANTRY));
+    player->getHand()->addCardToHand(Card(1, INFANTRY));
+    player->getHand()->addCardToHand(Card(1, INFANTRY));
+    cout << "\nTotal cards in hand: " << player->getHand()->getHandCount() << endl;
+
+    player->reinforce();
+}
+
+/*  B3. have 5 cards. Expect: mandatory exchange.
+*/
+void testCaseB3(Player *player, Deck *deck) {
+
+    cout << "-----------------------------------------\n"
+        << "Test Case B3: have 5 cards. Expect: mandatory exchange.\n";
+    player->setHand(deck);  /// reset Hand
+    for(int i = 0; i < 5; i++) {
+        player->getHand()->addCardToHand(Card(1, INFANTRY));
+    }
+    cout << "\nTotal cards in hand: " << player->getHand()->getHandCount() << endl;
+
+    player->reinforce();
+}
+
+/*  B4. have 6 cards. Expect: mandatory exchange THEN optional because have 3 cards later.
+*/
+void testCaseB4(Player *player, Deck *deck) {
+
+    cout << "-----------------------------------------\n"
+        << "Test Case B4: have 6 cards. Expect: mandatory exchange THEN optional because have 3 cards later.\n";
+    player->setHand(deck);  /// reset Hand
+    for(int i = 0; i < 6; i++) {
+        player->getHand()->addCardToHand(Card(1, INFANTRY));
+    }
+    cout << "\nTotal cards in hand: " << player->getHand()->getHandCount() << endl;
+
+    player->reinforce();
+}
+
+/*  B5. player defeats another player and takes their cards, possessing 10 cards total. 
+        Expect: mandatory exchange until 4 cards or less.
+*/
+void testCaseB5(Player *player, Deck *deck) {
+
+    cout << "-----------------------------------------\n"
+        << "Test Case B5: have 10 cards. Expect: mandatory exchange until < 4 cards.\n";
+    player->setHand(deck);  /// reset Hand
+    for(int i = 0; i < 10; i++) {
+        player->getHand()->addCardToHand(Card(1, INFANTRY));
+    }
     cout << "\nTotal cards in hand: " << player->getHand()->getHandCount() << endl;
 
     player->reinforce();
@@ -176,23 +200,26 @@ int main() {
         EXCHANGING
         A4. receive correct armies from first exchange to 8+ exchange
     */
-    //testCaseA1(player, mapPtr);
-    //testCaseA2(player, mapPtr);
-    //testCaseA3(player, mapPtr);
-    testCaseA4(player, deckPtr);
+    testCaseA1(player, mapPtr);
+    testCaseA2(player, mapPtr);
+    testCaseA3(player, mapPtr);
+    testCaseA4(player, mapPtr, deckPtr);
 
-    /*  TEST REINFORCE FROM..
-        EXCHANGING
-        B1. have < 3 cards
-        B2. have >= 3 cards
-        B3. have >= 5 cards
-        B4. have >= 8 cards
-        B5. trade in 5 times and check if can cancel afterwards
-        NOTE: know that armies from exchange increase with every 
+    /*  TEST EXCHANGE DEPENDING ON CARDS IN HAND
+        NOTE: run 
+        B1. have < 3 cards. Expect: no option to exchange.
+        B2. have 3 cards. Expect: no option to exchange.
+        B3. have 5 cards. Expect: mandatory exchange.
+        B4. have 6 cards. Expect: mandatory exchange THEN optional because have 3 cards later.
+        B5. player defeats another player and takes their cards, possessing 10 cards total. 
+            Expect: mandatory exchange until 4 cards or less.
     */
-    setCustomOwnedCountries(player, mapPtr);
+    player->disableArmyDistribution = true;
     testCaseB1(player, deckPtr);
     testCaseB2(player, deckPtr);
+    testCaseB3(player, deckPtr);
+    testCaseB4(player, deckPtr);
+    testCaseB5(player, deckPtr);
 
     return 0;
 }

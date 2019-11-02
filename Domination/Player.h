@@ -12,6 +12,9 @@ class Player {
 
 public:
 	
+	// TODO remove after testing phase 2
+	bool disableArmyDistribution = false;
+
 	//constructor, destructor
 	Player();
 	Player(string name, Deck *deck); 
