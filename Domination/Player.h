@@ -28,6 +28,7 @@ public:
 	//mutators
 	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries); }
 	void setName(string newName) { *name = newName; }
+	void setMap(Map *newMapPtr) { mapPtr = newMapPtr; }
 
 	//service methods for reinforce, attack, fortify
 	void setOwnedCountries(list<Country*> ownedCountries); //used in the startup phase of the game. Stores all owned countries and places 1 army on each.
