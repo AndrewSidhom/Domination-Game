@@ -103,7 +103,7 @@ public:
 	string getName() { return *name; };
 	list<Continent> getContinents() { return *continents; };
 	Graph getGraph() { return *graph; };
-	list<Country> getCountries() { return *countries; };
+	list<Country>* getCountries() { return countries; };
 	bool getValidated() { return *validated; };
 	bool getIsValid() { return *isValid; };
 
