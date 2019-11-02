@@ -250,7 +250,7 @@ bool Hand::playerWantsToExchange()
 {
 	string input;
 	do {
-		cout << "Would you like to exchange your cards? (y/n): " << endl;
+		cout << "\nWould you like to exchange your cards? (y/n): " << endl;
 		cin >> input;
 
 		if(input.compare("y") == 0 || input.compare("n") == 0)  // 0 means equal

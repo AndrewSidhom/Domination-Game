@@ -72,6 +72,9 @@ void Player::reinforce() {
 			cout << "\nYou still have " << hand->getHandCount() << " left.\n"; 
 	}
 	armies += r;
+	cout << "\nArmies from exchanging: " << r << endl;	// TODO remove after testing driver
+	cout << "\nTotal reinforcement armies: " << armies << endl;	// TODO remove after testing driver
+	
 	distributeArmies(armies);
 }
 
@@ -96,6 +99,7 @@ int Player::getCountryReinforcement() {
 	if(reinforcements < 3)
 		reinforcements = 3;	// 3 being minimum
 
+	cout << "\nArmies from countries: " << reinforcements;	// TODO remove after testing driver
 	return reinforcements;
 }
 
@@ -108,9 +112,10 @@ int Player::getContinentReinforcement() {
 	list<Continent> allContinents = mapPtr->getContinents();
 
 	for(Continent c : allContinents) {
-		if (c.getSize() == (*numOfOwnedCountriesPerContinent)[c.getId])
-			reinforcements += c.getWorth();
+		if(c.getSize() == (*numOfOwnedCountriesPerContinent)[c.getId()])
+				{ reinforcements += c.getWorth(); }
 	}
+	cout << "\nArmies from continents: " << reinforcements;	// TODO remove after testing driver
 	return reinforcements;
 }
 
@@ -119,22 +124,22 @@ int Player::getContinentReinforcement() {
 */
 void Player::distributeArmies(int totalArmies) {
 
-	int countryInput, armiesInput, int i = 0;
+	int countryInput, armiesInput, i = 0;
 
 	displayOwnedCountries();
 	while(totalArmies > 0) 
 	{
-		cout << "\nYou have " << totalArmies << " armies" << i++? " left.\n" : ". Deploy your armies!\n";
+		cout << "---\nYou have " << totalArmies << " armies" << (i++? " left.\n" : ". Deploy your armies!\n"); // ++ to show different msg the second time
 		try {
 			cout << "Country: ";
 			countryInput = promptNumberInput();
 			if(ownedCountries->count(countryInput) == 0)
 				throw "\nYou do not own this country.";
 
-			cout << "\tArmies: ";
+			cout << "Armies: ";
 			armiesInput = promptNumberInput();
 			if(armiesInput > totalArmies || armiesInput < 0)
-				throw "\nYou must enter armies between 1 and " + totalArmies;
+				throw ("\nYou must enter armies in the range given.");
 			
 			addOrRemoveArmies(countryInput, armiesInput);
 			totalArmies -= armiesInput;
@@ -143,6 +148,7 @@ void Player::distributeArmies(int totalArmies) {
 			cout << msg << endl;
 		}
 	}
+	displayOwnedCountries();
 }
 
 /*	Armies can be a +ve or -ve integer, meaning add or remove this many armies. 
@@ -184,12 +190,12 @@ int Player::promptNumberInput() {
 */
 void Player::displayOwnedCountries() {
 
-	cout << "\nYour owned countries:\n\t\t\tArmies\tContinent"
-			<< "======================";
+	cout << "\nOwned Countries   Armies  Continent\n"
+			<< "====================================";
 	map<int,Country*>::iterator iter = ownedCountries->begin();
 	for(;iter != ownedCountries->end(); ++iter) 
 	{
-		cout << "Country " << iter->first << " \t|| " << iter->second->armies << "\t|| " << iter->second->continentId;
+		cout << "\nCountry " << iter->first << " \t|| " << iter->second->armies << "\t|| " << iter->second->continentId;
 	}
-
+	cout << endl;
 }

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <list>
+#include <map>
 #include "Map.h"
 #include "Cards.h"
 #include "Dice.h"
@@ -10,19 +11,21 @@
 class Player {
 
 public:
-	//accessors (some return copies not pointers to prevent modifications from outside).
-	int getId() { return *id; };
-	string getName() { return *name; };
 	
 	//constructor, destructor
 	Player();
-
 	Player(string name, Deck *deck); 
 	Player(string name, Deck *deck, Map *mapPtr); 
 	Player(const Player &p);
 	~Player(); 
 
+	//accessors (some return copies not pointers to prevent modifications from outside).
 	static int genNextID() { return (*currentGenId)++; }
+	int getId() { return *id; };
+	string getName() { return *name; };
+	Hand* getHand() { return hand; };
+	
+	//mutators
 	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries); }
 	void setName(string newName) { *name = newName; }
 
@@ -46,7 +49,7 @@ private:
 	static int* currentGenId;
 	int* id;
 	string* name;
-	map<int, Country*>* ownedCountries;  //maps each owned country id to a pointer to the Country object
+	map<int, Country*>* ownedCountries;  //maps each owned country id to a pointer to the Country object (used for n(1) searching)
 	map<int,int>* numOfOwnedCountriesPerContinent;	// key: continent id, val: number of player's owned countries in that continent
 	Map* mapPtr;
 	Hand* hand;
