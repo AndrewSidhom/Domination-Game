@@ -3,6 +3,7 @@
 #include <map>
 #include <list>
 #include <string>
+#include "Player.h"
 using namespace std;
 
 
@@ -41,7 +42,7 @@ struct Country {
 	int continentId;   //the continent this country belongs to
 	string name;
 	list<int> neighbors;  //ids of countries adjacent to this one
-	int playerId; //player who owns the country during gameplay. Equals -1 if undefined (for example before startup phase or while country is changing ownership)
+	Player* player; //player who owns the country during gameplay. Is a nullptr if undefined (for example before startup phase or while country is changing ownership)
 	int armies; //number of armies present on the country during gameplay. Equals -1 if undefined (for example before startup phase or while country is changing ownership)
 
 	Country(int id, int continentId, string name);
