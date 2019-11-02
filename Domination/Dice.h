@@ -8,6 +8,7 @@ public:
 	Dice();
 	~Dice();
 	list<int> roll();
+	list<int> roll(int numberOfDiceToRoll);
 	void showInfo(); 
 	list<int> rollForTests();
 

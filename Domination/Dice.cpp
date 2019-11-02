@@ -33,14 +33,25 @@ Dice::~Dice() {
 }
 
 /**
-* Asks user how many dice to roll, rolls the apporopriate amount of dice, and updates the percentage
-* @return dice in a container
+* Asks user how many dice to roll, rolls the appropriate amount of dice, and updates the percentage
+* @return dice in a container (sorted in descending order)
 */
 list<int> Dice::roll()
 {
 	int numOfDice = queryDice(); //Asks user how many dice will be rolled
 	cout << "Rolling " << numOfDice << " dice..." << endl;
 	list<int> container = rngAndSort(numOfDice);
+	update(container);
+	return container;
+}
+
+/**
+* Rolls the specified amount of dice and updates the percentage
+* @return dice in a container (sorted in descending order)
+*/
+list<int> Dice::roll(int numberOfDiceToRoll)
+{
+	list<int> container = rngAndSort(numberOfDiceToRoll);
 	update(container);
 	return container;
 }
