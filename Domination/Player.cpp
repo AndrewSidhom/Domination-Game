@@ -16,7 +16,7 @@ Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerConti
 void Player::setOwnedCountries(list<Country*> countriesList) 
 { 
 	for (Country* country : countriesList) {
-		country->playerId = *id;
+		country->player = this;
 		country->armies = 1;
 		(*ownedCountries)[country->id] = country;
 		(*numOfOwnedCountriesPerContinent)[country->continentId] += 1;
@@ -26,7 +26,7 @@ void Player::setOwnedCountries(list<Country*> countriesList)
 //used during attack(). Adds this country to the ones owned by the player, places on it this many armies.
 void Player::claimCountry(Country* country, int armies)
 {
-	country->playerId = *id;
+	country->player = this;
 	country->armies = armies;
 	(*ownedCountries)[country->id] = country;
 	(*numOfOwnedCountriesPerContinent)[country->id] += 1;
@@ -42,7 +42,7 @@ Country* Player::loseCountry(int id)
 
 		Country* country = (*ownedCountries)[id];
 		ownedCountries->erase(id);
-		country->playerId = -1;
+		country->player = nullptr;
 		country->armies = -1;
 		return country;
 	}
