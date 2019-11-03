@@ -60,6 +60,8 @@ public:
 	int getHandCount();
 	//	Add card to hand.
 	void addCardToHand(Card c);
+	// Draw a card from the deck and put it in the player's hand.
+	void drawFromDeck() { playerHand->push_back(deck->draw()); };
 	//	Exchange 3 cards in hand for armies.
 	int exchange();
 
