@@ -36,15 +36,39 @@ GameEngine::~GameEngine() {
 	delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
 }
 
+GameEngine::GameEngine(Player *testPlayers, int numOfPlayers, int numTotalCountries) {
+
+	players = testPlayers;
+	NUM_OF_PLAYERS = new int(numOfPlayers);
+	NUM_OF_COUNTRIES = new int(numTotalCountries);
+}
+
 void GameEngine::startGameLoop() {
     
     int curPlayerIndex = 0; // index of current player's turn
+	int round = 1;	// TODO remove test code after phase 2
     do {
         while(players[curPlayerIndex].getNumOfOwnedCountries() == 0) 
             { curPlayerIndex ++; }  // skip turn if current player has no countries left
 
+		// TODO remove test code below (line 47-62) after phase 2
 		cout << "\nPLAYER " << curPlayerIndex + 1 << "'s Turn!\n";
 		cout << "Calling player's reinforce, attack, and fortify funcs\n";
+		if(curPlayerIndex == 0 && round == 2) 
+		{
+			cout << "\nPlayer 1 should now claim player 2's country and player 2's turn is skipped\n";
+			Country* c = players[1].loseCountry(2);	// param: country id
+			players[0].claimCountry(c, 1);	// param: country ptr, army size
+		}
+		else if(curPlayerIndex == 0 && round == 3)
+		{
+			cout << "\nPlayer 1 should now claim player 3's country and win the game.\n";
+			Country* c = players[2].loseCountry(3);	// param: country id
+			players[0].claimCountry(c, 1);	// param: country ptr, army size
+		}
+		round++;
+
+		//Expected code after testing phase 2
         //players[curPlayerIndex].reinforce();
         //players[curPlayerIndex].attack();
         //players[curPlayerIndex].fortify();
@@ -91,8 +115,8 @@ Map* GameEngine::loadGameMap() {
 		cin >> mapName;
 		gameMap = MapLoader::loadMapFile(mapName);
 	}
-	list<Country> countries = gameMap->getCountries();
-	numOfCountries = (int)countries.size();
+	//list<Country> countries = gameMap->getCountries();
+	//numOfCountries = (int)countries.size();
 	NUM_OF_COUNTRIES = new int(numOfCountries);
 
 	return gameMap;
@@ -132,8 +156,8 @@ void GameEngine::randomOrder() {
 }
 
 void GameEngine::assignCountriesToPlayers(Map *gameMap) {
-	list<Country> c = gameMap->getCountries();
-	vector<Country> countries{ make_move_iterator(begin(c)), make_move_iterator(end(c)) };
+	//list<Country> c = gameMap->getCountries();
+	//vector<Country> countries{ make_move_iterator(begin(c)), make_move_iterator(end(c)) };
 	const int COLUMNS = 6;
 	int index = 0;
 	list<Country*> ownedCountries[COLUMNS];
@@ -142,14 +166,14 @@ void GameEngine::assignCountriesToPlayers(Map *gameMap) {
 	mt19937 mt(rd());
 	
 	for (int i = 0; i < *NUM_OF_COUNTRIES; i++) {
-		uniform_int_distribution<int> dist(0, countries.size() - 1);
+		/*uniform_int_distribution<int> dist(0, countries.size() - 1);
 		cout << "size: " << countries.size() << endl;
 		rnd = dist(mt);
 		cout << "rnd: " << rnd << endl;
 		Country* country = &countries.at(rnd);
 		ownedCountries[index].push_back(country);
 		countries.erase(countries.begin() + rnd);
-		index = (index + 1) % *NUM_OF_PLAYERS;
+		index = (index + 1) % *NUM_OF_PLAYERS;*/
 	}
 	cout << "Set method" << endl;
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
