@@ -164,6 +164,12 @@ void Hand::addCardToHand(Card c)
 	playerHand->push_back(c);
 }
 
+void Hand::drawFromDeck()
+{
+	Card c = deck->draw();
+	playerHand->push_back(c);
+}
+
 /*	Exchange 3 cards in hand for armies.
 	@return exchanged armies, if exchange cancelled, return 0
 */
