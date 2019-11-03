@@ -91,8 +91,8 @@ Map* GameEngine::loadGameMap() {
 		cin >> mapName;
 		gameMap = MapLoader::loadMapFile(mapName);
 	}
-	list<Country> countries = gameMap->getCountries();
-	numOfCountries = (int)countries.size();
+	list<Country*> *countries = gameMap->getCountries();
+	numOfCountries = (int)countries->size();
 	NUM_OF_COUNTRIES = new int(numOfCountries);
 
 	return gameMap;
@@ -132,8 +132,10 @@ void GameEngine::randomOrder() {
 }
 
 void GameEngine::assignCountriesToPlayers(Map *gameMap) {
-	list<Country> c = gameMap->getCountries();
-	vector<Country> countries{ make_move_iterator(begin(c)), make_move_iterator(end(c)) };
+	vector<int> countryIds;
+	for (int i = 1; i <= *NUM_OF_COUNTRIES; i++) {
+		countryIds.push_back(i);
+	}
 	const int COLUMNS = 6;
 	int index = 0;
 	list<Country*> ownedCountries[COLUMNS];
@@ -142,22 +144,20 @@ void GameEngine::assignCountriesToPlayers(Map *gameMap) {
 	mt19937 mt(rd());
 	
 	for (int i = 0; i < *NUM_OF_COUNTRIES; i++) {
-		uniform_int_distribution<int> dist(0, countries.size() - 1);
-		cout << "size: " << countries.size() << endl;
+		uniform_int_distribution<int> dist(0, countryIds.size() - 1);
 		rnd = dist(mt);
-		cout << "rnd: " << rnd << endl;
-		Country* country = &countries.at(rnd);
+		Country* country = gameMap->getCountryById(countryIds.at(rnd));
 		ownedCountries[index].push_back(country);
-		countries.erase(countries.begin() + rnd);
+		countryIds.erase(countryIds.begin() + rnd);
 		index = (index + 1) % *NUM_OF_PLAYERS;
 	}
-	cout << "Set method" << endl;
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
 		cout << "Player " << i + 1 << " countries:" << endl;
 		for (Country* x : ownedCountries[i]) {
 			cout << x->name << endl;
 		}
 	}
+	
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
 		players[i].setOwnedCountries(ownedCountries[i]);
 	}
