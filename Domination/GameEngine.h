@@ -8,8 +8,10 @@ class GameEngine {
 public:
     GameEngine();   // constructor
     ~GameEngine();  // destructor
+    // TODO REMOVE AFTER PHASE 2 TESTING. Constructor used to init test data.
+    GameEngine(Player *testPlayers, int totalPlayers, int totalCountries);   
 
-    void startGameLoop();   // Start the game loop.
+    void startGameLoop();   // Start the game loop. 
 
 private:
 
