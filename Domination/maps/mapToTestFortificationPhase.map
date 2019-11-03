@@ -1,0 +1,22 @@
+; map: mapToTestFortificationPhase.map
+
+name mapToTestFortificationPhase
+
+[continents]
+theOneContinent 15 yellow
+
+[countries]
+1 A 1
+2 B 1
+3 C 1
+4 D 1
+5 E 1
+6 F 1
+
+[borders]
+1 2
+2 1 3
+3 2 4
+4 3 5
+5 4 6
+6 5

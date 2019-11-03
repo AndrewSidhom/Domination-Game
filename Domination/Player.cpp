@@ -93,17 +93,26 @@ void Player::fortify()
 {
 	cout << "**Fortification Phase**\n";
 	srand((int)time(0));
-	cout << "A random source country will be chosen from the list of countries owned by the player" << endl;
+	cout << "Will search for a valid source country among this player's owned countries" << endl;
 	Country* source;
 	Country* destination;
+	map<int, Country*>::iterator it = ownedCountries->begin();
 	bool validSource = false;
 	do {
-		source = getFortifySource();
+		if (it == ownedCountries->end()) {
+			cout << "No valid source country was found among this player's owned countries. Exiting fortify()" << endl;
+			return;
+		}
+		source = it->second;
 		destination = getFortifyDestination(source);
-		if(source->armies <= 1)
+		if (source->armies <= 1) {
 			cout << "Choice of source country with id " << source->id << " failed because it has less than 2 armies on it." << endl;
-		else if (destination == nullptr)
+			it++;
+		}
+		else if (destination == nullptr) {
 			cout << "Choice of source country with id " << source->id << " failed because it has no neighbors owned by the player." << endl;
+			it++;
+		}
 		else
 			validSource = true;
 	} while (!validSource);
@@ -114,6 +123,7 @@ void Player::fortify()
 	cout << "Destination ID: " << destination->id << endl;
 	cout << "A number of armies to move will be chosen at random in the range from 1 to " << (srcArmies - 1) << endl;
 	int armiesToMove = (rand() % (srcArmies -1)) + 1;
+	cout << armiesToMove << " armies will be moved." << endl;
 
 	try {
 		addOrRemoveArmies(source->id, -armiesToMove);
@@ -185,12 +195,6 @@ void Player::distributeArmies(int totalArmies) {
 		}
 	}
 	displayOwnedCountries();
-}
-
-//returns a random owned country
-Country* Player::getFortifySource() {
-	map<int, Country*>::iterator it = next(ownedCountries->begin, rand() % (ownedCountries->size) );
-	return it->second;
 }
 
 //returns the first neighbor of source which is found to be owned by the player, nullptr if there is no such neighbor
