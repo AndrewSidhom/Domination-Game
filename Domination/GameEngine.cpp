@@ -1,5 +1,6 @@
 #include "GameEngine.h"
 #include "MapLoader.h"
+#include "Cards.h"
 #include <string>
 using std::cout;
 using std::cin;
@@ -38,7 +39,10 @@ GameEngine::~GameEngine() {
 
 GameEngine::GameEngine(Player *testPlayers, int numOfPlayers, int numTotalCountries) {
 
+	players = new Player[numOfPlayers];
+	//cout << "HELLO " << testPlayers;
 	players = testPlayers;
+	//cout << "HEY " << players;
 	NUM_OF_PLAYERS = new int(numOfPlayers);
 	NUM_OF_COUNTRIES = new int(numTotalCountries);
 }
@@ -46,37 +50,46 @@ GameEngine::GameEngine(Player *testPlayers, int numOfPlayers, int numTotalCountr
 void GameEngine::startGameLoop() {
     
     int curPlayerIndex = 0; // index of current player's turn
-	int round = 1;	// TODO remove test code after phase 2
+	int turn = 1;	// TODO remove test code after phase 2
     do {
         while(players[curPlayerIndex].getNumOfOwnedCountries() == 0) 
             { curPlayerIndex ++; }  // skip turn if current player has no countries left
 
-		// TODO remove test code below (line 47-62) after phase 2
-		cout << "\nPLAYER " << curPlayerIndex + 1 << "'s Turn!\n";
+		// TODO remove test code below after phase 2 ************************
+		cout << "\nTURN " << turn << ", PLAYER " << curPlayerIndex + 1 << "'s Turn!\n";
 		cout << "Calling player's reinforce, attack, and fortify funcs\n";
-		if(curPlayerIndex == 0 && round == 2) 
+		if(curPlayerIndex == 0 && turn == 4) 
 		{
 			cout << "\nPlayer 1 should now claim player 2's country and player 2's turn is skipped\n";
 			Country* c = players[1].loseCountry(2);	// param: country id
 			players[0].claimCountry(c, 1);	// param: country ptr, army size
 		}
-		else if(curPlayerIndex == 0 && round == 3)
+		else if(curPlayerIndex == 0 && turn == 6)
 		{
 			cout << "\nPlayer 1 should now claim player 3's country and win the game.\n";
 			Country* c = players[2].loseCountry(3);	// param: country id
 			players[0].claimCountry(c, 1);	// param: country ptr, army size
 		}
-		round++;
+		turn++;
+		// *******************************************************************
 
 		//Expected code after testing phase 2
         //players[curPlayerIndex].reinforce();
         //players[curPlayerIndex].attack();
         //players[curPlayerIndex].fortify();
-
+		
         if(curPlayerIndex == *NUM_OF_PLAYERS - 1)
-            { curPlayerIndex = 0; }
+            curPlayerIndex = 0;
+		else
+			curPlayerIndex++;
     } 
     while(!aPlayerOwnsAllCountries());
+
+	// TODO REMOVE CODE after phase 2 testing
+	if(players[2].getNumOfOwnedCountries() == 0 &&
+		players[1].getNumOfOwnedCountries() == 0 &&
+		players[0].getNumOfOwnedCountries() == 3)
+			{ cout << "\nPlayer 1 has won the game!"; }
 }
 
 bool GameEngine::aPlayerOwnsAllCountries() {

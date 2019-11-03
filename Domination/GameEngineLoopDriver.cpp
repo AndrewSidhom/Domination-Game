@@ -4,7 +4,7 @@
 #include "Map.h"
 
 
-void populateMap(Map *mapPtr) {
+void setUpMapAndPlayers(Map *mapPtr, Player* players) {
 
     Continent cont1(1, "ZA WARULDO", 10); /// ID, NAME, WORTH
     mapPtr->addContinent(cont1);
@@ -14,6 +14,10 @@ void populateMap(Map *mapPtr) {
     mapPtr->addCountry(c1);
     mapPtr->addCountry(c2);
     mapPtr->addCountry(c3);
+
+    players[0].claimCountry(mapPtr->getCountryById(1), 1);  // COUNTRY* ptr, armies
+    players[1].claimCountry(mapPtr->getCountryById(2), 1);
+    players[2].claimCountry(mapPtr->getCountryById(3), 1);
 }
 
 int main() {
@@ -31,9 +35,9 @@ int main() {
     };
 
     // Populate map with country 1, 2, 3, owned by player 1, 2, 3 respectively
-    populateMap(mapPtr);
+    setUpMapAndPlayers(mapPtr, players);
     int numTotalCountries = mapPtr->getCountries()->size();
-
+    
     /*  Start game loop.
     */
     GameEngine ge(players, numTotalPlayers, numTotalCountries);
