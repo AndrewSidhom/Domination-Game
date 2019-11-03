@@ -24,6 +24,7 @@ GameEngine::GameEngine() {
 
 	//PART 2
 	randomOrder();
+	cout << "\nOrder of players\n----------------" << endl;
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {	
 		cout << (players + i)->getName() << endl;
 	}	
@@ -151,8 +152,9 @@ void GameEngine::assignCountriesToPlayers(Map *gameMap) {
 		countryIds.erase(countryIds.begin() + rnd);
 		index = (index + 1) % *NUM_OF_PLAYERS;
 	}
+
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
-		cout << "Player " << i + 1 << " countries:" << endl;
+		cout << "\n" << players[i].getName() << "'s countries:" << endl;
 		for (Country* x : ownedCountries[i]) {
 			cout << x->name << endl;
 		}
