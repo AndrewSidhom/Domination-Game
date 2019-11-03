@@ -5,7 +5,6 @@ using std::cout;
 using std::cin;
 using std::endl;
 
-int* Player::currentGenId = new int(1);
 
 // Constructor
 GameEngine::GameEngine() {
