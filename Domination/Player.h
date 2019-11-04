@@ -32,7 +32,8 @@ public:
 	void setName(string newName) { *name = newName; }
 	void setMap(Map *newMapPtr) { mapPtr = newMapPtr; }
 
-	//service methods for reinforce, attack, fortify
+	void claimCountry(Country* country, int armies); // Used during attack(). Adds this country to the ones owned by the player, places on it this many armies
+	Country* loseCountry(int id); // Used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned
 	void setOwnedCountries(list<Country*> ownedCountries); //used in the startup phase of the game. Stores all owned countries and places 1 army on each.
 	vector<int> rollDice(int howMany); //rolls this number of dice, returns dice results
 
@@ -68,8 +69,6 @@ private:
 	// print out methods
 	void displayOwnedCountries(); // Display owned countries' armies and continent id.
 
-	void claimCountry(Country* country, int armies); // Used during attack(). Adds this country to the ones owned by the player, places on it this many armies
-	Country* loseCountry(int id); // Used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned
 	bool decideToAttack(); // Choose whether to attack an enemy country or not
 	Country* selectAttackingCountry(); // Choose which Country to attack from. This Country should have at least 2 armies within it and should have neighbouring enemy Countries
 	Country* selectDefendingCountry(Country* attackingCountry); // Choose a Country to attack from the attacking Country
