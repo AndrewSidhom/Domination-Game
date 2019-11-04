@@ -37,16 +37,19 @@ GameEngine::~GameEngine() {
 	delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
 }
 
+/* Constructor FOR TEST PURPOSES. Remove around phase 2.
+*/
 GameEngine::GameEngine(Player *testPlayers, int numOfPlayers, int numTotalCountries) {
 
 	players = new Player[numOfPlayers];
-	//cout << "HELLO " << testPlayers;
 	players = testPlayers;
-	//cout << "HEY " << players;
 	NUM_OF_PLAYERS = new int(numOfPlayers);
 	NUM_OF_COUNTRIES = new int(numTotalCountries);
 }
 
+/*	Responsible for starting the game loop. Loop ends when a player owns all countries on map.
+	Every loop, each player that owns at least 1 country will call reinforce, attack, fortify in that order.
+*/
 void GameEngine::startGameLoop() {
     
     int curPlayerIndex = 0; // index of current player's turn
@@ -92,13 +95,15 @@ void GameEngine::startGameLoop() {
 			{ cout << "\nPlayer 1 has won the game!"; }
 }
 
+/*	Checks if a player owns all countries on the map.
+	@return if a player owns all countries
+*/
 bool GameEngine::aPlayerOwnsAllCountries() {
 
     for(int i = 0; i < *NUM_OF_PLAYERS; i++) {
         if(players[i].getNumOfOwnedCountries() == *NUM_OF_COUNTRIES) 
             return true;
     }
-
     return false;
 }
 

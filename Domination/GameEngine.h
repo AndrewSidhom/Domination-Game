@@ -11,7 +11,7 @@ public:
     // TODO REMOVE AFTER PHASE 2 TESTING. Constructor used to init test data.
     GameEngine(Player *testPlayers, int totalPlayers, int totalCountries);   
 
-    void startGameLoop();   // Start the game loop. 
+    void startGameLoop();   // Start the game loop. Game ends when a player owns all countries. 
 
 private:
 
