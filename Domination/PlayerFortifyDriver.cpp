@@ -52,7 +52,7 @@ int main() {
 		cout << c->name << " --> " << c->armies << endl;
 	cout << "---------------------------------" << endl;
 
-
+	system("pause");
 	
 	return 0;
 }
