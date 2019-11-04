@@ -18,6 +18,7 @@ GameEngine::GameEngine() {
 	//load map and create deck according to number of countries 
 	Map *gameMap = loadGameMap();
 	Deck deck(*NUM_OF_COUNTRIES);
+	cout << "Size of deck: " << deck.getDeckSize() << endl;
 	//get number of players, set their names and assign them the deck
 	setupPlayers(name, &deck, gameMap);
 

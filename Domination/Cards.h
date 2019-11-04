@@ -37,6 +37,8 @@ public:
 	bool isEmpty();
 	//	Get bonus army from successful exchange.
 	int getExchangedArmies();
+	// Returns number of cards in the deck
+	int getDeckSize() { return cardDeck->size(); }
 
 private:
 	vector<Card>* cardDeck;	// Deck; container of cards
