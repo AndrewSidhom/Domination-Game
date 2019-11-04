@@ -78,9 +78,9 @@ void GameEngine::startGameLoop() {
 		// *******************************************************************
 
 		//Expected code after testing phase 2
-        //players[curPlayerIndex].reinforce();
-        //players[curPlayerIndex].attack();
-        //players[curPlayerIndex].fortify();
+        players[curPlayerIndex].reinforce();
+        players[curPlayerIndex].attack();
+        players[curPlayerIndex].fortify();
 		
         if(curPlayerIndex == *NUM_OF_PLAYERS - 1)
             curPlayerIndex = 0;
