@@ -18,7 +18,6 @@ GameEngine::GameEngine() {
 	//load map and create deck according to number of countries 
 	Map *gameMap = loadGameMap();
 	Deck deck(*NUM_OF_COUNTRIES);
-
 	//get number of players, set their names and assign them the deck
 	setupPlayers(name, &deck, gameMap);
 
@@ -26,9 +25,10 @@ GameEngine::GameEngine() {
 	randomOrder();
 	cout << "\nOrder of players\n----------------" << endl;
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {	
-		cout << (players + i)->getName() << endl;
+		cout << players[i].getName() << endl;
 	}	
-	assignCountriesToPlayers(gameMap);	
+	assignCountriesToPlayers(gameMap);
+	assignArmiesToCountries();	
 }
 // Destructor
 GameEngine::~GameEngine() {
@@ -194,15 +194,47 @@ void GameEngine::assignCountriesToPlayers(Map *gameMap) {
 		index = (index + 1) % *NUM_OF_PLAYERS;
 	}
 
+	//***THIS LOOP CAN BE REMOVED AFTER DEMO***
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
 		cout << "\n" << players[i].getName() << "'s countries:" << endl;
 		for (Country* x : ownedCountries[i]) {
 			cout << x->name << endl;
 		}
 	}
-	
+
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
 		players[i].setOwnedCountries(ownedCountries[i]);
 	}
-	//WORK IN PROGRESS...
+}
+
+void GameEngine::setA() {
+	switch (*NUM_OF_PLAYERS) {
+	case 2:
+		A = new int(40);
+		break;
+	case 3:
+		A = new int(35);
+		break;
+	case 4:
+		A = new int(30);
+		break;
+	case 5:
+		A = new int(25);
+		break;
+	case 6:
+		A = new int(20);
+		break;
+	}
+}
+
+void GameEngine::assignArmiesToCountries() {
+	int remainingArmies = *A;
+	for (int i = 0; i < *A; i++) {
+		for (int j = 0; j < *NUM_OF_PLAYERS; j++) {
+			cout << "\n" << players[j].getName() << "'s turn" << endl;
+			players[j].distributeArmies(remainingArmies, true);
+			
+		}
+		remainingArmies--;
+	}
 }

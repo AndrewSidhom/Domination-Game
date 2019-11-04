@@ -9,7 +9,7 @@ int* Player::currentGenId = new int(1);
 //constructor, destructor
 Player::Player() : id(new int(*currentGenId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
 Player::Player(string name, Deck *deck, Map *mapPtr) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int,int>), mapPtr(mapPtr), hand(new Hand(deck, ownedCountries)), dice(new Dice()){ genNextID(); }
-Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), mapPtr(p.mapPtr), hand(p.hand), dice(p.dice), numOfOwnedCountriesPerContinent(new map<int, int>) {}
+Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), mapPtr(p.mapPtr), hand(p.hand), dice(p.dice), numOfOwnedCountriesPerContinent(p.numOfOwnedCountriesPerContinent) {}
 Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice, mapPtr; }
 
 /*	 Used in the startup phase of the game. Stores all owned countries and places 1 army on each.
@@ -79,7 +79,7 @@ void Player::reinforce() {
 	cout << "\nTotal reinforcement armies: " << armies << endl;	// TODO remove after testing phase 2
 	
 	if(!disableArmyDistribution) // TODO remove after testing phase 2
-		distributeArmies(armies);	
+		distributeArmies(armies, false);	
 }
 
 //the player carries out a number of attacks
@@ -168,7 +168,7 @@ int Player::getContinentReinforcement() {
 /*	Prompt user to choose which countries to distribute their reinforcement armies
 	@param total armies from reinforcement to distribute
 */
-void Player::distributeArmies(int totalArmies) {
+void Player::distributeArmies(int totalArmies, bool startup) {
 
 	int countryInput, armiesInput, i = 0;
 
@@ -181,14 +181,19 @@ void Player::distributeArmies(int totalArmies) {
 			countryInput = promptNumberInput();
 			if(ownedCountries->count(countryInput) == 0)
 				throw "\nYou do not own this country.";
-
-			cout << "Armies: ";
-			armiesInput = promptNumberInput();
-			if(armiesInput > totalArmies || armiesInput < 0)
-				throw ("\nYou must enter armies in the range given.");
+			if (startup)
+				armiesInput = 1;
+			else {
+				cout << "Armies: ";
+				armiesInput = promptNumberInput();
+				if (armiesInput > totalArmies || armiesInput < 0)
+					throw ("\nYou must enter armies in the range given.");
+			}
 			
 			addOrRemoveArmies(countryInput, armiesInput);
 			totalArmies -= armiesInput;
+			if (startup)
+				break;
 		}
 		catch(const char* msg) {
 			cout << msg << endl;

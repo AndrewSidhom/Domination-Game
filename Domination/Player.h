@@ -45,6 +45,10 @@ public:
 
 	// service methods for external classes (i.e. GameEngine)
 	int getNumOfOwnedCountries() { return ownedCountries->size(); };
+	void distributeArmies(int armies, bool startup);	// Prompt user to choose which countries to distribute their reinforcement armies
+	
+	// print out methods
+	void displayOwnedCountries(); // Display owned countries' armies and continent id.
 
 protected:
 	map<int, Country*>* getOwnedCountries() { return ownedCountries; };
@@ -62,13 +66,11 @@ private:
 	// internal service methods
 	int getCountryReinforcement(); // Get armies from total countries divided by 3
 	int getContinentReinforcement(); // Get armies bonus from claiming entire continent
-	void distributeArmies(int armies);	// Prompt user to choose which countries to distribute their reinforcement armies
 	Country* getFortifyDestination(Country* source); //returns the first neighbor of source which is found to be owned by the player, nullptr if there is no such neighbor
 	void addOrRemoveArmies(int countryId, int armies); //armies can be a +ve or -ve integer, meaning add or remove this many armies. THROWS EXCEPTION if country is not owned or if the number of armies to remove >= current number of armies.
 	
 	int promptNumberInput(); // Prompt user to input a NUMBER only.
 
-	// print out methods
-	void displayOwnedCountries(); // Display owned countries' armies and continent id.
+	
 	
 };
