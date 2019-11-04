@@ -19,7 +19,7 @@ void Player::setOwnedCountries(list<Country*> countriesList)
 { 
 	for (Country* country : countriesList) {
 		country->player = this;
-		country->armies = 1;
+		country->armies = 0;
 		(*ownedCountries)[country->id] = country;
 		(*numOfOwnedCountriesPerContinent)[country->continentId] += 1;
 	}

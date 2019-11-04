@@ -144,6 +144,7 @@ void GameEngine::setupPlayers(string name, Deck *deck, Map *gameMap) {
 	int numOfPlayers;
 	numOfPlayers = queryNumOfPlayers(name);
 	NUM_OF_PLAYERS = new int(numOfPlayers);
+	setA();
 	players = new Player[*NUM_OF_PLAYERS];
 	Player *player = new Player(name, deck, gameMap);
 	*players = *player; //Assign player one first position of players array
