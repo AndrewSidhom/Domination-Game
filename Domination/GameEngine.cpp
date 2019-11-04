@@ -108,6 +108,7 @@ bool GameEngine::aPlayerOwnsAllCountries() {
     return false;
 }
 
+// Asks input for the number of Players. Returns the number of players.
 int GameEngine::queryNumOfPlayers(string name) {
 	string input;
 	bool isValid = false;
@@ -124,6 +125,7 @@ int GameEngine::queryNumOfPlayers(string name) {
 	return numOfPlayers;
 }
 
+// Asks input for the map to be use in the game. Returns a pointer to a Map object that corresponds to the loaded map.
 Map* GameEngine::loadGameMap() {
 	string mapName;
 	int numOfCountries;	
@@ -141,6 +143,7 @@ Map* GameEngine::loadGameMap() {
 	return gameMap;
 }
 
+// Creates the Players. Asks input for Player names.
 void GameEngine::setupPlayers(string name, Deck *deck, Map *gameMap) {
 	int numOfPlayers;
 	numOfPlayers = queryNumOfPlayers(name);
@@ -161,6 +164,7 @@ void GameEngine::setupPlayers(string name, Deck *deck, Map *gameMap) {
 	}
 }
 
+// Changes randomly the order of the Players stored in players
 void GameEngine::randomOrder() {
 	random_device rd;
 	mt19937 mt(rd());
@@ -175,6 +179,8 @@ void GameEngine::randomOrder() {
 	}
 }
 
+// Assigns Countries to each Player. Asks input repeatedly and one at a time to each Player to choose a Country to add
+// to their list of owned Countries.
 void GameEngine::assignCountriesToPlayers(Map *gameMap) {
 	vector<int> countryIds;
 	for (int i = 1; i <= *NUM_OF_COUNTRIES; i++) {
@@ -209,6 +215,8 @@ void GameEngine::assignCountriesToPlayers(Map *gameMap) {
 	}
 }
 
+// Determines how many armies should be distributed amongst the Players in the startup phase depending on
+// the total number of Players.
 void GameEngine::setA() {
 	switch (*NUM_OF_PLAYERS) {
 	case 2:
@@ -229,6 +237,7 @@ void GameEngine::setA() {
 	}
 }
 
+// Assigns armies to each Country.
 void GameEngine::assignArmiesToCountries() {
 	int remainingArmies = *A;
 	for (int i = 0; i < *A; i++) {

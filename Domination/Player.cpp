@@ -275,8 +275,6 @@ void Player::attack()
 
 		if (atLeastOneCountryConquered) {
 			//TODO in A3: check if Player defeated other Player. Transfer cards and impose trading if necessary.
-
-			//hand->drawFromDeck();
 		}
 	}
 	else {

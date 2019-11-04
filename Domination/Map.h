@@ -38,6 +38,9 @@ public:
 
 
 //Representation of a country
+// [IMPORTANT] Most data members are not pointers because we thought when doing in A1 that we were allowed to have non-pointer 
+// types in structs. We did not have time to fix this in A2 because we received our grade a bit late to know that this was a problem.
+// We will fix this in A3 if need be.
 struct Country {
 	int id;
 	int continentId;   //the continent this country belongs to

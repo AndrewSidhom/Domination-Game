@@ -348,7 +348,6 @@ void Hand::giveBonusTwoArmies(int cardsToExchange[])
 			cout << "Country " << id << "|" << endl;
 
 		ownedCountries->at(getMatchingCountryChoice(matchingCountries))->armies += 2;
-		//(*ownedCountries)[getMatchingCountryChoice(matchingCountries)]->armies += 2;
 	}
 }
 
