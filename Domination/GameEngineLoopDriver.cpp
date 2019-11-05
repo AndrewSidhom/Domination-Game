@@ -59,5 +59,7 @@ int main() {
     GameEngine ge(players, numTotalPlayers, numTotalCountries);
     ge.startGameLoop();
 
+	system("pause");
+
     return 0;
 }
