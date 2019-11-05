@@ -43,7 +43,7 @@ public:
 
 	// service methods for external classes (i.e. GameEngine)
 	int getNumOfOwnedCountries() { return ownedCountries->size(); };
-	void distributeArmies(int armies, bool startup);	// Prompt user to choose which countries to distribute their reinforcement armies
+	void distributeArmies(int armies, bool startup);	// Prompt user to choose which countries to distribute their reinforcement armies. If at startup, only 1 army is placed.
 
 protected:
 	map<int, Country*>* getOwnedCountries() { return ownedCountries; };

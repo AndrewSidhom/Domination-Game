@@ -360,7 +360,8 @@ int Player::getContinentReinforcement() {
 }
 
 /*	Prompt user to choose which countries to distribute their reinforcement armies
-	@param total armies from reinforcement to distribute
+	@param int: total armies from reinforcement to distribute
+	@param bool: if called at startup or not. If so, player can place only 1 army
 */
 void Player::distributeArmies(int totalArmies, bool startup) {
 
@@ -371,10 +372,12 @@ void Player::distributeArmies(int totalArmies, bool startup) {
 	{
 		cout << "---\nYou have " << totalArmies << " armies" << (i++? " left.\n" : ". Deploy your armies!\n"); // ++ to show different msg the second time
 		try {
+			// prompt choose country to add armies
 			cout << "Country: ";
 			countryInput = promptNumberInput();
 			if(ownedCountries->count(countryInput) == 0)
 				throw "\nYou do not own this country.";
+			// prompt # of armies to place in that chosen country
 			if (startup)
 				armiesInput = 1;
 			else {

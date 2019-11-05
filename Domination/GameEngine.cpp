@@ -76,11 +76,7 @@ void GameEngine::startGameLoop() {
 		}
 		turn++;
 		// *******************************************************************
-
-		//Expected code after testing phase 2
-        players[curPlayerIndex].reinforce();
-        players[curPlayerIndex].attack();
-        players[curPlayerIndex].fortify();
+		// After A2 submission, remove this block of code and call reinforce(), attack(), fortify() instead
 		
         if(curPlayerIndex == *NUM_OF_PLAYERS - 1)
             curPlayerIndex = 0;
@@ -148,7 +144,7 @@ void GameEngine::setupPlayers(string name, Deck *deck, Map *gameMap) {
 	int numOfPlayers;
 	numOfPlayers = queryNumOfPlayers(name);
 	NUM_OF_PLAYERS = new int(numOfPlayers);
-	setA();
+	setStartupArmies();
 	players = new Player[*NUM_OF_PLAYERS];
 	Player *player = new Player(name, deck, gameMap);
 	*players = *player; //Assign player one first position of players array
@@ -217,30 +213,30 @@ void GameEngine::assignCountriesToPlayers(Map *gameMap) {
 
 // Determines how many armies should be distributed amongst the Players in the startup phase depending on
 // the total number of Players.
-void GameEngine::setA() {
+void GameEngine::setStartupArmies() {
 	switch (*NUM_OF_PLAYERS) {
 	case 2:
-		A = new int(40);
+		STARTUP_ARMIES = new int(40);
 		break;
 	case 3:
-		A = new int(35);
+		STARTUP_ARMIES = new int(35);
 		break;
 	case 4:
-		A = new int(30);
+		STARTUP_ARMIES = new int(30);
 		break;
 	case 5:
-		A = new int(25);
+		STARTUP_ARMIES = new int(25);
 		break;
 	case 6:
-		A = new int(20);
+		STARTUP_ARMIES = new int(20);
 		break;
 	}
 }
 
 // Assigns armies to each Country.
 void GameEngine::assignArmiesToCountries() {
-	int remainingArmies = *A;
-	for (int i = 0; i < *A; i++) {
+	int remainingArmies = *STARTUP_ARMIES;
+	for (int i = 0; i < *STARTUP_ARMIES; i++) {
 		for (int j = 0; j < *NUM_OF_PLAYERS; j++) {
 			cout << "\n" << players[j].getName() << "'s turn" << endl;
 			players[j].distributeArmies(remainingArmies, true);

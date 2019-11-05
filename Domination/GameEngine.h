@@ -18,7 +18,7 @@ private:
     Player* players; // dynamic array
     const int *NUM_OF_PLAYERS; // number of total players in the game; do not modify
     const int *NUM_OF_COUNTRIES; // number of total countries in the game; do not modify
-	const int *A;
+	const int *STARTUP_ARMIES;
 
     bool aPlayerOwnsAllCountries(); // Checks if a player owns all countries on the map.
 	int queryNumOfPlayers(string name); //Queries user and validates number of players
@@ -27,5 +27,5 @@ private:
 	void setupPlayers(string name, Deck *deck, Map *gameMap);
 	void assignCountriesToPlayers(Map *gameMap);
 	void assignArmiesToCountries();
-	void setA();
+	void setStartupArmies();
 };
