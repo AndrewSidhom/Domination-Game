@@ -3,13 +3,13 @@
 #include <list>
 using namespace std;
 
-class Subject {
+class Observable {
 public:
 	virtual void Attach(Observer* o);
 	virtual void Detach(Observer* o);
 	virtual void Notify();
-	Subject();
-	~Subject();
+	Observable();
+	~Observable();
 private:
 	list<Observer*>* _observers;
 
