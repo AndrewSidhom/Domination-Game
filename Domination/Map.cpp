@@ -147,12 +147,20 @@ Map::Map(const Map& old) {
 //adds a country to the Map and to its corresponding Continent's graph. Sets "validated" to false because now the map has been modified, it needs to be validated again.
 //THROWS EXCEPTION invalid_argument if the country's continentId is invalid
 void Map::addCountry(Country country) {
-	countries->push_back(new Country(country));
+	try {
+		getCountryById(country.id);
+	}
+	catch (invalid_argument e) {  //if the exception is thrown, that means no country already exists with this id, so proceed to add the country and return.
+		countries->push_back(new Country(country));
 
-	getContinentById(country.continentId)->addCountryToGraph(country);
+		getContinentById(country.continentId)->addCountryToGraph(country);
 
-	*validated = false;
-	*isValid = false;
+		*validated = false;
+		*isValid = false;
+		return;
+	}
+	//exception was not thrown, meaning this id already exists
+	cout << "Country with id " << country.id << " was not added to the map because a country with the same id already exists. Cannot add same country twice!";
 }
 
 //adds a continent to the Map. Sets "validated" to false because now the map has been modified, it needs to be validated again.
