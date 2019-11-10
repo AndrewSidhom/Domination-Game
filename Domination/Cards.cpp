@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <random>
 #include <algorithm>
+#include <functional>
 
 // Card struct constructor
 Card::Card(int id, Card_Type type) : countryId(id), type(type){}
