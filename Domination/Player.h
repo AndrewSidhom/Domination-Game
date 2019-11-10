@@ -6,9 +6,9 @@
 #include "Map.h"
 #include "Cards.h"
 #include "Dice.h"
+#include "GameObservers.h"
 
-// Abstract base class
-class Player {
+class Player : public Observable {
 
 public:
 	// TODO remove after testing phase 2

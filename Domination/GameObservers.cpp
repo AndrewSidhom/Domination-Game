@@ -1,5 +1,7 @@
 #include "GameObservers.h"
 
+/*************** Observable class *****************/
+
 Observable::Observable() {
 	_observers = new list<Observer*>;
 }
@@ -18,9 +20,19 @@ void Observable::Notify() {
 		(*i)->Update();
 };
 
-
+/*************** Observer class *****************/
 
 Observer::Observer() {
 };
 Observer::~Observer() {
 };
+
+/*************** StatsObserver class *****************/
+
+StatsObserver::StatsObserver(vector<Player*> observables) {
+	_observables = new vector<Player*>(observables);
+}
+
+StatsObserver::~StatsObserver() {
+	delete _observables;
+}
