@@ -178,7 +178,7 @@ void Player::reinforce() {
 //the player carries out a number of attacks
 void Player::attack()
 {
-	// TODO: 3. driver!!
+	strategy->attackInit();
 	if (decideToAttack()) {
 		bool atLeastOneCountryConquered = false;
 
@@ -186,15 +186,15 @@ void Player::attack()
 			cout << endl << "Player " << *name << " chose to attack!" << endl;
 
 			// Select attacking and defending Countries
-			Country* attackingCountry = selectAttackingCountry();
-			Country* defendingCountry = selectDefendingCountry(attackingCountry);
+			Country* attackingCountry = strategy->selectAttackingCountry();
+			Country* defendingCountry = strategy->selectDefendingCountry(attackingCountry);
 
 			cout << endl << "Player " << *name << " will use Country " << attackingCountry->name << " to attack Player ";
 			cout << *(defendingCountry->player->name) << "'s Country " << defendingCountry->name << endl;
 
 			// Select number of dice to roll
-			int numAttackDice = selectAttackDice(attackingCountry);
-			int numDefenseDice = selectDefenseDice(defendingCountry);
+			int numAttackDice = strategy->selectNumAttackDice(attackingCountry);
+			int numDefenseDice = strategy->selectNumDefenseDice(defendingCountry);
 
 			cout << endl << "Player " << *name << " will roll " << numAttackDice << " dice" << endl;
 			cout << "Player " << *(defendingCountry->player->name) << " will roll " << numDefenseDice << " dice" << endl;
@@ -246,7 +246,7 @@ void Player::attack()
 				cout << "Country " << defendingCountry->name << " now belongs to Player " << *name << endl;
 
 				// Calculate how many armies to move in newly conquered Country
-				int numArmiesToMove = selectArmiesToMoveAfterAttackSuccess(attackingCountry, defendingCountry, numAttackDice);
+				int numArmiesToMove = strategy->selectNumArmiesToMoveAfterAttackSuccess(attackingCountry, defendingCountry, numAttackDice);
 
 				cout << endl << "Player " << *name << " will move " << numArmiesToMove << " armies in Country "; 
 				cout << defendingCountry->name << endl;

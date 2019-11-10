@@ -7,6 +7,7 @@
 #include "Cards.h"
 #include "Dice.h"
 #include "GameObservers.h"
+#include "PlayerStrategies.h"
 
 class Player : public Subject {
 
@@ -56,6 +57,7 @@ private:
 	Map* mapPtr;
 	Hand* hand;
 	Dice* dice;
+	PlayerStrategy* strategy;
 
 	// internal service methods
 	int getCountryReinforcement(); // Get armies from total countries divided by 3
@@ -74,4 +76,7 @@ private:
 	int selectAttackDice(Country* attackingCountry); // Choose the number of dice to roll for attack
 	int selectDefenseDice(Country* defendingCountry); // Choose the number of dice to roll for defending against an attack
 	int selectArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); // Choose the number of armies to move from the attackingCountry to the defendingCountry after the Player won an attack
+
+	friend class AgressivePlayerStrategy;
+	friend class PlayerStrategy;
 };
