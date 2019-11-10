@@ -41,8 +41,6 @@ public:
 	bool isEmpty();
 	//	Get bonus army from successful exchange.
 	int getExchangedArmies();
-	// Returns number of cards in the deck
-	int getDeckSize() { return cardDeck->size(); }	// TODO remove after phase 2 testing if its not used after
 
 private:
 	vector<Card>* cardDeck;	// Deck; container of cards
@@ -64,8 +62,6 @@ public:
 	void showHand();
 	//  Get number of cards in player's hand.
 	int getHandCount();
-	//	Add card to hand.
-	void addCardToHand(Card c);	// TODO remove after testing phase 2
 	// Draw a card from the deck and put it in the player's hand.
 	void drawFromDeck();
 	//	Exchange 3 cards in hand for armies.

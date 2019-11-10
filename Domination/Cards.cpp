@@ -156,14 +156,6 @@ int Hand::getHandCount() {
 	return playerHand->size();
 }
 
-/*	Add card to hand.
-	@param Card object
-*/
-void Hand::addCardToHand(Card c)
-{
-	playerHand->push_back(c);
-}
-
 void Hand::drawFromDeck()
 {
 	Card c = deck->draw();

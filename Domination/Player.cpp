@@ -168,13 +168,10 @@ void Player::reinforce() {
 		else if (hand->getHandCount() >= 3)
 			cout << "\nYou still have " << hand->getHandCount() << " cards left.\n";
 		armies += r;
-		cout << "\nArmies from exchanging: " << r << endl;	// TODO remove after testing phase 2
 		r = 0;
 	}
-	cout << "\nTotal reinforcement armies: " << armies << endl;	// TODO remove after testing phase 2
 
-	if (!disableArmyDistribution) // TODO remove after testing phase 2
-		distributeArmies(armies, false);
+	distributeArmies(armies, false);
 }
 
 //the player carries out a number of attacks
@@ -338,8 +335,6 @@ int Player::getCountryReinforcement() {
 	int reinforcements = (ownedCountries->size() / 3);
 	if (reinforcements < 3)
 		reinforcements = 3;	// 3 being minimum
-
-	cout << "\nArmies from countries: " << reinforcements;	// TODO remove after testing driver
 	return reinforcements;
 }
 
@@ -355,7 +350,6 @@ int Player::getContinentReinforcement() {
 		if(c.getSize() == (*numOfOwnedCountriesPerContinent)[c.getId()])
 				{ reinforcements += c.getWorth(); }
 	}
-	cout << "\nArmies from continents: " << reinforcements;	// TODO remove after testing driver
 	return reinforcements;
 }
 

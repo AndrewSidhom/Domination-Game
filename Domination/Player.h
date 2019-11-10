@@ -11,8 +11,6 @@
 class Player : public Observable {
 
 public:
-	// TODO remove after testing phase 2
-	bool disableArmyDistribution = false;
 
 	//constructor, destructor
 	Player();
