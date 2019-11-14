@@ -1,19 +1,19 @@
 #pragma once
 
+#include "PhaseLog.h"
 #include <list>
 #include <vector>
 using namespace std;
 
-class Observable {
+class Subject {
 public:
 	virtual void Attach(Observer* o);
 	virtual void Detach(Observer* o);
 	virtual void Notify();
-	Observable();
-	~Observable();
+	Subject();
+	~Subject();
 private:
 	list<Observer*>* _observers;
-
 };
 	
 //abstract
@@ -36,3 +36,13 @@ public:
 private:
 	vector<Player*>* _observables;
 };
+
+class PhaseLogObserver : public Observer {
+public:
+	PhaseLogObserver(PhaseLog *_subject);
+	~PhaseLogObserver();
+	void Update();
+	void displayMsg();
+private:
+	PhaseLog* _subject;
+}

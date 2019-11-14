@@ -2,19 +2,19 @@
 
 /*************** Observable class *****************/
 
-Observable::Observable() {
+Subject::Subject() {
 	_observers = new list<Observer*>;
 }
-Observable::~Observable() {
+Subject::~Subject() {
 	delete _observers;
 }
-void Observable::Attach(Observer* o) {
+void Subject::Attach(Observer* o) {
 	_observers->push_back(o);
 };
-void Observable::Detach(Observer* o) {
+void Subject::Detach(Observer* o) {
 	_observers->remove(o);
 };
-void Observable::Notify() {
+void Subject::Notify() {
 	list<Observer*>::iterator i = _observers->begin();
 	for (; i != _observers->end(); ++i)
 		(*i)->Update();
@@ -35,4 +35,23 @@ StatsObserver::StatsObserver(vector<Player*> observables) {
 
 StatsObserver::~StatsObserver() {
 	delete _observables;
+}
+
+/*************** StatsObserver class *****************/
+
+PhaseLogObserver::PhaseLogObserver(PhaseLog *s) {
+	_subject = s;
+	_subject->Attach(this);
+}
+
+PhaseLogObserver::~PhaseLogObserver() {
+	_subject->Detach(this);
+}
+
+PhaseLogObserver::Update() {
+	displayMsg();
+}
+
+PhaseLogObserver::displayMsg() {
+	cout << endl << *(_subject->getMsg()) << endl;
 }

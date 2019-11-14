@@ -8,7 +8,7 @@
 #include "Dice.h"
 #include "GameObservers.h"
 
-class Player : public Observable {
+class Player : public Subject {
 
 public:
 
