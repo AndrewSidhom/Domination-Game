@@ -79,4 +79,5 @@ private:
 
 	friend class AgressivePlayerStrategy;
 	friend class PlayerStrategy;
+	friend class BenevolentPlayerStrategy;
 };

@@ -10,6 +10,7 @@ public:
 	const int MIN_NUM_ATTACK_DICE = 1;
 	const int MIN_NUM_DEFENSE_DICE = 1;
 	const int MAX_NUM_DEFENSE_DICE = 2;
+	const int MIN_NUM_ARMIES_ON_COUNTRY = 1;
 
 	void setPlayer(Player* aPlayer) { player = aPlayer; };
 
@@ -20,6 +21,11 @@ public:
 	virtual int selectNumAttackDice(Country* attackingCountry) ; // Choose the number of dice to roll for attack
 	virtual int selectNumDefenseDice(Country* defendingCountry); // Choose the number of dice to roll for defending against an attack
 	virtual int selectNumArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); // Choose the number of armies to move from the attackingCountry to the defendingCountry after the Player won an attack
+
+	virtual bool decideToFortify(); // Choose whether to fortify a Country or not
+	virtual Country* selectFortifyDestination(); // Choose which Country should be fortified
+	virtual Country* selectFortifySource(Country* destination); // Choose a Country from which to move armies into the destination Country
+	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination); // Choose how many armies to move from the source Country into the destination Country
 
 protected:
 	Player* player;
@@ -38,11 +44,21 @@ public:
 	int selectNumDefenseDice(Country* defendingCountry);
 	int selectNumArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled);
 
+	virtual bool decideToFortify();
+	Country* selectFortifyDestination();
+	Country* selectFortifySource(Country* destination);
+	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination);
+
 private:
-	Country* strongestCountry;
+	Country* strongestAttackingCountry;
 };
 
 class BenevolentPlayerStrategy : public PlayerStrategy {
 public:
 	bool decideToAttack();
+
+	virtual bool decideToFortify();
+	Country* selectFortifyDestination();
+	Country* selectFortifySource(Country* destination);
+	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination);
 };

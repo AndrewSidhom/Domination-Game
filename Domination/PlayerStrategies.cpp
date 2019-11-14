@@ -24,12 +24,13 @@ void AgressivePlayerStrategy::attackInit()
 				if (countryNeighbor->player->getId() != *(player->id) && ownedCountry->second->armies >= 2) {
 					countryMaxArmies = ownedCountry->second;
 					maxArmies = countryMaxArmies->armies;
+					continue;
 				}
 			}
 		}
 	}
 
-	strongestCountry = countryMaxArmies;
+	strongestAttackingCountry = countryMaxArmies;
 }
 
 // Check if the strongest Country can still attack. If yes, return true.
@@ -38,9 +39,9 @@ bool AgressivePlayerStrategy::decideToAttack()
 	// a country can be attacked if 1. it's a neighbour of an owned country
 	// 2. it's not owned by the player
 	// 3. the owned country has at least two armies
-	if (strongestCountry != nullptr) {
-		if (strongestCountry->armies >= 2) {
-			list<int> neighbors = strongestCountry->neighbors;
+	if (strongestAttackingCountry != nullptr) {
+		if (strongestAttackingCountry->armies >= 2) {
+			list<int> neighbors = strongestAttackingCountry->neighbors;
 
 			for (auto const& neighbor : neighbors) {
 				Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
@@ -57,7 +58,7 @@ bool AgressivePlayerStrategy::decideToAttack()
 
 Country * AgressivePlayerStrategy::selectAttackingCountry()
 {
-	return strongestCountry;
+	return strongestAttackingCountry;
 }
 
 Country * AgressivePlayerStrategy::selectDefendingCountry(Country * attackingCountry)
@@ -108,12 +109,142 @@ int AgressivePlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country * a
 	return max;
 }
 
+// Returns the strongest Country which can be fortified. Returns a nullptr if no Country owned by the Player can be fortified
+Country * AgressivePlayerStrategy::selectFortifyDestination()
+{
+	// A Player can fortify a Country if one of the Country's neighbors is owned by the Player and has at least 2 armies on it
+	// Will choose the Country with the most armies on it and which fulfills the above requirements
+	Country* strongestFortifiableCountry = nullptr;
+	int maxArmies = 0;
+
+	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
+		if (ownedCountry->second->armies > maxArmies) {
+			list<int> neighbors = ownedCountry->second->neighbors;
+
+			for (auto const& neighbor : neighbors) {
+				Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+				if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2) {
+					strongestFortifiableCountry = ownedCountry->second;
+					maxArmies = strongestFortifiableCountry->armies;
+					continue;
+				}
+			}
+		}
+	}
+
+	return strongestFortifiableCountry;
+}
+
+// Returns the Country neighbor of destination which is owned by the Player and has the most armies on it
+// Returns a nullptr if no valid fortification source is found
+Country * AgressivePlayerStrategy::selectFortifySource(Country * destination)
+{
+	// A Country can be a fortification source if it is owned by the Player, is a neighbor of the destination, and has at least 2 armies on it
+	// Will choose the Country which fulfills the above requirement and has the most armies on it
+	Country* strongestOwnedNeighbor = nullptr;
+	int maxArmies = 2;
+
+	list<int> neighbors = destination->neighbors;
+
+	for (auto const& neighbor : neighbors) {
+		Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+		if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= maxArmies) {
+			strongestOwnedNeighbor = countryNeighbor;
+			maxArmies = strongestOwnedNeighbor->armies;
+		}
+	}
+	
+	return strongestOwnedNeighbor;
+}
+
+// Returns the number of armies to move from source to destination
+int AgressivePlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country * destination)
+{
+	// The number of armies to move should be less than the number of armies on the source Country
+	// Will choose the max number of armies that can be moved (armies on source - 1)
+	return source->armies - 1;
+}
+
 
 /* BENEVOLENT PLAYER STRATEGY */
 
+// Returns false. A benevolent Player never attacks.
 bool BenevolentPlayerStrategy::decideToAttack()
 {
 	return false;
+}
+
+// Returns the weakest Country which can be fortified. Returns a nullptr if no Country owned by the Player can be fortified
+Country * BenevolentPlayerStrategy::selectFortifyDestination()
+{
+	// A Player can fortify a Country if one of the Country's neighbors is owned by the Player and has at least 2 armies on it
+	// Will choose the Country with the least armies on it and which fulfills the above requirements
+	Country* weakestFortifiableCountry = nullptr;
+
+	// Will initialize min armies to the first found owned Country's number of armies + 1.
+	// This ensures that 1. the initial amount is not too low and 2. the first found owned Country will still be a potential candidate
+	int minArmies = player->ownedCountries->begin()->second->armies + 1;
+
+	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
+		if (ownedCountry->second->armies < minArmies) {
+			list<int> neighbors = ownedCountry->second->neighbors;
+
+			for (auto const& neighbor : neighbors) {
+				Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+				// The number of armies in the neighbor should also be higher than the number of armies in the destination
+				if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2 && countryNeighbor->armies > ownedCountry->second->armies) {
+					weakestFortifiableCountry = ownedCountry->second;
+					minArmies = weakestFortifiableCountry->armies;
+					continue;
+				}
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+// Returns the Country neighbor of destination which is owned by the Player and has the most armies on it
+// Returns a nullptr if no valid fortification source is found
+Country * BenevolentPlayerStrategy::selectFortifySource(Country * destination)
+{
+	// A Country can be a fortification source if it is owned by the Player, is a neighbor of the destination, and has at least 2 armies on it
+	// Will choose the Country which fulfills the above requirement and has the most armies on it
+	Country* strongestOwnedNeighbor = nullptr;
+	int maxArmies = 2;
+
+	list<int> neighbors = destination->neighbors;
+
+	for (auto const& neighbor : neighbors) {
+		Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+		if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= maxArmies) {
+			strongestOwnedNeighbor = countryNeighbor;
+			maxArmies = strongestOwnedNeighbor->armies;
+		}
+	}
+
+	return strongestOwnedNeighbor;
+
+	return nullptr;
+}
+
+// Returns the number of armies to move from source to destination
+int BenevolentPlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country * destination)
+{
+	// The number of armies to move should be less than the number of armies on the source Country
+	// Will choose the number of armies that can be moved that will allow source and destination to have an equal number of 
+	// armies (+/- 1)
+	int armiesToMove = 0;
+	if (source->armies > destination->armies) {
+		int armyGap = source->armies - destination->armies;
+		armiesToMove = armyGap / 2 + armyGap % 2;
+	}
+
+	return armiesToMove;
 }
 
 

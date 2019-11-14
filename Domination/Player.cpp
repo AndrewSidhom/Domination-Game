@@ -297,8 +297,6 @@ void Player::attack()
 void Player::fortify()
 {
 	cout << "**Fortification Phase**\n";
-	srand((int)time(0));
-	cout << "Will search for a valid source country among this player's owned countries" << endl;
 	Country* source;
 	Country* destination;
 	map<int, Country*>::iterator it = ownedCountries->begin();
@@ -311,11 +309,11 @@ void Player::fortify()
 		source = it->second;
 		destination = getFortifyDestination(source);
 		if (source->armies <= 1) {
-			cout << "Choice of source country with id " << source->id << " failed because it has less than 2 armies on it." << endl;
+			// not valid because it has less than 2 armies on it
 			it++;
 		}
 		else if (destination == nullptr) {
-			cout << "Choice of source country with id " << source->id << " failed because it has no neighbors owned by the player." << endl;
+			// not valid because it has no neighbors owned by the player
 			it++;
 		}
 		else
@@ -327,7 +325,7 @@ void Player::fortify()
 	cout << "Source ID: " << source->id << "  //  Armies: " << srcArmies << endl;
 	cout << "Destination ID: " << destination->id << endl;
 	cout << "A number of armies to move will be chosen at random in the range from 1 to " << (srcArmies - 1) << endl;
-	int armiesToMove = (rand() % (srcArmies -1)) + 1;
+	int armiesToMove = 1; // depends!!
 	cout << armiesToMove << " armies will be moved." << endl;
 
 	try {
