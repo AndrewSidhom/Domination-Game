@@ -1,4 +1,9 @@
 #include "GameObservers.h"
+#include "PhaseLog.h"
+#include "Player.h"
+#include <iostream>
+#include <string>
+using std::cout;
 
 /*************** Observable class *****************/
 
@@ -37,6 +42,10 @@ StatsObserver::~StatsObserver() {
 	delete _observables;
 }
 
+void StatsObserver::Update() {
+
+}
+
 /*************** StatsObserver class *****************/
 
 PhaseLogObserver::PhaseLogObserver(PhaseLog *s) {
@@ -48,10 +57,10 @@ PhaseLogObserver::~PhaseLogObserver() {
 	_subject->Detach(this);
 }
 
-PhaseLogObserver::Update() {
+void PhaseLogObserver::Update() {
 	displayMsg();
 }
 
-PhaseLogObserver::displayMsg() {
+void PhaseLogObserver::displayMsg() {
 	cout << endl << *(_subject->getMsg()) << endl;
 }

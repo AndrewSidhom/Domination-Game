@@ -1,9 +1,17 @@
 #pragma once
 
-#include "PhaseLog.h"
 #include <list>
 #include <vector>
 using namespace std;
+
+//abstract
+class Observer {
+public:
+	~Observer();
+	virtual void Update() = 0;
+protected:
+	Observer();
+};
 
 class Subject {
 public:
@@ -15,18 +23,10 @@ public:
 private:
 	list<Observer*>* _observers;
 };
-	
-//abstract
-class Observer {
-public:
-	~Observer();
-	virtual void Update() = 0;
-protected:
-	Observer();
-};
 
 
 class Player; //this is a forward declaration, needed because StatsObserver will be using a pointer to Player
+class PhaseLog;
 
 class StatsObserver : public Observer {
 public:
@@ -45,4 +45,4 @@ public:
 	void displayMsg();
 private:
 	PhaseLog* _subject;
-}
+};
