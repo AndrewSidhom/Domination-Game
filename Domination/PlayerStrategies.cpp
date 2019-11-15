@@ -109,6 +109,12 @@ int AgressivePlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country * a
 	return max;
 }
 
+// Returns true if the Player can fortify (the Agressive Player fortifies by default if they can fortify)
+bool AgressivePlayerStrategy::decideToFortify()
+{
+	return canFortify();
+}
+
 // Returns the strongest Country which can be fortified. Returns a nullptr if no Country owned by the Player can be fortified
 Country * AgressivePlayerStrategy::selectFortifyDestination()
 {
@@ -174,6 +180,12 @@ int AgressivePlayerStrategy::selectArmiesToMoveForFortification(Country * source
 bool BenevolentPlayerStrategy::decideToAttack()
 {
 	return false;
+}
+
+// Returns true if the Player can fortify (the Benevolent Player fortifies by default if they can fortify)
+bool BenevolentPlayerStrategy::decideToFortify()
+{
+	return canFortify();
 }
 
 // Returns the weakest Country which can be fortified. Returns a nullptr if no Country owned by the Player can be fortified
@@ -510,4 +522,23 @@ int PlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country * attackingC
 	} while (!validNumArmies);
 
 	return selectedNumArmies;
+}
+
+// Returns true if the Player has a Country that can be fortified
+bool PlayerStrategy::canFortify()
+{
+	// A Player can fortify a Country if one of the Country's neighbors is owned by the Player and has at least 2 armies on it
+	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
+		list<int> neighbors = ownedCountry->second->neighbors;
+
+		for (auto const& neighbor : neighbors) {
+			Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+			if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2) {
+				return true;
+			}
+		}
+	}
+
+	return false;
 }

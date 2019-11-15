@@ -297,36 +297,15 @@ void Player::attack()
 void Player::fortify()
 {
 	cout << "**Fortification Phase**\n";
-	Country* source;
-	Country* destination;
-	map<int, Country*>::iterator it = ownedCountries->begin();
-	bool validSource = false;
-	do {
-		if (it == ownedCountries->end()) {
-			cout << "No valid source country was found among this player's owned countries. Exiting fortify()" << endl;
-			return;
-		}
-		source = it->second;
-		destination = getFortifyDestination(source);
-		if (source->armies <= 1) {
-			// not valid because it has less than 2 armies on it
-			it++;
-		}
-		else if (destination == nullptr) {
-			// not valid because it has no neighbors owned by the player
-			it++;
-		}
-		else
-			validSource = true;
-	} while (!validSource);
+	if (!strategy->decideToFortify()) {
+		
+		return;
+	}
 
-	int srcArmies = source->armies;
-	cout << "A valid source country was found with enough armies and an owned neighbor." << endl;
-	cout << "Source ID: " << source->id << "  //  Armies: " << srcArmies << endl;
-	cout << "Destination ID: " << destination->id << endl;
-	cout << "A number of armies to move will be chosen at random in the range from 1 to " << (srcArmies - 1) << endl;
-	int armiesToMove = 1; // depends!!
-	cout << armiesToMove << " armies will be moved." << endl;
+	Country* destination = strategy->selectFortifyDestination();
+	Country* source = strategy->selectFortifySource(destination);
+
+	int armiesToMove = strategy->selectArmiesToMoveForFortification(source, destination);
 
 	try {
 		addOrRemoveArmies(source->id, -armiesToMove);

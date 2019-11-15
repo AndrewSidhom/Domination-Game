@@ -22,6 +22,7 @@ public:
 	virtual int selectNumDefenseDice(Country* defendingCountry); // Choose the number of dice to roll for defending against an attack
 	virtual int selectNumArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); // Choose the number of armies to move from the attackingCountry to the defendingCountry after the Player won an attack
 
+	virtual bool canFortify(); // Whether a Player has a Country that can be fortified
 	virtual bool decideToFortify(); // Choose whether to fortify a Country or not
 	virtual Country* selectFortifyDestination(); // Choose which Country should be fortified
 	virtual Country* selectFortifySource(Country* destination); // Choose a Country from which to move armies into the destination Country
