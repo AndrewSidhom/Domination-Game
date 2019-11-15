@@ -19,7 +19,7 @@ void Player::setOwnedCountries(list<Country*> countriesList)
 {
 	for (Country* country : countriesList) {
 		country->player = this;
-		country->armies = 0;
+		country->armies = 1;
 		(*ownedCountries)[country->id] = country;
 		(*numOfOwnedCountriesPerContinent)[country->continentId] += 1;
 	}
@@ -171,7 +171,7 @@ void Player::reinforce() {
 		r = 0;
 	}
 
-	distributeArmies(armies, false);
+	distributeArmies(armies);
 }
 
 //the player carries out a number of attacks
@@ -272,6 +272,19 @@ void Player::attack()
 
 		if (atLeastOneCountryConquered) {
 			//TODO in A3: check if Player defeated other Player. Transfer cards and impose trading if necessary.
+			/* PSEUDOCODE
+			if(player defeats another player/or players) {
+				- transfer cards here
+
+				// trigger mandatory exchange after claiming enemy's cards
+				if(hand->getHandCount() >= 6) {
+					while(hand->getHandCount() > 4)
+						exchange();	// force exchange until have 4 cards or less
+				}
+			}
+			*/
+			
+			hand->drawFromDeck();
 		}
 	}
 	else {
@@ -355,9 +368,8 @@ int Player::getContinentReinforcement() {
 
 /*	Prompt user to choose which countries to distribute their reinforcement armies
 	@param int: total armies from reinforcement to distribute
-	@param bool: if called at startup or not. If so, player can place only 1 army
 */
-void Player::distributeArmies(int totalArmies, bool startup) {
+void Player::distributeArmies(int totalArmies) {
 
 	int countryInput, armiesInput, i = 0;
 
@@ -372,19 +384,13 @@ void Player::distributeArmies(int totalArmies, bool startup) {
 			if(ownedCountries->count(countryInput) == 0)
 				throw "\nYou do not own this country.";
 			// prompt # of armies to place in that chosen country
-			if (startup)
-				armiesInput = 1;
-			else {
-				cout << "Armies: ";
-				armiesInput = promptNumberInput();
-				if (armiesInput > totalArmies || armiesInput < 0)
-					throw ("\nYou must enter armies in the range given.");
-			}
+			cout << "Armies: ";
+			armiesInput = promptNumberInput();
+			if (armiesInput > totalArmies || armiesInput < 0) 
+				throw ("\nYou must enter armies in the range given.");
 			
 			addOrRemoveArmies(countryInput, armiesInput);
 			totalArmies -= armiesInput;
-			if (startup)
-				break;
 		}
 		catch(const char* msg) {
 			cout << msg << endl;
