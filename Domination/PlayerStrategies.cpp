@@ -19,7 +19,6 @@ using std::vector;
 AgressivePlayerStrategy::AgressivePlayerStrategy() : strongestAttackingCountry(nullptr) {}
 AgressivePlayerStrategy::AgressivePlayerStrategy(Player * aPlayer) : PlayerStrategy(aPlayer), strongestAttackingCountry(nullptr) {}
 AgressivePlayerStrategy::AgressivePlayerStrategy(const AgressivePlayerStrategy & strategy) : PlayerStrategy(strategy.player), strongestAttackingCountry(nullptr) {}
-
 AgressivePlayerStrategy::~AgressivePlayerStrategy() {}
 
 const AgressivePlayerStrategy & AgressivePlayerStrategy::operator=(const AgressivePlayerStrategy & rightSide)
@@ -231,8 +230,8 @@ int AggressivePlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 /* BENEVOLENT PLAYER STRATEGY */
 
 BenevolentPlayerStrategy::BenevolentPlayerStrategy() {}
-BenevolentPlayerStrategy::BenevolentPlayerStrategy(Player * aPlayer) : PlayerStrategy(aPlayer) {}
-BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy & strategy) : PlayerStrategy(strategy.player) {}
+BenevolentPlayerStrategy::BenevolentPlayerStrategy(Player* aPlayer, Hand* aHand) : PlayerStrategy(aPlayer, aHand) {}
+BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy & strategy) : PlayerStrategy(strategy.player, strategy.hand) {}
 
 BenevolentPlayerStrategy::~BenevolentPlayerStrategy() {}
 
@@ -360,15 +359,16 @@ int BenevolentPlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 
 /* DEFAULT (HUMAN) PLAYER STRATEGY */
 
-PlayerStrategy::PlayerStrategy() : player(nullptr) {}
-PlayerStrategy::PlayerStrategy(Player * aPlayer) : player(aPlayer) {}
-PlayerStrategy::PlayerStrategy(const PlayerStrategy & strategy) : player(strategy.player) {}
+PlayerStrategy::PlayerStrategy() : player(nullptr), hand(nullptr) {}
+PlayerStrategy::PlayerStrategy(Player* aPlayer, Hand* aHand) : player(aPlayer), hand(aHand) {}
+PlayerStrategy::PlayerStrategy(const PlayerStrategy & strategy) : player(strategy.player, strategy.hand) {}
 
 PlayerStrategy::~PlayerStrategy() {}
 
 const PlayerStrategy& PlayerStrategy::operator =(const PlayerStrategy& rightSide) {
 	if (&rightSide != this) {
 		player = rightSide.player;
+		hand = rightSide.hand;
 	}
 	return *this;
 

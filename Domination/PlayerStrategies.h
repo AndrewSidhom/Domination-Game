@@ -13,7 +13,7 @@ public:
 	const int MIN_NUM_ARMIES_ON_COUNTRY = 1;
 
 	PlayerStrategy();
-	PlayerStrategy(Player* aPlayer);
+	PlayerStrategy(Player* aPlayer, Hand* aHand);
 	PlayerStrategy(const PlayerStrategy& strategy);
 	virtual ~PlayerStrategy();
 
@@ -61,6 +61,7 @@ private:
 
 class AggressivePlayerStrategy : public PlayerStrategy {
 public:
+
 	AgressivePlayerStrategy();
 	AgressivePlayerStrategy(Player* aPlayer);
 	AgressivePlayerStrategy(const AgressivePlayerStrategy& strategy);
@@ -96,7 +97,7 @@ private:
 class BenevolentPlayerStrategy : public PlayerStrategy {
 public:
 	BenevolentPlayerStrategy();
-	BenevolentPlayerStrategy(Player* aPlayer);
+	BenevolentPlayerStrategy(Player* aPlayer, Hand* aHand);
 	BenevolentPlayerStrategy(const BenevolentPlayerStrategy& strategy);
 	virtual ~BenevolentPlayerStrategy();
 
