@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <random>
 #include <algorithm>
+#include <functional>
 
 // Card struct constructor
 Card::Card(int id, Card_Type type) : countryId(id), type(type){}
@@ -154,14 +155,6 @@ void Hand::showHand()
 int Hand::getHandCount() {
 
 	return playerHand->size();
-}
-
-/*	Add card to hand.
-	@param Card object
-*/
-void Hand::addCardToHand(Card c)
-{
-	playerHand->push_back(c);
 }
 
 void Hand::drawFromDeck()

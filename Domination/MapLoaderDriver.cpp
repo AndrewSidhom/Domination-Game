@@ -1,6 +1,6 @@
-//#include <iostream>
-//#include "MapLoader.h"
-//using namespace std;
+#include <iostream>
+#include "MapLoader.h"
+using namespace std;
 //
 ///*
 //	The MapLoaderDriver reads several .map files in the maps folder and asserts whether these maps are valid.
@@ -175,3 +175,11 @@
 //	cout << endl;
 //	system("pause");
 //}
+
+int main() {
+	//MapLoader::loadMapFile("valid");
+	ConquestMapLoader cml;
+	cml.loadConquestMapFile("Atlantis");
+	system("pause");
+	return 0;
+}

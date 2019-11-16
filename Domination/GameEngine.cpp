@@ -1,7 +1,9 @@
 #include "GameEngine.h"
 #include "MapLoader.h"
 #include "Cards.h"
+#include "GameObservers.h"
 #include <string>
+#include <vector>
 using std::cout;
 using std::cin;
 using std::endl;
@@ -9,43 +11,33 @@ using std::endl;
 
 // Constructor
 GameEngine::GameEngine() {
-	//PART 1
-	string name;
-	cout << "Welcome to Risk, player!" << endl;
-	cout << "Enter a name for yourself: ";
-	cin >> name;	
-	cout << "Hello " << name << "! Enter the name of the map you would like to load (without the .map extension): ";
-	//load map and create deck according to number of countries 
+
+	// Inits
+	setupObservers();
+	phaseLog->printMsg("Welcome to Domination!");
+	
+	// Set up map and deck
 	Map *gameMap = loadGameMap();
 	Deck deck(*NUM_OF_COUNTRIES);
-	cout << "Size of deck: " << deck.getDeckSize() << endl;
-	//get number of players, set their names and assign them the deck
-	setupPlayers(name, &deck, gameMap);
 
-	//PART 2
-	randomOrder();
-	cout << "\nOrder of players\n----------------" << endl;
+	// Create players
+	setupPlayers(&deck, gameMap);
+	randomizePlayerOrder();
+	phaseLog->printMsg("Order of player's turn\n-------------------");
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {	
-		cout << players[i].getName() << endl;
+		phaseLog->printMsg(players[i].getName());
 	}	
+	
+	// Assign all countries to players
 	assignCountriesToPlayers(gameMap);
 	assignArmiesToCountries();	
 }
+
 // Destructor
 GameEngine::~GameEngine() {
 	delete [] players;
 	players = nullptr;
 	delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
-}
-
-/* Constructor FOR TEST PURPOSES. Remove around phase 2.
-*/
-GameEngine::GameEngine(Player *testPlayers, int numOfPlayers, int numTotalCountries) {
-
-	players = new Player[numOfPlayers];
-	players = testPlayers;
-	NUM_OF_PLAYERS = new int(numOfPlayers);
-	NUM_OF_COUNTRIES = new int(numTotalCountries);
 }
 
 /*	Responsible for starting the game loop. Loop ends when a player owns all countries on map.
@@ -54,29 +46,13 @@ GameEngine::GameEngine(Player *testPlayers, int numOfPlayers, int numTotalCountr
 void GameEngine::startGameLoop() {
     
     int curPlayerIndex = 0; // index of current player's turn
-	int turn = 1;	// TODO remove test code after phase 2
     do {
         while(players[curPlayerIndex].getNumOfOwnedCountries() == 0) 
             { curPlayerIndex ++; }  // skip turn if current player has no countries left
 
-		// TODO remove test code below after phase 2 ************************
-		cout << "\nTURN " << turn << ", PLAYER " << curPlayerIndex + 1 << "'s Turn!\n";
-		cout << "Calling player's reinforce, attack, and fortify funcs\n";
-		if(curPlayerIndex == 0 && turn == 4) 
-		{
-			cout << "\nPlayer 1 should now claim player 2's country and player 2's turn is skipped\n";
-			Country* c = players[1].loseCountry(2);	// param: country id
-			players[0].claimCountry(c, 1);	// param: country ptr, army size
-		}
-		else if(curPlayerIndex == 0 && turn == 6)
-		{
-			cout << "\nPlayer 1 should now claim player 3's country and win the game.\n";
-			Country* c = players[2].loseCountry(3);	// param: country id
-			players[0].claimCountry(c, 1);	// param: country ptr, army size
-		}
-		turn++;
-		// *******************************************************************
-		// After A2 submission, remove this block of code and call reinforce(), attack(), fortify() instead
+		players[curPlayerIndex].reinforce();
+		players[curPlayerIndex].attack();
+		players[curPlayerIndex].fortify();
 		
         if(curPlayerIndex == *NUM_OF_PLAYERS - 1)
             curPlayerIndex = 0;
@@ -84,12 +60,6 @@ void GameEngine::startGameLoop() {
 			curPlayerIndex++;
     } 
     while(!aPlayerOwnsAllCountries());
-
-	// TODO REMOVE CODE after phase 2 testing
-	if(players[2].getNumOfOwnedCountries() == 0 &&
-		players[1].getNumOfOwnedCountries() == 0 &&
-		players[0].getNumOfOwnedCountries() == 3)
-			{ cout << "\nPlayer 1 has won the game!"; }
 }
 
 /*	Checks if a player owns all countries on the map.
@@ -104,64 +74,94 @@ bool GameEngine::aPlayerOwnsAllCountries() {
     return false;
 }
 
-// Asks input for the number of Players. Returns the number of players.
-int GameEngine::queryNumOfPlayers(string name) {
-	string input;
-	bool isValid = false;
-	do {
-		cout << "How many players (including yourself) will be playing? (2-6 players): ";
-		cin >> input;
-		if(input == "2" || input == "3" || input == "4" || input == "5" || input == "6")
-			isValid = true;
-		else
-			cout << "Error: Invalid input" << endl;
-				
-	} while (!isValid);
-	int numOfPlayers = stoi(input);
-	return numOfPlayers;
+/*	Sets up PhaseLog (subject) with PhaseLogObserver to display msg related to changes in phases.
+*/
+void GameEngine::setupObservers() {
+	phaseLog = new PhaseLog();
+	PhaseLogObserver* plo = new PhaseLogObserver(phaseLog);
 }
 
-// Asks input for the map to be use in the game. Returns a pointer to a Map object that corresponds to the loaded map.
+/* 	Asks input for the map to be use in the game. Also stores number of total countries on map.
+	@return a pointer to a Map object that corresponds to the loaded map.
+*/
 Map* GameEngine::loadGameMap() {
 	string mapName;
 	int numOfCountries;	
+
+	phaseLog->printMsg("Enter the name of the map you would like to load (without the .map extension): ");
 	cin >> mapName;
 	Map *gameMap = MapLoader::loadMapFile(mapName);
 	while (gameMap == nullptr) {
-		cout << "Enter the name of the map you would like to load (without the .map extension): ";
+		phaseLog->printMsg("Invalid map name, try again: ");
 		cin >> mapName;
 		gameMap = MapLoader::loadMapFile(mapName);
 	}
 	list<Country*> *countries = gameMap->getCountries();
 	numOfCountries = (int)countries->size();
 	NUM_OF_COUNTRIES = new int(numOfCountries);
+	phaseLog->printMsg("Map successfully loaded!");
 
 	return gameMap;
 }
 
-// Creates the Players. Asks input for Player names.
-void GameEngine::setupPlayers(string name, Deck *deck, Map *gameMap) {
-	int numOfPlayers;
-	numOfPlayers = queryNumOfPlayers(name);
+/* 	Asks input for the number of Players.
+	@returns the number of players.
+*/
+int GameEngine::queryNumOfPlayers() {
+	string input;
+	bool isValid = false;
+	do {
+		phaseLog->printMsg("How many players will be playing? (2-6 players): ");
+		cin >> input;
+		if(input == "2" || input == "3" || input == "4" || input == "5" || input == "6")
+			isValid = true;
+		else
+			phaseLog->printMsg("Error: Invalid input");
+				
+	} while (!isValid);
+	int numOfPlayers = stoi(input);
+	return numOfPlayers;
+}
+
+// Creates Player objects and prompts for player names
+void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
+
+	int numOfPlayers = queryNumOfPlayers();
 	NUM_OF_PLAYERS = new int(numOfPlayers);
-	setStartupArmies();
+
 	players = new Player[*NUM_OF_PLAYERS];
-	Player *player = new Player(name, deck, gameMap);
-	*players = *player; //Assign player one first position of players array
-	for (int i = 1; i < *NUM_OF_PLAYERS; i++) {
+	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
 		string input;
-		cout << (players + i)->getName() << ", enter your new name, or enter '0' to keep your current name: ";
-		cin >> name;
-		if (name != "0") {
-			(players + i)->setName(name);
+		phaseLog->printMsg((players + i)->getName() + ", enter your new name, or enter '0' to keep your current name: ");
+		cin >> input;
+		if (input != "0") {
+			(players + i)->setName(input);
 		}
 		(players + i)->setHand(deck);
 		(players + i)->setMap(gameMap);
 	}
 }
 
+// Determines how many armies should be distributed amongst the Players in the startup phase depending on
+// the total number of Players.
+int GameEngine::getStartupArmies() {
+	switch (*NUM_OF_PLAYERS) {
+	case 2:
+		return 40; break;
+	case 3:
+		return 35; break;
+	case 4:
+		return 30; break;
+	case 5:
+		return 25; break;
+	case 6:
+		return 20; break;
+	}
+	
+}
+
 // Changes randomly the order of the Players stored in players
-void GameEngine::randomOrder() {
+void GameEngine::randomizePlayerOrder() {
 	random_device rd;
 	mt19937 mt(rd());
 	uniform_int_distribution<int> dist(0, *NUM_OF_PLAYERS - 1);
@@ -178,70 +178,51 @@ void GameEngine::randomOrder() {
 // Assigns Countries to each Player. Asks input repeatedly and one at a time to each Player to choose a Country to add
 // to their list of owned Countries.
 void GameEngine::assignCountriesToPlayers(Map *gameMap) {
+
+	int rnd;
+	random_device rd;
+	mt19937 mt(rd());
+
 	vector<int> countryIds;
 	for (int i = 1; i <= *NUM_OF_COUNTRIES; i++) {
 		countryIds.push_back(i);
 	}
-	const int COLUMNS = 6;
-	int index = 0;
-	list<Country*> ownedCountries[COLUMNS];
-	int rnd;
-	random_device rd;
-	mt19937 mt(rd());
-	
+	list<Country*> ownedCountries[6];
+	int playerIndex = 0;
+
+	// loop each player (round-robin) and assign it a random country from map
 	for (int i = 0; i < *NUM_OF_COUNTRIES; i++) {
+		// get a random country id
 		uniform_int_distribution<int> dist(0, countryIds.size() - 1);
 		rnd = dist(mt);
+		// store that randomly selected country to each player
 		Country* country = gameMap->getCountryById(countryIds.at(rnd));
-		ownedCountries[index].push_back(country);
+		ownedCountries[playerIndex].push_back(country);
 		countryIds.erase(countryIds.begin() + rnd);
-		index = (index + 1) % *NUM_OF_PLAYERS;
-	}
 
-	//***THIS LOOP CAN BE REMOVED AFTER DEMO***
-	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
-		cout << "\n" << players[i].getName() << "'s countries:" << endl;
-		for (Country* x : ownedCountries[i]) {
-			cout << x->name << endl;
-		}
+		playerIndex = (playerIndex + 1) % *NUM_OF_PLAYERS;
 	}
-
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
 		players[i].setOwnedCountries(ownedCountries[i]);
 	}
 }
 
-// Determines how many armies should be distributed amongst the Players in the startup phase depending on
-// the total number of Players.
-void GameEngine::setStartupArmies() {
-	switch (*NUM_OF_PLAYERS) {
-	case 2:
-		STARTUP_ARMIES = new int(40);
-		break;
-	case 3:
-		STARTUP_ARMIES = new int(35);
-		break;
-	case 4:
-		STARTUP_ARMIES = new int(30);
-		break;
-	case 5:
-		STARTUP_ARMIES = new int(25);
-		break;
-	case 6:
-		STARTUP_ARMIES = new int(20);
-		break;
-	}
-}
-
 // Assigns armies to each Country.
 void GameEngine::assignArmiesToCountries() {
-	int remainingArmies = *STARTUP_ARMIES;
-	for (int i = 0; i < *STARTUP_ARMIES; i++) {
-		for (int j = 0; j < *NUM_OF_PLAYERS; j++) {
-			cout << "\n" << players[j].getName() << "'s turn" << endl;
-			players[j].distributeArmies(remainingArmies, true);
-			
-		}
-		remainingArmies--;
+
+	for (int i = 0; i < *NUM_OF_PLAYERS; i++) 
+	{
+		phaseLog->printMsg(players[i].getName() + "'s turn: ");
+		// note setOwnedCountries already place 1 army in each owned countries to be identified as claimed
+		int remainingArmies = getStartupArmies() - players[i].getNumOfOwnedCountries();
+		players[i].distributeArmies(remainingArmies);
 	}
+	// int remainingArmies = getStartupArmies();
+	// while(remainingArmies > 0) {
+	// 	for (int j = 0; j < *NUM_OF_PLAYERS; j++) {
+	// 		phaseLog->printMsg(players[j].getName() + "'s turn: ");
+	// 		players[j].distributeArmies(1);
+	// 	}
+	// 	remainingArmies--;
+	// }
 }

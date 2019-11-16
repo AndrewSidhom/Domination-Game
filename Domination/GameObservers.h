@@ -4,18 +4,6 @@
 #include <vector>
 using namespace std;
 
-class Observable {
-public:
-	virtual void Attach(Observer* o);
-	virtual void Detach(Observer* o);
-	virtual void Notify();
-	Observable();
-	~Observable();
-private:
-	list<Observer*>* _observers;
-
-};
-	
 //abstract
 class Observer {
 public:
@@ -25,8 +13,20 @@ protected:
 	Observer();
 };
 
+class Subject {
+public:
+	virtual void Attach(Observer* o);
+	virtual void Detach(Observer* o);
+	virtual void Notify();
+	Subject();
+	~Subject();
+private:
+	list<Observer*>* _observers;
+};
+
 
 class Player; //this is a forward declaration, needed because StatsObserver will be using a pointer to Player
+class PhaseLog;
 
 class StatsObserver : public Observer {
 public:
@@ -35,4 +35,14 @@ public:
 	void Update();
 private:
 	vector<Player*>* _observables;
+};
+
+class PhaseLogObserver : public Observer {
+public:
+	PhaseLogObserver(PhaseLog *_subject);
+	~PhaseLogObserver();
+	void Update();
+	void displayMsg();
+private:
+	PhaseLog* _subject;
 };

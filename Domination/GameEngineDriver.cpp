@@ -1,4 +1,4 @@
-//#include "GameEngine.h"
+#include "GameEngine.h"
 //
 //// Driver goals:
 //// (Part 1: Game start)
@@ -11,11 +11,12 @@
 //
 //// Goal 1) can be tested by trying to loading valid or invalid maps included in the maps folder.
 //// Goal 2), 3) and 4) can be tested through the default constructor's various outputs.
-//int main() {
-//
+// int main() {
+
 //    GameEngine ge;
-//    
-//	system("pause");
-//
+//    ge.startGameLoop();
+   
+//     system("pause");
+
 //    return 0;
-//}
+// }
