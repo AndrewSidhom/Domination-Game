@@ -17,19 +17,24 @@ public:
 	Player();
 	Player(string name, Deck *deck); 
 	Player(string name, Deck *deck, Map *mapPtr); 
+	Player(string name, Deck *deck, Map *mapPtr, PlayerStrategy *aStrategy);
 	Player(const Player &p);
 	~Player();
+
+	const Player& operator =(const Player& rightSide);
 
 	//accessors (some return copies not pointers to prevent modifications from outside).
 	static int genNextID() { return (*currentGenId)++; }
 	int getId() { return *id; };
 	string getName() { return *name; };
 	Hand* getHand() { return hand; };
+	PlayerStrategy* getStrategy() { return strategy; }
 	
 	//mutators
 	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries); }
 	void setName(string newName) { *name = newName; }
 	void setMap(Map *newMapPtr) { mapPtr = newMapPtr; }
+	void setStrategy(PlayerStrategy* aStrategy) { strategy = aStrategy;  } // TODO: Need to also set strategy in Hand!!!
 
 	void claimCountry(Country* country, int armies); // Used during attack(). Adds this country to the ones owned by the player, places on it this many armies
 	Country* loseCountry(int id); // Used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned

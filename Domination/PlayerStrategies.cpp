@@ -8,6 +8,20 @@ using std::cin;
 
 /* AGGRESSIVE PLAYER STRATEGY */
 
+AgressivePlayerStrategy::AgressivePlayerStrategy() : strongestAttackingCountry(nullptr) {}
+AgressivePlayerStrategy::AgressivePlayerStrategy(Player * aPlayer) : PlayerStrategy(aPlayer), strongestAttackingCountry(nullptr) {}
+AgressivePlayerStrategy::AgressivePlayerStrategy(const AgressivePlayerStrategy & strategy) : PlayerStrategy(strategy.player), strongestAttackingCountry(nullptr) {}
+
+AgressivePlayerStrategy::~AgressivePlayerStrategy() {}
+
+const AgressivePlayerStrategy & AgressivePlayerStrategy::operator=(const AgressivePlayerStrategy & rightSide)
+{
+	if (&rightSide != this) {
+		PlayerStrategy::operator=(rightSide);
+	}
+	return *this;
+}
+
 // Find the strongest Country owned by the Player (Country with most armies) that can attack other Countries
 void AgressivePlayerStrategy::attackInit()
 {
@@ -176,6 +190,20 @@ int AgressivePlayerStrategy::selectArmiesToMoveForFortification(Country * source
 
 /* BENEVOLENT PLAYER STRATEGY */
 
+BenevolentPlayerStrategy::BenevolentPlayerStrategy() {}
+BenevolentPlayerStrategy::BenevolentPlayerStrategy(Player * aPlayer) : PlayerStrategy(aPlayer) {}
+BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy & strategy) : PlayerStrategy(strategy.player) {}
+
+BenevolentPlayerStrategy::~BenevolentPlayerStrategy() {}
+
+const BenevolentPlayerStrategy & BenevolentPlayerStrategy::operator=(const BenevolentPlayerStrategy & rightSide)
+{
+	if (&rightSide != this) {
+		PlayerStrategy::operator=(rightSide);
+	}
+	return *this;
+}
+
 // Returns false. A benevolent Player never attacks.
 bool BenevolentPlayerStrategy::decideToAttack()
 {
@@ -240,8 +268,6 @@ Country * BenevolentPlayerStrategy::selectFortifySource(Country * destination)
 	}
 
 	return strongestOwnedNeighbor;
-
-	return nullptr;
 }
 
 // Returns the number of armies to move from source to destination
@@ -261,6 +287,19 @@ int BenevolentPlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 
 
 /* DEFAULT (HUMAN) PLAYER STRATEGY */
+
+PlayerStrategy::PlayerStrategy() : player(nullptr) {}
+PlayerStrategy::PlayerStrategy(Player * aPlayer) : player(aPlayer) {}
+PlayerStrategy::PlayerStrategy(const PlayerStrategy & strategy) : player(strategy.player) {}
+
+PlayerStrategy::~PlayerStrategy() {}
+
+const PlayerStrategy& PlayerStrategy::operator =(const PlayerStrategy& rightSide) {
+	if (&rightSide != this) {
+		player = rightSide.player;
+	}
+	return *this;
+}
 
 void PlayerStrategy::attackInit()
 {
@@ -315,7 +354,7 @@ Country * PlayerStrategy::selectAttackingCountry()
 	// display country info again
 
 	int countryId;
-	Country* selectedCountry;
+	Country* selectedCountry = nullptr;
 	bool validCountryId = false;
 
 	do {
@@ -363,7 +402,7 @@ Country * PlayerStrategy::selectDefendingCountry(Country * attackingCountry)
 	// display info on neighbors of attackingCountry
 	
 	int countryId;
-	Country* selectedCountry;
+	Country* selectedCountry = nullptr;
 	bool validCountryId = false;
 
 	do {
@@ -541,4 +580,167 @@ bool PlayerStrategy::canFortify()
 	}
 
 	return false;
+}
+
+bool PlayerStrategy::isValidFortifyDestination(Country * destination)
+{
+	if (destination->player->id == player->id) {
+		list<int> neighbors = destination->neighbors;
+
+		for (auto const& neighbor : neighbors) {
+			Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+			if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2) {
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
+bool PlayerStrategy::isValidFortifiySource(Country * destination, Country * source)
+{
+	if (source->player->getId() == destination->player->getId() && source->armies >= 2) {
+		list<int> neighbors = destination->neighbors;
+
+		for (auto const& neighbor : neighbors) {
+			Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+			if (countryNeighbor->id == source->id) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool PlayerStrategy::decideToFortify()
+{
+	if (!canFortify()) {
+		cout << endl << "None of your countries can be fortified." << endl;
+		cout << "Your fortification phase will be skipped." << endl;
+
+		return false;
+	}
+
+	// Add print of countries owned by Player or something
+	cout << endl << "Would you like to fortify a Country? Enter 0 for no or 1 for yes." << endl;
+
+	int choice = -1;
+	cin >> choice;
+
+	while (!cin.good() || (choice != 0 && choice != 1)) {
+		cout << endl << "This input is wrong. Please enter 0 for no or 1 for yes.";
+		cin >> choice;
+	}
+
+	cout << endl;
+
+	return choice;
+}
+
+Country * PlayerStrategy::selectFortifyDestination()
+{
+	// A Player can fortify a Country if one of the Country's neighbors is owned by the Player and has at least 2 armies on it
+	int countryId;
+	Country* selectedCountry = nullptr;
+	bool validCountryId = false;
+
+	do {
+		cout << endl << "Please enter the id of the country you wish to fortify." << endl;
+		cin >> countryId;
+
+		if (!cin.good()) {
+			cout << "The id should be an integer." << endl;
+			continue;
+		}
+
+		try {
+			selectedCountry = player->mapPtr->getCountryById(countryId);
+
+			if (isValidFortifyDestination(selectedCountry)) {
+				validCountryId = true;
+			}
+			else {
+				// not valid
+			}
+		}
+		catch (exception e) {
+			cout << "No countries have this id." << endl;
+			continue;
+		}
+	} while (!validCountryId);
+
+	return selectedCountry;
+}
+
+Country * PlayerStrategy::selectFortifySource(Country * destination)
+{
+	// A Country can be a fortification source if it is owned by the Player, is a neighbor of the destination, and has at least 2 armies on it
+	int countryId;
+	Country* selectedCountry = nullptr;
+	bool validCountryId = false;
+
+	do {
+		cout << endl << "Please enter the id of the country from which you wish to move armies for fortification." << endl;
+		cin >> countryId;
+
+		if (!cin.good()) {
+			cout << "The id should be an integer." << endl;
+			continue;
+		}
+
+		try {
+			selectedCountry = player->mapPtr->getCountryById(countryId);
+
+			if (isValidFortifiySource(destination, selectedCountry)) {
+				validCountryId = true;
+			}
+			else {
+				// not valid
+			}
+		}
+		catch (exception e) {
+			cout << "No countries have this id." << endl;
+			continue;
+		}
+	} while (!validCountryId);
+
+	return selectedCountry;
+}
+
+int PlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country * destination)
+{
+	// The number of armies to move should be less than the number of armies on the source Country
+	int selectedNumArmies;
+	int max = source->armies;
+	int min = 0;
+	bool validNumArmies = false;
+
+	do {
+		cout << endl << "Please enter the number of armies you wish to move from country " << source->name;
+		cout << " to country " << destination->name << " [" << min << "-" << max << "]." << endl;
+		cin >> selectedNumArmies;
+
+		if (!cin.good()) {
+			cout << "The number of armies to move should be an integer." << endl;
+			continue;
+		}
+
+		if (selectedNumArmies < min) {
+			cout << "You should move at least " << min << " armies." << endl;
+			continue;
+		}
+
+		if (selectedNumArmies > max) {
+			cout << "You cannot move more than " << max << " armies." << endl;
+			continue;
+		}
+
+		validNumArmies = true;
+	} while (!validNumArmies);
+
+	return selectedNumArmies;
 }

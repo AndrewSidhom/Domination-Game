@@ -12,6 +12,13 @@ public:
 	const int MAX_NUM_DEFENSE_DICE = 2;
 	const int MIN_NUM_ARMIES_ON_COUNTRY = 1;
 
+	PlayerStrategy();
+	PlayerStrategy(Player* aPlayer);
+	PlayerStrategy(const PlayerStrategy& strategy);
+	virtual ~PlayerStrategy();
+
+	const PlayerStrategy& operator =(const PlayerStrategy& rightSide);
+
 	void setPlayer(Player* aPlayer) { player = aPlayer; };
 
 	virtual void attackInit(); // Do whatever initialization is required before deciding to attack or not
@@ -22,7 +29,9 @@ public:
 	virtual int selectNumDefenseDice(Country* defendingCountry); // Choose the number of dice to roll for defending against an attack
 	virtual int selectNumArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); // Choose the number of armies to move from the attackingCountry to the defendingCountry after the Player won an attack
 
-	virtual bool canFortify(); // Whether a Player has a Country that can be fortified
+	bool canFortify(); // Whether a Player has a Country that can be fortified
+	bool isValidFortifyDestination(Country* destination); // Returns true if a Country is a valid fortification destination
+	bool isValidFortifiySource(Country* destination, Country* source); // Returns true if a Country is a valid fortification source for a given destination
 	virtual bool decideToFortify(); // Choose whether to fortify a Country or not
 	virtual Country* selectFortifyDestination(); // Choose which Country should be fortified
 	virtual Country* selectFortifySource(Country* destination); // Choose a Country from which to move armies into the destination Country
@@ -34,7 +43,12 @@ protected:
 
 class AgressivePlayerStrategy : public PlayerStrategy {
 public:
-	AgressivePlayerStrategy(); // don't forget constructors, etc.!!
+	AgressivePlayerStrategy();
+	AgressivePlayerStrategy(Player* aPlayer);
+	AgressivePlayerStrategy(const AgressivePlayerStrategy& strategy);
+	virtual ~AgressivePlayerStrategy();
+
+	const AgressivePlayerStrategy& operator =(const AgressivePlayerStrategy& rightSide);
 
 	// Goal: Continue attacking until the strongest Country has no more Countries it can attack
 	void attackInit(); // Find the strongest Country owned by the Player (Country with most armies) that can attack other Countries
@@ -56,6 +70,13 @@ private:
 
 class BenevolentPlayerStrategy : public PlayerStrategy {
 public:
+	BenevolentPlayerStrategy();
+	BenevolentPlayerStrategy(Player* aPlayer);
+	BenevolentPlayerStrategy(const BenevolentPlayerStrategy& strategy);
+	virtual ~BenevolentPlayerStrategy();
+
+	const BenevolentPlayerStrategy& operator =(const BenevolentPlayerStrategy& rightSide);
+
 	bool decideToAttack();
 
 	virtual bool decideToFortify();

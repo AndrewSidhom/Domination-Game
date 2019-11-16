@@ -9,8 +9,31 @@ int* Player::currentGenId = new int(1);
 //constructor, destructor
 Player::Player() : id(new int(*currentGenId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
 Player::Player(string name, Deck *deck, Map *mapPtr) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int,int>), mapPtr(mapPtr), hand(new Hand(deck, ownedCountries)), dice(new Dice()){ genNextID(); }
-Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), mapPtr(p.mapPtr), hand(p.hand), dice(p.dice), numOfOwnedCountriesPerContinent(p.numOfOwnedCountriesPerContinent) {}
+Player::Player(string name, Deck * deck, Map * mapPtr, PlayerStrategy * aStrategy) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), mapPtr(mapPtr), hand(new Hand(deck, ownedCountries)), dice(new Dice()), strategy(aStrategy) { genNextID(); }
+Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), mapPtr(p.mapPtr), hand(p.hand), dice(p.dice), numOfOwnedCountriesPerContinent(p.numOfOwnedCountriesPerContinent), strategy(p.strategy) {}
 Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice, mapPtr; }
+
+const Player & Player::operator=(const Player & rightSide)
+{
+	if (&rightSide != this) {
+		delete id;
+		delete name;
+		delete ownedCountries;
+		delete numOfOwnedCountriesPerContinent;
+		delete hand;
+		delete dice;
+
+		id = new int(*rightSide.id);
+		name = new string(*rightSide.name);
+		*ownedCountries = *rightSide.ownedCountries;
+		*numOfOwnedCountriesPerContinent = *numOfOwnedCountriesPerContinent;
+		mapPtr = rightSide.mapPtr;
+		hand = new Hand(*rightSide.hand);
+		dice = new Dice(*rightSide.dice);
+		strategy = rightSide.strategy;
+	}
+	return *this;
+}
 
 /*	 Used in the startup phase of the game. Stores all owned countries and places 1 army on each.
 	 And sets how many owned countries are in each continent for reinforcing armies.
