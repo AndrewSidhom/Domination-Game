@@ -35,9 +35,9 @@ private:
 
 class ConquestMapLoader {
 public:
-	ConquestMapLoader();
-	~ConquestMapLoader();
-	Map *loadConquestMapFile(string fileName);
+	ConquestMapLoader(); // Constructor
+	~ConquestMapLoader(); // Destructor
+	Map *loadConquestMapFile(string fileName); // Reads Conquest file and instantiates a Map 
 
 private:
 	int* continentId; // Used for generating continent ids
@@ -53,6 +53,7 @@ private:
 
 };
 
+//Adapter class 
 class ConquestMapAdapter : public MapLoader {
 private: 
 	ConquestMapLoader conquestMapLoader;

@@ -229,7 +229,7 @@ void MapLoader::processBorder(string line, Country* aCountry) {
 // Constructor
 ConquestMapLoader::ConquestMapLoader() : continentId(new int(1)), countryId(new int(1)), processedSection(new string("")), continents(new map<string, int>), countries(new map<string, int>) {}
 //Destructor
-ConquestMapLoader::~ConquestMapLoader() { delete continentId, countryId, processedSection; }
+ConquestMapLoader::~ConquestMapLoader() { delete continentId, countryId, processedSection, continents, countries; }
 
 // If any issue was encountered while loading the map file, a nullptr is returned
 Map* ConquestMapLoader::loadConquestMapFile(std::string fileName) {
@@ -356,6 +356,7 @@ bool ConquestMapLoader::processSection(string line) {
 	return false;
 }
 
+// Verifies that the Map section of conquest files contain the correct format
 bool ConquestMapLoader::processMapSection(string line) {
 	stringstream lineStream(line);
 	string lineItem;
@@ -363,11 +364,12 @@ bool ConquestMapLoader::processMapSection(string line) {
 	if (lineItem == "author" || lineItem == "warn" || lineItem == "image" || lineItem == "wrap" || lineItem == "scroll")
 		return true;
 	else {
-		cout << "Unrecognized header in Map section" << endl;
+		cout << "Unrecognized item in Map section" << endl;
 		return false;
 	}
 }
 
+// Returns a Continent with a generated id, and a name and worth read from line
 Continent ConquestMapLoader::processContinent(string line) {
 	string continentName;
 	int continentWorth;
@@ -378,6 +380,7 @@ Continent ConquestMapLoader::processContinent(string line) {
 	getline(lineStream, lineItem, '=');
 	continentName = lineItem;
 
+	// Adds element to map container with name as a key and generated id as a value
 	continents->insert(pair<string, int>(continentName, *continentId));
 
 	getline(lineStream, lineItem);
@@ -392,6 +395,7 @@ Continent ConquestMapLoader::processContinent(string line) {
 	return aContinent;
 }
 
+// Returns a Country with the id, continent id, name, and neighbors read from line
 Country ConquestMapLoader::processTerritory(string line) {
 	//cout << "Processing Territory" << endl;
 	string countryName;
@@ -406,14 +410,17 @@ Country ConquestMapLoader::processTerritory(string line) {
 	countryName = lineItem;
 
 	try {
-		countries->at(countryName);
+		// checks if countryName is in the map container and throws out_of_range exception if not
+		countries->at(countryName);  
 	}
 	catch (const out_of_range e) {
 		//cout << "Inserting country " << countryName << endl;
-		countries->insert(pair<string, int>(countryName, *countryId));
+		// adds country to map container with name as key and generated id as value
+		countries->insert(pair<string, int>(countryName, *countryId)); 
 		*countryId = *countryId + 1;
 	}
 
+	// skip the two coordinates and read the name of continent it belongs to 
 	for (int i = 0; i < 3; i++) {
 		getline(lineStream, lineItem, ',');
 	}
@@ -422,14 +429,18 @@ Country ConquestMapLoader::processTerritory(string line) {
 	while (getline(lineStream, lineItem, ',')) {
 		neighbor = lineItem;
 		try {
+			// checks if the neighbor is in the countries map and throws out_of_range exception if not
 			countries->at(neighbor);
 		}
 		catch (const out_of_range e) {
 			//cout << "Inserting country " << neighbor << endl;
+			// adds neighbor to countries map container
 			countries->insert(pair<string, int>(neighbor, *countryId));
 			*countryId = *countryId + 1;
 		}
 		if(countries->at(countryName) != countries->at(neighbor))
+			// add country to neighbors if it is not a neighbor of itself
+			// using neighbor name as key, the correct id value is inserted
 			neighbors.push_back(countries->at(neighbor));
 		else
 			throw exception("A country cannot be its own neighbour.");
@@ -439,6 +450,7 @@ Country ConquestMapLoader::processTerritory(string line) {
 		cout << x << ", ";
 	}*/
 	//cout << "Passing" << countries->at(countryName) << ", " << continents->at(continent) << ", " << countryName << ", and neighbors" << endl;
+	// passes country id, continent id, country name and list of neighbors  
 	Country country(countries->at(countryName), continents->at(continent), countryName, neighbors);
 	//cout << endl;
 	return country;
