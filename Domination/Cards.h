@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include "Map.h"
+#include "PlayerStrategies.h"
 using namespace std;
 
 // [IMPORTANT] Data members in this struct are not pointers because we thought when doing in A1 that we were allowed to 
@@ -38,7 +39,7 @@ public:
 	//	Draws a card from top of deck. IMPORTANT: always use isEmpty on deck first to check.
 	Card draw();
 	//	Check if deck has no more cards
-	bool isEmpty();
+	bool isEmpty() { return cardDeck->empty(); };
 	//	Get bonus army from successful exchange.
 	int getExchangedArmies();
 
@@ -55,34 +56,32 @@ private:
 class Hand
 {
 public:
-	Hand(Deck* deck, map<int,Country*>* countries);		// Constructor.
-	~Hand();											// Destructor.
+	Hand(Deck* deck, map<int,Country*>* countries, PlayerStrategy* strat);
+	~Hand();
 
-	//	Display cards in player's hand.
-	void showHand();
 	//  Get number of cards in player's hand.
-	int getHandCount();
-	// Draw a card from the deck and put it in the player's hand.
+	int getHandCount() { return playerHand->size(); };
+	//	Set player strategy
+	void setPlayerStrategy(PlayerStrategy* strat) { strategy = strat; };
+	//  Draw a card from the deck and put it in the player's hand.
 	void drawFromDeck();
 	//	Exchange 3 cards in hand for armies.
 	int exchange();
+	//	Display cards in player's hand.
+	void showHand();
 
 private:
 	vector<Card>* playerHand;
 	Deck* deck;		// Determines correct number of armies to give for exchange.
 	map<int,Country*>* ownedCountries;	// Needed to iterate +2 bonus armies on countries based on exchanged cards.
+	PlayerStrategy* strategy;
 
 	//	Returns a string version of enum Card_Type.
 	string getEnumString(Card_Type type);
-	//	Prompt if player wants to exchange.
-	bool playerWantsToExchange();
-	//	Prompt user to choose which card from their hand to exchange.
-	int getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen, int cardsToExchange[]);
 	//  Validate if the 3 selected cards are matchings or consecutives
 	bool isValidExchangeCards(int i, int j, int k);
-	//	Check if exchanged cards match a country the player owns. If so, 
-	//	prompt the player to choose which country to give +2 units.
-	void giveBonusTwoArmies(int cardsToExchange[]);
-	//	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
-	int getMatchingCountryChoice(vector<int> matchingCountries);
+
+	friend class PlayerStrategy;
+	friend class AggressivePlayerStrategy;
+	friend class BenevolentPlayerStrategy;
 };

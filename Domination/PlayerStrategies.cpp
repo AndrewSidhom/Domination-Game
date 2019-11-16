@@ -1,10 +1,18 @@
 #include "PlayerStrategies.h"
 
 #include <iostream>
+#include <string>
+#include <algorithm>
+#include <random>
+#include <vector>
 
 using std::list;
 using std::cout;
 using std::cin;
+using std::sort;
+using std::random_device;
+using std::uniform_int_distribution;
+using std::vector;
 
 /* AGGRESSIVE PLAYER STRATEGY */
 
@@ -20,10 +28,42 @@ const AgressivePlayerStrategy & AgressivePlayerStrategy::operator=(const Agressi
 		PlayerStrategy::operator=(rightSide);
 	}
 	return *this;
+
+// Returns true when have cards >= 3
+bool AggressivePlayerStrategy::ifPlayerWantsToExchange() 
+{
+	return (hand->getHandCount() >= 3);	// attempt exchange whenever it's possible
+}
+
+// Automatically choose any cards in hands to exchange (has no user input)
+int AggressivePlayerStrategy::promptExchangeForArmies(bool isMandatory)
+{
+	return exchangeAnyCardsForArmies();
+}
+
+/*	AI will choose to reinforce country with least armies
+	@param country ids that matches exchanged cards
+*/
+void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
+{
+	cout << "\nCountries you own matches with your exchanged cards:\n";
+		for (int id : *matchingCountries)
+			cout << "Country " << id << "|" << endl;
+
+	// choose strongest country
+	int strongestCountryId = matchingCountries->at(0);
+	int highestArmyCount = hand->ownedCountries->at(matchingCountries->at(0))->armies;
+	for(int id : *matchingCountries) {
+		if(hand->ownedCountries->at(id)->armies > highestArmyCount)
+			strongestCountryId = id;
+	}
+
+	hand->ownedCountries->at(strongestCountryId)->armies += 2;
+	cout << "Choose a country to give 2 additional armies: " << strongestCountryId;
 }
 
 // Find the strongest Country owned by the Player (Country with most armies) that can attack other Countries
-void AgressivePlayerStrategy::attackInit()
+void AggressivePlayerStrategy::attackInit()
 {
 	Country* countryMaxArmies = nullptr;
 	int maxArmies = 0;
@@ -48,7 +88,7 @@ void AgressivePlayerStrategy::attackInit()
 }
 
 // Check if the strongest Country can still attack. If yes, return true.
-bool AgressivePlayerStrategy::decideToAttack()
+bool AggressivePlayerStrategy::decideToAttack()
 {
 	// a country can be attacked if 1. it's a neighbour of an owned country
 	// 2. it's not owned by the player
@@ -70,12 +110,12 @@ bool AgressivePlayerStrategy::decideToAttack()
 	return false;
 }
 
-Country * AgressivePlayerStrategy::selectAttackingCountry()
+Country * AggressivePlayerStrategy::selectAttackingCountry()
 {
 	return strongestAttackingCountry;
 }
 
-Country * AgressivePlayerStrategy::selectDefendingCountry(Country * attackingCountry)
+Country * AggressivePlayerStrategy::selectDefendingCountry(Country * attackingCountry)
 {
 	// The defendingCountry must 1. be a neighbour of the attacking country
 	// 2. must not be owned by this Player
@@ -95,7 +135,7 @@ Country * AgressivePlayerStrategy::selectDefendingCountry(Country * attackingCou
 }
 
 // Returns an integer - the number of dice to be rolled by the attacker
-int AgressivePlayerStrategy::selectNumAttackDice(Country * attackingCountry)
+int AggressivePlayerStrategy::selectNumAttackDice(Country * attackingCountry)
 {
 	// The attack is allowed min: 1 die, max: (number of armies in the attacking Country - 1) dice
 	// Will select the max number of dice to roll
@@ -105,7 +145,7 @@ int AgressivePlayerStrategy::selectNumAttackDice(Country * attackingCountry)
 }
 
 // Returns an integer - the number of dice to be rolled by the defender
-int AgressivePlayerStrategy::selectNumDefenseDice(Country * defendingCountry)
+int AggressivePlayerStrategy::selectNumDefenseDice(Country * defendingCountry)
 {
 	// The defense is allowed min: 1 die, max: 2 dice if the number of armies in defendingCountry >= 2
 	// Will select the min number of dice to roll
@@ -114,7 +154,7 @@ int AgressivePlayerStrategy::selectNumDefenseDice(Country * defendingCountry)
 }
 
 // Returns the number of armies the attacker will move in newly conquered country
-int AgressivePlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country * attackingCountry, Country * defendingCountry, int diceRolled)
+int AggressivePlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country * attackingCountry, Country * defendingCountry, int diceRolled)
 {
 	// The Player is allowed to move min: (number of dice rolled) armies, max: (number of armies in attacking Country - 1) armies
 	// Will select the max number
@@ -124,13 +164,13 @@ int AgressivePlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country * a
 }
 
 // Returns true if the Player can fortify (the Agressive Player fortifies by default if they can fortify)
-bool AgressivePlayerStrategy::decideToFortify()
+bool AggressivePlayerStrategy::decideToFortify()
 {
 	return canFortify();
 }
 
 // Returns the strongest Country which can be fortified. Returns a nullptr if no Country owned by the Player can be fortified
-Country * AgressivePlayerStrategy::selectFortifyDestination()
+Country * AggressivePlayerStrategy::selectFortifyDestination()
 {
 	// A Player can fortify a Country if one of the Country's neighbors is owned by the Player and has at least 2 armies on it
 	// Will choose the Country with the most armies on it and which fulfills the above requirements
@@ -158,7 +198,7 @@ Country * AgressivePlayerStrategy::selectFortifyDestination()
 
 // Returns the Country neighbor of destination which is owned by the Player and has the most armies on it
 // Returns a nullptr if no valid fortification source is found
-Country * AgressivePlayerStrategy::selectFortifySource(Country * destination)
+Country * AggressivePlayerStrategy::selectFortifySource(Country * destination)
 {
 	// A Country can be a fortification source if it is owned by the Player, is a neighbor of the destination, and has at least 2 armies on it
 	// Will choose the Country which fulfills the above requirement and has the most armies on it
@@ -180,7 +220,7 @@ Country * AgressivePlayerStrategy::selectFortifySource(Country * destination)
 }
 
 // Returns the number of armies to move from source to destination
-int AgressivePlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country * destination)
+int AggressivePlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country * destination)
 {
 	// The number of armies to move should be less than the number of armies on the source Country
 	// Will choose the max number of armies that can be moved (armies on source - 1)
@@ -202,6 +242,38 @@ const BenevolentPlayerStrategy & BenevolentPlayerStrategy::operator=(const Benev
 		PlayerStrategy::operator=(rightSide);
 	}
 	return *this;
+
+// Returns true when have cards >= 3
+bool BenevolentPlayerStrategy::ifPlayerWantsToExchange() 
+{
+	return (hand->getHandCount() >= 3);	// attempt exchange whenever it's possible
+}
+
+// Automatically choose any cards in hands to exchange (has no user input)
+int BenevolentPlayerStrategy::promptExchangeForArmies(bool isMandatory) 
+{
+	return exchangeAnyCardsForArmies();
+}
+
+/*	AI will choose to reinforce country with least armies
+	@param country ids that matches exchanged cards
+*/
+void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
+{
+	cout << "\nCountries you own matches with your exchanged cards:\n";
+		for (int id : *matchingCountries)
+			cout << "Country " << id << "|" << endl;
+
+	// choose weakest country
+	int weakestCountryId = matchingCountries->at(0);
+	int lowestArmyCount = hand->ownedCountries->at(matchingCountries->at(0))->armies;
+	for(int id : *matchingCountries) {
+		if(hand->ownedCountries->at(id)->armies < lowestArmyCount)
+			weakestCountryId = id;
+	}
+
+	hand->ownedCountries->at(weakestCountryId)->armies += 2;
+	cout << "Choose a country to give 2 additional armies: " << weakestCountryId;
 }
 
 // Returns false. A benevolent Player never attacks.
@@ -299,6 +371,155 @@ const PlayerStrategy& PlayerStrategy::operator =(const PlayerStrategy& rightSide
 		player = rightSide.player;
 	}
 	return *this;
+
+//	Return if player wants to exchange
+bool PlayerStrategy::ifPlayerWantsToExchange() 
+{
+	string input;
+	do {
+		cout << "\nWould you like to exchange your cards? (y/n): " << endl;
+		cin >> input;
+
+		if(input.compare("y") == 0 || input.compare("n") == 0)  // 0 means equal
+			break;
+		else
+			cout << "\nInput must be 'y' or 'n'\n";
+	} 
+	while (true);
+
+	return (input.compare("y") == 0);
+}
+
+/*	Exchange 3 cards for armies.
+	@param if exchange action is mandatory
+	@return exchanged armies, if exchange cancelled, return 0
+*/
+int PlayerStrategy::promptExchangeForArmies(bool isMandatory) 
+{
+	int numOfCardsChosen = 0;
+	int* cardsToExchangeIndex = new int[3];
+
+	do {
+		/// get player input
+		int selectedCardIndex = getPlayersCardOfChoice(isMandatory, numOfCardsChosen, cardsToExchangeIndex);
+
+		if (selectedCardIndex == 0 && !isMandatory) {	/// if player wants to cancel
+			cout << "\nExchange action cancelled.\n";
+			return 0;
+		}
+		else {	/// store chosen card
+			*cardsToExchangeIndex[numOfCardsChosen] = selectedCardIndex - 1;
+			numOfCardsChosen++;
+		}
+
+		if (numOfCardsChosen == 3) {
+			if (hand->isValidExchangeCards(*cardsToExchangeIndex[0], *cardsToExchangeIndex[1], *cardsToExchangeIndex[2]))
+			{
+				tradeInCards(cardsToExchangeIndex);
+				delete [] cardsToExchangeIndex;
+				/// exchange is successful
+				return hand->deck->getExchangedArmies();
+			}
+			else {
+				cout << "\nCannot exchange with these cards. Must be a matching or of consecutive types.\n";
+				numOfCardsChosen = 0;
+			}
+		}
+	} while (numOfCardsChosen != 3);
+}
+
+/*	Prompt user to choose which card from their hand to exchange.
+	@param if exchange is mandatory
+	@param number of cards that's already been chosen
+	@param index of already selected cards to exchange
+*/
+int PlayerStrategy::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen, int cardsToExchangeIndex[]) 
+{
+	int selectedCardIndex;
+	do {
+		cout << "Card " << (numOfCardsChosen + 1) << ": ";
+
+		cin >> selectedCardIndex;
+		if (!cin.good())	/// !good() when input doesnt match declared type
+		{
+			cout << "\nInvalid number input. Please try again.\n";
+			cin.clear();		   /// clear error flag
+			cin.ignore(100, '\n'); /// clear buffer
+		}
+		else if (selectedCardIndex == 0 && isMandatory)
+			cout << "\nYou've reached the card limit and must exchange.\n";
+		else if (selectedCardIndex < 0 || selectedCardIndex > hand->playerHand->size())
+			cout << "\nYour choice must be within your hand's cards.\n";
+		else if (selectedCardIndex == cardsToExchangeIndex[0]+1 || 
+				selectedCardIndex == cardsToExchangeIndex[1]+1)
+			cout << "\nYou have already selected this card.\n";
+		else
+			break;
+	} 
+	while (true);
+
+	return selectedCardIndex;
+}
+
+/*	Perform successful exchange and return armies. If have cards matching owned countries, get bonus armies.
+	@param 3 card indexes to exchange
+	@return armies from exchange (excluding the matching bonus)
+*/
+void PlayerStrategy::tradeInCards(int* cardsToExchange[]) 
+{
+	/// give bonus +2 armies if cards match owned countries
+	vector<int>* matchingCountries = new vector<int>();
+	
+	for (int i = 0; i < 3; i++) {	/// loop each exchanged cards if matches owned countries	
+		int countryId = hand->playerHand->at(*cardsToExchange[i]).countryId;
+		if(hand->ownedCountries->count(countryId) > 0)	/// 0 if not an element, 1 if is
+			{ matchingCountries->push_back(countryId);	}	/// store country by reference
+	}
+	/// if have matching, prompt player input to choose which country to give +2 units
+	if (!matchingCountries->empty()) 
+		distributeExchangeBonus(matchingCountries);
+	delete matchingCountries;
+
+	/// remove exchanged cards from hand
+	/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
+	/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
+	sort(begin(*cardsToExchangeIndex), end(*cardsToExchangeIndex), greater<int>());
+	playerHand->erase(hand->playerHand->begin() + *cardsToExchangeIndex[0]);
+	playerHand->erase(hand->playerHand->begin() + *cardsToExchangeIndex[1]);
+	playerHand->erase(hand->playerHand->begin() + *cardsToExchangeIndex[2]);
+}
+
+/*	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
+	@param country ids that matches exchanged cards
+*/
+void PlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
+{
+	cout << "\nCountries you own matches with your exchanged cards:\n";
+		for (int id : *matchingCountries)
+			cout << "Country " << id << "|" << endl;
+
+	int selectedCountryId;
+	do {
+		cout << "Choose a country to give 2 additional armies: ";
+		cin >> selectedCountryId;
+		
+		if (!cin.good()) /// !good() when input isnt integer
+		{
+			cout << "\nInvalid number input. Please try again.\n";
+			cin.clear();		   /// clear error flag
+			cin.ignore(100, '\n'); /// clear buffer
+		}
+		else {
+			for(int id : *matchingCountries) {
+				if(selectedCountryId == id)
+					break;
+			}
+			cout << "\nPlease choose the countries given.\n";
+		}
+	} 
+	while (true);
+
+	hand->ownedCountries->at(selectedCountryId)->armies += 2;
 }
 
 void PlayerStrategy::attackInit()
@@ -743,4 +964,73 @@ int PlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country
 	} while (!validNumArmies);
 
 	return selectedNumArmies;
+}
+
+/*	Checks if 3 cards are valid for exchange.
+	@return if have cards to exchange, return exchange armies; else return 0.
+*/
+int PlayerStrategy::exchangeAnyCardsForArmies() {
+
+	// indexes of cards to exchange
+	int cardIndexes[4][3]; // 4 card types, max 3 size (3 of 1 type => matching => exchange immediately)
+	int infCtr = 0, artCtr = 0, cavCtr = 0, wildCtr = 0;
+	int* cardsToExchange = nullptr;
+	int handCount = hand->getHandCount();
+
+	for(int i = 0; i < handCount; i++) {
+		switch(hand->playerHand->at(i))	
+		{	// separate each card in hand by their type
+			case INFANTRY:	cardIndexes[0][infCtr] = i; infCtr++; break;
+			case ARTILLERY:	cardIndexes[1][artCtr] = i; artCtr++; break;
+			case CAVALRY:	cardIndexes[2][cavCtr] = i; cavCtr++; break;
+			case WILD:		cardIndexes[3][wildCtr] = i; wildCtr++; break;
+		}
+
+		// if found 3 of one type, break loop early
+		if(infCtr == 3)	{ cardsToExchange = cardIndexes[0]; break; }
+		if(artCtr == 3)	{ cardsToExchange = cardIndexes[1]; break; }
+		if(cavCtr == 3)	{ cardsToExchange = cardIndexes[2]; break; }
+		// if found 1 of each type, break loop early
+		if(infCtr > 0 && artCtr > 0 && cav > 0) { 
+			cardsToExchange = new int[3];
+			*cardsToExchange[0] = cardIndexes[0][0]; 
+			*cardsToExchange[1] = cardIndexes[1][0]; 
+			*cardsToExchange[2] = cardIndexes[2][0]; 
+			break; 
+		}
+		// if found a wild card, choose any other 2 random cards and break loop early
+		if(wildCtr > 0) {
+			// keep generating random index until 2 indexes points to a card that ISNT this wild card
+			int rndIndex1 = -1, rndIndex2 = -1;
+			while(rndIndex1 == rndIndex2 || rndIndex1 == i || rndIndex2 == i) {	
+				rndIndex1 = genRandomNum(0, handCount - 1);
+				rndIndex2 = genRandomNum(0, handCount - 1);
+			}
+			cardsToExchange = new int[3];
+			*cardsToExchange[0] = i; 
+			*cardsToExchange[1] = rndIndex1; 
+			*cardsToExchange[2] = rndIndex2; 
+			break; 
+		}
+	}
+
+	if(cardsToExchange == nullptr)	// if no sets of exchangable cards at all
+		return 0;
+	else {
+		cout << "Exchanging with card " << *cardsToExchange[0] << ", card " << *cardsToExchange[1] 
+				<< ", and card " << *cardsToExchange[2];
+		tradeInCards(cardsToExchangeIndex);
+		delete [] cardsToExchangeIndex;
+		/// exchange is successful
+		return hand->deck->getExchangedArmies();
+	}
+}
+
+// generates a random number in between range
+int PlayerStrategy::genRandomNum(int low, int high) 
+{
+	random_device rd;
+	mt19937 mt(rd());
+	uniform_int_distribution<int> dist(low, high);
+	return dist(mt);
 }

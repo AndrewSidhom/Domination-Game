@@ -3,6 +3,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <string>
 #include "Map.h"
 #include "Cards.h"
 #include "Dice.h"
@@ -82,7 +83,7 @@ private:
 	int selectDefenseDice(Country* defendingCountry); // Choose the number of dice to roll for defending against an attack
 	int selectArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); // Choose the number of armies to move from the attackingCountry to the defendingCountry after the Player won an attack
 
-	friend class AgressivePlayerStrategy;
+	friend class AggressivePlayerStrategy;
 	friend class PlayerStrategy;
 	friend class BenevolentPlayerStrategy;
 };

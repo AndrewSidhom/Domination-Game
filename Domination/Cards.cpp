@@ -2,7 +2,6 @@
 #include <cstdlib>
 #include <iomanip>
 #include <random>
-#include <algorithm>
 #include <functional>
 
 // Card struct constructor
@@ -95,14 +94,6 @@ Card Deck::draw()
 	return last;
 }
 
-/*	Check if deck has no more cards
-	@return deck is empty boolean
- */
-bool Deck::isEmpty()
-{
-	return cardDeck->empty();
-}
-
 /*	Get bonus army from successful exchange.
 */
 int Deck::getExchangedArmies()
@@ -149,14 +140,6 @@ void Hand::showHand()
 	}
 }
 
-/*  Get number of cards in player's hand.
-	@return num of cards in hand
-*/
-int Hand::getHandCount() {
-
-	return playerHand->size();
-}
-
 void Hand::drawFromDeck()
 {
 	Card c = deck->draw();
@@ -170,7 +153,7 @@ int Hand::exchange()
 {
 	bool isMandatory = getHandCount() >= 5;
 
-	if(!isMandatory && !playerWantsToExchange()) 
+	if(!isMandatory && !strategy->ifPlayerWantsToExchange()) 
 		return 0; 
 	showHand();
 	if (isMandatory)
@@ -180,46 +163,7 @@ int Hand::exchange()
 		cout << " or enter 0 to cancel";
 	cout << endl;
 
-	int exchangedArmies = 0;
-	int numOfCardsChosen = 0;
-	int cardsToExchangeIndex[3];
-
-	do {
-		/// get player input
-		int selectedCardIndex = getPlayersCardOfChoice(isMandatory, numOfCardsChosen, cardsToExchangeIndex);
-
-		if (selectedCardIndex == 0 && !isMandatory) {	/// if player wants to cancel
-			cout << "\nExchange action cancelled.\n";
-			break;
-		}
-		else {	/// store chosen card
-			cardsToExchangeIndex[numOfCardsChosen] = selectedCardIndex - 1;
-			numOfCardsChosen++;
-		}
-
-		if (numOfCardsChosen == 3) {
-			if (isValidExchangeCards(cardsToExchangeIndex[0], cardsToExchangeIndex[1], cardsToExchangeIndex[2]))
-			{
-				/// give bonus +2 armies if cards match owned countries
-				giveBonusTwoArmies(cardsToExchangeIndex);
-				/// remove exchanged cards from hand
-				/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
-				/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
-				sort(begin(cardsToExchangeIndex), end(cardsToExchangeIndex), greater<int>());
-				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[0]);
-				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[1]);
-				playerHand->erase(playerHand->begin() + cardsToExchangeIndex[2]);
-				/// exchange is successful
-				exchangedArmies = deck->getExchangedArmies();
-			}
-			else {
-				cout << "\nCannot exchange with these cards. Must be a matching or of consecutive types.\n";
-				numOfCardsChosen = 0;
-			}
-		}
-	} while (numOfCardsChosen != 3);
-
-	return exchangedArmies;
+	return strategy->promptExchangeForArmies(isMandatory);
 }
 
 /*	Returns a string version of enum Card_Type
@@ -242,60 +186,6 @@ string Hand::getEnumString(Card_Type type)
 	}
 }
 
-/*	Prompt if player wants to exchange.
-	@return if player wants to exchange
-*/
-bool Hand::playerWantsToExchange() 
-{
-	string input;
-	do {
-		cout << "\nWould you like to exchange your cards? (y/n): " << endl;
-		cin >> input;
-
-		if(input.compare("y") == 0 || input.compare("n") == 0)  // 0 means equal
-			break;
-		else
-			cout << "\nInput must be 'y' or 'n'\n";
-	} 
-	while (true);
-
-	return (input.compare("y") == 0);
-}
-
-/*	Prompt user to choose which card from their hand to exchange.
-	@param if exchange is mandatory
-	@param number of cards that's already been chosen
-	@param index of already selected cards to exchange
-*/
-int Hand::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen, int cardsToExchangeIndex[]) 
-{
-	int selectedCardIndex;
-	do
-	{
-		cout << "Card " << (numOfCardsChosen + 1) << ": ";
-
-		cin >> selectedCardIndex;
-		if (!cin.good())	/// !good() when input doesnt match declared type
-		{
-			cout << "\nInvalid number input. Please try again.\n";
-			cin.clear();		   /// clear error flag
-			cin.ignore(100, '\n'); /// clear buffer
-		}
-		else if (selectedCardIndex == 0 && isMandatory)
-			cout << "\nYou've reached the card limit and must exchange.\n";
-		else if (selectedCardIndex < 0 || selectedCardIndex > playerHand->size())
-			cout << "\nYour choice must be within your hand's cards.\n";
-		else if (selectedCardIndex == cardsToExchangeIndex[0]+1 || 
-				selectedCardIndex == cardsToExchangeIndex[1]+1)
-			cout << "\nYou have already selected this card.\n";
-		else
-			break;
-	} 
-	while (true);
-
-	return selectedCardIndex;
-}
-
 /*  Validate if the 3 selected cards are matchings or consecutives
 	@param int i, j, k being the index of chosen card in hand
 	@return true if valid, else false
@@ -307,72 +197,11 @@ bool Hand::isValidExchangeCards(int i, int j, int k)
 		(playerHand->at(i).type == WILD ||
 		playerHand->at(j).type == WILD	||
 		playerHand->at(k).type == WILD) ||
-		/// OR if matching
+		/// OR if have 3 of one type
 		(playerHand->at(i).type == playerHand->at(j).type &&
 		 playerHand->at(i).type == playerHand->at(k).type) ||
-		/// OR if consecutive
+		/// OR if have 1 of each type
 		(playerHand->at(i).type != playerHand->at(j).type &&
 		 playerHand->at(i).type != playerHand->at(k).type &&
 		 playerHand->at(j).type != playerHand->at(k).type));
-}
-
-/*	Check if exchanged cards match a country the player owns. If so,
-	prompt the player to choose which country to give +2 units.
-	@param index of cards in player's hand that will be exchanged
-*/
-void Hand::giveBonusTwoArmies(int cardsToExchange[])
-{
-	vector<int> matchingCountries;
-	char playerInput;
-
-	/// loop each exchanged cards if matches owned countries
-	for (int i = 0; i < 3; i++) 
-	{	
-		int countryId = playerHand->at(cardsToExchange[i]).countryId;
-		if(ownedCountries->count(countryId) > 0)	/// 0 if not an element, 1 if is
-			{ matchingCountries.push_back(countryId);	}	/// store country by reference
-	}
-
-	if (!matchingCountries.empty())
-	{
-		/// prompt player input to choose which country to give +2 units
-		cout << "\nCountries you own matches with your exchanged cards:\n";
-		for (int id : matchingCountries)
-			cout << "Country " << id << "|" << endl;
-
-		ownedCountries->at(getMatchingCountryChoice(matchingCountries))->armies += 2;
-	}
-}
-
-/*	Prompt user to choose which country that matches the exchanged cards 
-	to receive +2 bonus armies.
-	@param country ids that matches exchanged cards
-*/
-int Hand::getMatchingCountryChoice(vector<int> matchingCountries) 
-{
-	int selectedCountryId;
-	bool validInput = false;
-	do
-	{
-		cout << "Choose a country to give 2 additional armies: ";
-		cin >> selectedCountryId;
-		
-		if (!cin.good()) /// !good() when input isnt integer
-		{
-			cout << "\nInvalid number input. Please try again.\n";
-			cin.clear();		   /// clear error flag
-			cin.ignore(100, '\n'); /// clear buffer
-		}
-		else {
-			for(int id : matchingCountries) {
-				if(selectedCountryId == id)
-					validInput = true;
-			}
-			if(!validInput)
-				cout << "\nPlease choose the countries given.\n";
-		}
-	} 
-	while (!validInput);
-
-	return selectedCountryId;
 }
