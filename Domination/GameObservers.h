@@ -30,11 +30,13 @@ class PhaseLog;
 
 class StatsObserver : public Observer {
 public:
-	StatsObserver(vector<Player*> observables);
+	StatsObserver(vector<Player*> subjects);
 	~StatsObserver();
 	void Update();
+	void display();
 private:
-	vector<Player*>* _observables;
+	vector<Player*>* _subjects;
+	int* mapSize;  //number of countries on the game's map
 };
 
 class PhaseLogObserver : public Observer {

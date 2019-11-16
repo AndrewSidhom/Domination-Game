@@ -32,6 +32,7 @@ void Player::claimCountry(Country* country, int armies)
 	country->armies = armies;
 	(*ownedCountries)[country->id] = country;
 	(*numOfOwnedCountriesPerContinent)[country->continentId] += 1;
+	Notify();
 }
 
 //used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned.

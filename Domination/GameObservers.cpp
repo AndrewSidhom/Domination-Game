@@ -2,8 +2,9 @@
 #include "PhaseLog.h"
 #include "Player.h"
 #include <iostream>
+#include <iomanip>
 #include <string>
-using std::cout;
+using namespace std;
 
 /*************** Observable class *****************/
 
@@ -34,19 +35,51 @@ Observer::~Observer() {
 
 /*************** StatsObserver class *****************/
 
-StatsObserver::StatsObserver(vector<Player*> observables) {
-	_observables = new vector<Player*>(observables);
+StatsObserver::StatsObserver(vector<Player*> subjects) {
+	_subjects = new vector<Player*>(subjects);
+	mapSize = new int(subjects.at(0)->getNumOfMapCountries());
 }
 
 StatsObserver::~StatsObserver() {
-	delete _observables;
+	delete _subjects;
+	delete mapSize;
 }
 
 void StatsObserver::Update() {
-
+	bool removePlayer = false;
+	vector<Player*>::iterator it = _subjects->begin();
+	while (it != _subjects->end()) {
+		if ((*it)->getNumOfOwnedCountries == 0) {
+			removePlayer = true;
+			break;
+		}
+		it++;
+	}
+	if (removePlayer)
+		_subjects->erase(it);
+	if (_subjects->size() == 1) //only one player left means the player has won the game
+		cout << "Congratulations " << _subjects->at(0)->getName() << "! You have conquered the map and won this game!!" << endl;
+	display();
 }
 
-/*************** StatsObserver class *****************/
+void StatsObserver::display() {
+	cout << endl;
+	cout << "WORLD DOMINATION STATISTICS..." << endl;
+	cout << left;
+	for (Player* player : *_subjects) {
+		float fractionDominated = player->getNumOfOwnedCountries() / *mapSize;
+		string dashes = "";
+		int i = 1;
+		while (i <= floor(fractionDominated * 50))
+			dashes += "-";
+		cout << "Player " << player->getId() << " : " << setw(15) << player->getName() << " " << dashes << " ";
+		cout << fixed;
+		cout << setprecision(2);
+		cout << fractionDominated * 100 << "%" << endl;
+	}
+
+}
+/************ PhaseLogObserver class **************/
 
 PhaseLogObserver::PhaseLogObserver(PhaseLog *s) {
 	_subject = s;
