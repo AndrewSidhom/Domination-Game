@@ -32,3 +32,31 @@ private:
 	static void processBorder(string line, Country* aCountry); // Reads information on a Country's borders and updates the Country accordingly
 
 };
+
+class ConquestMapLoader {
+public:
+	ConquestMapLoader();
+	~ConquestMapLoader();
+	Map *loadConquestMapFile(string fileName);
+
+private:
+	int* continentId; // Used for generating continent ids
+	int* countryId; // To generate country ids
+	string* processedSection; // The current [section] being processed in the .map file
+	map<string, int> *continents; //in order to get continent ids by names and manage duplicates
+	map<string, int> *countries; //in order to get country ids by names and manage duplicates
+
+	bool processSection(string line); // Checks which [section] is being processed. Returns true if [section] order is valid, false otherwise
+	bool processMapSection(string line); // Reads information on a Country and instantiates one accordingly
+	Continent processContinent(string line); // Reads information on a Continent and instantiates one accordingly
+	Country processTerritory(string line); // Reads information on a territoriy (country) and instantiates one accordingly
+
+};
+
+class ConquestMapAdapter : public MapLoader {
+private: 
+	ConquestMapLoader conquestMapLoader;
+public:
+	ConquestMapAdapter(ConquestMapLoader cml);
+	Map* loadMapFile(string fileName);	
+};
