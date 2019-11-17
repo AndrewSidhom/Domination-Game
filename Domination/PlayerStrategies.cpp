@@ -1,10 +1,11 @@
 #include "PlayerStrategies.h"
+#include "Player.h"
+#include "Cards.h"
 
 #include <iostream>
 #include <string>
 #include <algorithm>
 #include <random>
-#include <vector>
 
 using std::list;
 using std::cout;
@@ -978,7 +979,7 @@ int PlayerStrategy::exchangeAnyCardsForArmies() {
 	int handCount = hand->getHandCount();
 
 	for(int i = 0; i < handCount; i++) {
-		switch(hand->playerHand->at(i))	
+		switch(hand->playerHand->at(i).type)	
 		{	// separate each card in hand by their type
 			case INFANTRY:	cardIndexes[0][infCtr] = i; infCtr++; break;
 			case ARTILLERY:	cardIndexes[1][artCtr] = i; artCtr++; break;
@@ -991,11 +992,11 @@ int PlayerStrategy::exchangeAnyCardsForArmies() {
 		if(artCtr == 3)	{ cardsToExchange = cardIndexes[1]; break; }
 		if(cavCtr == 3)	{ cardsToExchange = cardIndexes[2]; break; }
 		// if found 1 of each type, break loop early
-		if(infCtr > 0 && artCtr > 0 && cav > 0) { 
+		if(infCtr > 0 && artCtr > 0 && cavCtr > 0) { 
 			cardsToExchange = new int[3];
-			*cardsToExchange[0] = cardIndexes[0][0]; 
-			*cardsToExchange[1] = cardIndexes[1][0]; 
-			*cardsToExchange[2] = cardIndexes[2][0]; 
+			cardsToExchange[0] = cardIndexes[0][0]; 
+			cardsToExchange[1] = cardIndexes[1][0]; 
+			cardsToExchange[2] = cardIndexes[2][0]; 
 			break; 
 		}
 		// if found a wild card, choose any other 2 random cards and break loop early
@@ -1007,9 +1008,9 @@ int PlayerStrategy::exchangeAnyCardsForArmies() {
 				rndIndex2 = genRandomNum(0, handCount - 1);
 			}
 			cardsToExchange = new int[3];
-			*cardsToExchange[0] = i; 
-			*cardsToExchange[1] = rndIndex1; 
-			*cardsToExchange[2] = rndIndex2; 
+			cardsToExchange[0] = i; 
+			cardsToExchange[1] = rndIndex1; 
+			cardsToExchange[2] = rndIndex2; 
 			break; 
 		}
 	}
@@ -1017,10 +1018,9 @@ int PlayerStrategy::exchangeAnyCardsForArmies() {
 	if(cardsToExchange == nullptr)	// if no sets of exchangable cards at all
 		return 0;
 	else {
-		cout << "Exchanging with card " << *cardsToExchange[0] << ", card " << *cardsToExchange[1] 
-				<< ", and card " << *cardsToExchange[2];
-		tradeInCards(cardsToExchangeIndex);
-		delete [] cardsToExchangeIndex;
+		cout << "Exchanging with card " << cardsToExchange[0] << ", card " << cardsToExchange[1] << ", and card " << cardsToExchange[2];
+		tradeInCards(cardsToExchange);
+		delete [] cardsToExchange;
 		/// exchange is successful
 		return hand->deck->getExchangedArmies();
 	}

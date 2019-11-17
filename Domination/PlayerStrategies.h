@@ -1,6 +1,11 @@
 #pragma once
 #include "Map.h"
-#include "Player.h"
+#include <vector>
+using std::vector;
+
+// forward-declaration to resolve circular dependency
+class Player;
+class Hand;
 
 // The Player Strategy to be inherited by Concrete Stragies. Its default behaviour is that of a HUMAN Player 
 // (requests for input for any kind of decision)
@@ -49,7 +54,7 @@ protected:
 	Hand* hand;
 
 	int exchangeAnyCardsForArmies(); // if have cards to exchange, return exchange armies; else return 0 (has no user input - mostly for AI)
-	void tradeInCards(int* cardsToExchange[]); // After choosing exchanged cards, trade in the cards
+	void tradeInCards(int* cardsToExchange); // After choosing exchanged cards, trade in the cards
 	virtual void distributeExchangeBonus(vector<int>* matchingCountries); //	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
 
 	// RELATED SERVICE FUNCS
@@ -88,7 +93,7 @@ public:
 	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination);
 
 protected:
-	int distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with most armies
+	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with most armies
 
 private:
 	Country* strongestAttackingCountry;
@@ -115,5 +120,5 @@ public:
 	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination);
 
 protected:
-	int distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
+	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
 };
