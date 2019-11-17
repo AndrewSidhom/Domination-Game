@@ -6,7 +6,7 @@
 #include <string>
 using namespace std;
 
-/*************** Observable class *****************/
+/*************** Subject class *****************/
 
 Subject::Subject() {
 	_observers = new list<Observer*>;
@@ -49,7 +49,7 @@ void StatsObserver::Update() {
 	bool removePlayer = false;
 	vector<Player*>::iterator it = _subjects->begin();
 	while (it != _subjects->end()) {
-		if ((*it)->getNumOfOwnedCountries == 0) {
+		if ((*it)->getNumOfOwnedCountries() == 0) {
 			removePlayer = true;
 			break;
 		}
@@ -57,26 +57,31 @@ void StatsObserver::Update() {
 	}
 	if (removePlayer)
 		_subjects->erase(it);
-	if (_subjects->size() == 1) //only one player left means the player has won the game
-		cout << "Congratulations " << _subjects->at(0)->getName() << "! You have conquered the map and won this game!!" << endl;
+	if (_subjects->size() == 1) { //only one player left means the player has won the game
+		cout << endl;
+		cout << "CONGRATULATIONS " << _subjects->at(0)->getName() << "!! You have conquered the map and won this game!!" << endl;
+	}
 	display();
 }
 
 void StatsObserver::display() {
 	cout << endl;
-	cout << "WORLD DOMINATION STATISTICS..." << endl;
+	cout << "WORLD DOMINATION STATISTICS:" << endl;
 	cout << left;
 	for (Player* player : *_subjects) {
-		float fractionDominated = player->getNumOfOwnedCountries() / *mapSize;
+		float fractionDominated = (float) player->getNumOfOwnedCountries() / *mapSize;
 		string dashes = "";
 		int i = 1;
-		while (i <= floor(fractionDominated * 50))
+		while (i <= floor(fractionDominated * 50)) {
 			dashes += "-";
-		cout << "Player " << player->getId() << " : " << setw(15) << player->getName() << " " << dashes << " ";
+			i++;
+		}
+		cout << "Player " << player->getId() << " : " << setw(12) << player->getName() << " " << dashes << " ";
 		cout << fixed;
 		cout << setprecision(2);
 		cout << fractionDominated * 100 << "%" << endl;
 	}
+	cout << endl;
 
 }
 /************ PhaseLogObserver class **************/

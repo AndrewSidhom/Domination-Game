@@ -9,6 +9,8 @@ class GameEngine {
 public:
     GameEngine();   // constructor
     ~GameEngine();  // destructor
+	Player* getPlayers() { return players; }
+	int getNumOfPlayers() { return *NUM_OF_PLAYERS; }
 
     void startGameLoop();   // Start the game loop. Game ends when a player owns all countries. 
 

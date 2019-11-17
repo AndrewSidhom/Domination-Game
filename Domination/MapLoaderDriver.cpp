@@ -176,10 +176,10 @@ using namespace std;
 //	system("pause");
 //}
 
-int main() {
-	//MapLoader::loadMapFile("valid");
-	ConquestMapLoader cml;
-	cml.loadConquestMapFile("Atlantis");
-	system("pause");
-	return 0;
-}
+//int main() {
+//	//MapLoader::loadMapFile("valid");
+//	ConquestMapLoader cml;
+//	cml.loadConquestMapFile("Atlantis");
+//	system("pause");
+//	return 0;
+//}
