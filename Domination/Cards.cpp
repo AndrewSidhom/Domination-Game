@@ -172,8 +172,10 @@ void Hand::showHand()
 
 void Hand::drawFromDeck()
 {
-	Card c = deck->draw();
-	playerHand->push_back(c);
+	if(!deck->isEmpty()) {	
+		Card c = deck->draw();
+		playerHand->push_back(c);
+	}
 }
 
 /*	Exchange 3 cards in hand for armies.
