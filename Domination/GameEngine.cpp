@@ -2,6 +2,7 @@
 #include "MapLoader.h"
 #include "Cards.h"
 #include "GameObservers.h"
+#include "PlayerStrategies.h"
 #include <string>
 #include <vector>
 using std::cout;
@@ -104,6 +105,47 @@ Map* GameEngine::loadGameMap() {
 	return gameMap;
 }
 
+// Creates Player objects and prompts for player names
+void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
+	// determine number of players and AIs
+	int numOfPlayers = queryNumOfPlayers();
+	int numOfAIs = 0;
+	if(numOfPlayers < 6)
+		numOfAIs = queryNumOfAIs(numOfPlayers);
+	NUM_OF_PLAYERS = new int(numOfPlayers + numOfAIs);
+
+	// create player objects
+	players = new Player[*NUM_OF_PLAYERS];
+	for (int i = 0; i < numOfPlayers; i++) {
+		PlayerStrategy humanStrat = new PlayerStrategy();
+		string name = "Player " + to_string(i + 1);
+		players[i] = Player(name, deck, gameMap, humanStrat); 
+
+		humanStrat->setPlayer(players[i]);
+		humanStrat->setHand(players[i].getHand());
+		//(players + i)->setHand(deck);
+		//(players + i)->setMap(gameMap);
+		phaseLog->printMsg((players + i)->getName() + ", enter your new name, or enter '0' to keep your current name: ");
+		cin >> name;
+		if (name != "0") 
+			(players + i)->setName(name);
+	}
+	// create AI objects
+	for (int i = numOfPlayers; i < *NUM_OF_PLAYERS; i++) {
+		PlayerStrategy aiStrat;
+		// alternate between different AIs
+		if(i % 2 == 0)	
+			aiStrat = new AggressivePlayerStrategy();
+		else			
+			aiStrat = new BenevolentPlayerStrategy();
+		string name = "AI Player " + to_string(i + 1);
+		players[i] = Player(name, deck, gameMap, aiStrat); 
+		// pass player & hand ptr to strategy
+		aiStrat->setPlayer(players[i]);
+		aiStrat->setHand(players[i].getHand());
+	}
+}
+
 /* 	Asks input for the number of Players.
 	@returns the number of players.
 */
@@ -123,23 +165,30 @@ int GameEngine::queryNumOfPlayers() {
 	return numOfPlayers;
 }
 
-// Creates Player objects and prompts for player names
-void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
-
-	int numOfPlayers = queryNumOfPlayers();
-	NUM_OF_PLAYERS = new int(numOfPlayers);
-
-	players = new Player[*NUM_OF_PLAYERS];
-	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
-		string input;
-		phaseLog->printMsg((players + i)->getName() + ", enter your new name, or enter '0' to keep your current name: ");
+/* 	Asks input for the number of AIs depending on how many humans are playing
+	@returns the number of AIs.
+*/
+int GameEngine::queryNumOfAIs(int numHumanPlayers) {
+	string input;
+	int spotsLeft = 6 - numHumanPlayers;
+	int numOfAIs = 0;
+	do {
+		phaseLog->printMsg("You have " + *NUM_OF_PLAYERS + " players out of 6.");
+		phaseLog->printMsg("How many AIs players will join the conquest? (0 to " + spotsLeft + "): ");
 		cin >> input;
-		if (input != "0") {
-			(players + i)->setName(input);
+		if(input == "0" || input == "1" || input == "2" || input == "3" || input == "4") {
+			numOfAIs = stoi(input);
+			if(numOfAIs <= spotsLeft)
+				break;
+			else
+				phaseLog->printMsg("There cannot be more than 6 players.");
 		}
-		(players + i)->setHand(deck);
-		(players + i)->setMap(gameMap);
-	}
+		else
+			phaseLog->printMsg("Error: Invalid input");
+				
+	} while (true);
+	
+	return numOfAIs;
 }
 
 // Determines how many armies should be distributed amongst the Players in the startup phase depending on
