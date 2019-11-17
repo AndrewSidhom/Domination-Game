@@ -52,7 +52,7 @@ protected:
 	Player* player;
 
 	int exchangeAnyCardsForArmies(); // if have cards to exchange, return exchange armies; else return 0 (has no user input - mostly for AI)
-	void tradeInCards(int* cardsToExchange); // After choosing exchanged cards, trade in the cards
+	void tradeInCards(int* cardsToExchange[]); // After choosing exchanged cards, trade in the cards
 	virtual void distributeExchangeBonus(vector<int>* matchingCountries); //	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
 
 	// RELATED SERVICE FUNCS

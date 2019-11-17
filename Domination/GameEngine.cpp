@@ -117,12 +117,12 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	// create player objects
 	players = new Player[*NUM_OF_PLAYERS];
 	for (int i = 0; i < numOfPlayers; i++) {
-		PlayerStrategy humanStrat = new PlayerStrategy();
+		PlayerStrategy* humanStrat = new PlayerStrategy();
 		string name = "Player " + to_string(i + 1);
 		players[i] = Player(name, deck, gameMap, humanStrat); 
 
-		humanStrat->setPlayer(players[i]);
-		humanStrat->setHand(players[i].getHand());
+		Player* playerPtr = &players[i];
+		humanStrat->setPlayer(playerPtr);
 		//(players + i)->setHand(deck);
 		//(players + i)->setMap(gameMap);
 		phaseLog->printMsg((players + i)->getName() + ", enter your new name, or enter '0' to keep your current name: ");
@@ -132,7 +132,7 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	}
 	// create AI objects
 	for (int i = numOfPlayers; i < *NUM_OF_PLAYERS; i++) {
-		PlayerStrategy aiStrat;
+		PlayerStrategy* aiStrat;
 		// alternate between different AIs
 		if(i % 2 == 0)	
 			aiStrat = new AggressivePlayerStrategy();
@@ -141,8 +141,8 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 		string name = "AI Player " + to_string(i + 1);
 		players[i] = Player(name, deck, gameMap, aiStrat); 
 		// pass player & hand ptr to strategy
-		aiStrat->setPlayer(players[i]);
-		aiStrat->setHand(players[i].getHand());
+		Player* playerPtr = &players[i];
+		aiStrat->setPlayer(playerPtr);
 	}
 }
 
@@ -173,8 +173,8 @@ int GameEngine::queryNumOfAIs(int numHumanPlayers) {
 	int spotsLeft = 6 - numHumanPlayers;
 	int numOfAIs = 0;
 	do {
-		phaseLog->printMsg("You have " + *NUM_OF_PLAYERS + " players out of 6.");
-		phaseLog->printMsg("How many AIs players will join the conquest? (0 to " + spotsLeft + "): ");
+		phaseLog->printMsg("You have " + *NUM_OF_PLAYERS + string(" players out of 6."));
+		phaseLog->printMsg("How many AIs players will join the conquest? (0 to " + spotsLeft + string("): "));
 		cin >> input;
 		if(input == "0" || input == "1" || input == "2" || input == "3" || input == "4") {
 			numOfAIs = stoi(input);

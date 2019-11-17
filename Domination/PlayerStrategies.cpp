@@ -416,7 +416,7 @@ int PlayerStrategy::promptExchangeForArmies(bool isMandatory)
 		if (numOfCardsChosen == 3) {
 			if (player->hand->isValidExchangeCards(cardsToExchangeIndex[0], cardsToExchangeIndex[1], cardsToExchangeIndex[2]))
 			{
-				tradeInCards(cardsToExchangeIndex);
+				//tradeInCards(cardsToExchangeIndex);
 				delete [] cardsToExchangeIndex;
 				/// exchange is successful
 				return player->hand->deck->getExchangedArmies();
@@ -484,10 +484,10 @@ void PlayerStrategy::tradeInCards(int* cardsToExchange[])
 	/// remove exchanged cards from hand
 	/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
 	/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
-	sort(begin(*cardsToExchangeIndex), end(*cardsToExchangeIndex), greater<int>());
+	/*sort(begin(*cardsToExchangeIndex), end(*cardsToExchangeIndex), greater<int>());
 	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[0]);
 	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[1]);
-	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[2]);
+	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[2]);*/
 }
 
 /*	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
@@ -1019,7 +1019,7 @@ int PlayerStrategy::exchangeAnyCardsForArmies() {
 		return 0;
 	else {
 		cout << "Exchanging with card " << cardsToExchange[0] << ", card " << cardsToExchange[1] << ", and card " << cardsToExchange[2];
-		tradeInCards(cardsToExchange);
+		//tradeInCards(cardsToExchange);
 		delete [] cardsToExchange;
 		/// exchange is successful
 		return player->hand->deck->getExchangedArmies();
