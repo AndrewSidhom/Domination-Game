@@ -230,7 +230,7 @@ void Player::fortify()
 	phaseLogPtr->printMsg("/////////////////////////////");
 
 	if (!strategy->decideToFortify()) {
-		phaseLogPtr->printMsg("\nPlayer " + *name + "chose not to fortify");
+		phaseLogPtr->printMsg("\nPlayer " + *name + " chose not to fortify");
 		return;
 	}
 

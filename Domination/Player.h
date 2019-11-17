@@ -13,7 +13,6 @@
 class Player : public Subject {
 
 public:
-
 	//constructor, destructor
 	Player();
 	Player(string name, Deck *deck, Map *mapPtr, PlayerStrategy *aStrategy, PhaseLog* aPhaseLog);
@@ -33,7 +32,7 @@ public:
 	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries, strategy); };
 	void setName(string newName) { *name = newName; };
 	void setMap(Map *newMapPtr) { mapPtr = newMapPtr; };
-	void setStrategy(PlayerStrategy* aStrategy) { strategy = aStrategy; hand->setPlayerStrategy(aStrategy); };
+	void setStrategy(PlayerStrategy* aStrategy) { strategy = aStrategy; hand->setPlayerStrategy(aStrategy); aStrategy->setPlayer(this); };
 
 	void claimCountry(Country* country, int armies); // Used during attack(). Adds this country to the ones owned by the player, places on it this many armies
 	Country* loseCountry(int id); // Used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned

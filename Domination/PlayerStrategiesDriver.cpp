@@ -123,33 +123,81 @@ int main() {
 	cout << endl;
 	showPlayerCountriesInfo(p2, p2Countries, validMap);
 
-	// Player Judy will attack
-	cout << endl << "/////////////////////////////" << endl;
-	cout << "PLAYER JUDY WILL ATTACK" << endl;
-	cout << "/////////////////////////////" << endl;
+	for (int i = 1; i < 3; i++) {
+		cout << "\n/////////////////" << endl;
+		cout << "TURN " << i << endl;
+		cout << "/////////////////" << endl;
 
-	p1->attack();
+		cout << "\nChoose one of the following strategies for Player Judy:" << endl;
+		cout << "\t(0) Agressive strategy" << endl;
+		cout << "\t(1) Benevolent strategy" << endl;
+		cout << "\t(2) Human strategy" << endl;
 
-	cout << "/////////////////////////////" << endl;
-	cout << "END OF PLAYER JUDY'S ATTACK" << endl;
-	cout << "/////////////////////////////" << endl << endl;
+		int choice = -1;
+		cin >> choice;
 
-	// Shows that Map's Countries info after Judy's attack
-	showCountriesInfo(countries, validMap);
+		while (!cin.good() || (choice != 0 && choice != 1 && choice != 2)) {
+			cout << endl << "This input is wrong. Please enter 0, 1 or 2.";
+			cin >> choice;
+		}
 
-	// Player Nick will try to attack
-	cout << endl << "/////////////////////////////" << endl;
-	cout << "PLAYER NICK WILL ATTACK" << endl;
-	cout << "/////////////////////////////" << endl;
+		cout << endl;
 
-	p2->attack();
+		switch (choice) {
+		case 0:
+			p1->setStrategy(aggressiveStrategy);
+			break;
+		case 1:
+			p1->setStrategy(benevolentStrategy);
+			break;
+		case 2:
+			p1->setStrategy(humanStrategy);
+			break;
+		}
 
-	cout << "/////////////////////////////" << endl;
-	cout << "END OF PLAYER NICK'S ATTACK" << endl;
-	cout << "/////////////////////////////" << endl << endl;
+		cout << "\nChoose one of the following strategies for Player Nick:" << endl;
+		cout << "\t(0) Agressive strategy" << endl;
+		cout << "\t(1) Benevolent strategy" << endl;
+		cout << "\t(2) Human strategy" << endl;
+		
+		choice = -1;
+		cin >> choice;
 
-	// Shows that Map's Countries info after Nick's attack
-	showCountriesInfo(countries, validMap);
+		while (!cin.good() || (choice != 0 && choice != 1 && choice != 2)) {
+			cout << endl << "This input is wrong. Please enter 0, 1 or 2.";
+			cin >> choice;
+		}
+
+		cout << endl;
+
+		switch (choice) {
+		case 0:
+			p2->setStrategy(aggressiveStrategy);
+			break;
+		case 1:
+			p2->setStrategy(benevolentStrategy);
+			break;
+		case 2:
+			p2->setStrategy(humanStrategy);
+			break;
+		}
+
+		// Judy's turn
+		//p1->reinforce();
+		p1->attack();
+		p1->fortify();
+
+		// Shows that Map's Countries info after Judy's turn
+		showCountriesInfo(countries, validMap);
+
+		// Nick's turn
+		//p2->reinforce();
+		p2->attack();
+		p2->fortify();
+
+		// Shows that Map's Countries info after Nick's turn
+		showCountriesInfo(countries, validMap);
+	}
 
 	system("pause");
 
