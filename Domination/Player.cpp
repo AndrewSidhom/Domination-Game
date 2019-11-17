@@ -15,6 +15,7 @@ Player::Player(string name, Deck * deck, Map * mapPtr, PlayerStrategy * aStrateg
 Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), mapPtr(p.mapPtr), hand(p.hand), dice(p.dice), numOfOwnedCountriesPerContinent(p.numOfOwnedCountriesPerContinent), strategy(p.strategy) {}
 Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice, mapPtr, strategy; }
 
+// Assignment operator
 const Player & Player::operator=(const Player & rightSide)
 {
 	if (&rightSide != this) {
@@ -74,14 +75,6 @@ Country* Player::loseCountry(int id)
 
 		return country;
 	}
-}
-
-// TODO: to be removed?
-//rolls this number of dice, returns dice results
-vector<int> Player::rollDice(int howMany)
-{
-	//needs the Dice class to provide a roll() function that takes the number of dice as parameter. 
-	return vector<int>();
 }
 
 /*	Get reinforcement armies and let player distribute given armies.
@@ -229,21 +222,26 @@ void Player::fortify()
 	phaseLogPtr->printMsg("PLAYER " + *name + " FORTIFICATION PHASE");
 	phaseLogPtr->printMsg("/////////////////////////////");
 
+	// Choose whether to fortify or not
 	if (!strategy->decideToFortify()) {
 		phaseLogPtr->printMsg("\nPlayer " + *name + " chose not to fortify");
 		return;
 	}
 
+	// Choose a the Country that will be fortified (destination)
 	Country* destination = strategy->selectFortifyDestination();
 	phaseLogPtr->printMsg("\nPlayer " + *name + " chose to fortify Country (" + to_string(destination->id) + ") " + destination->name);
 
+	// Choose the Country from which armies will be moved into destination (source)
 	Country* source = strategy->selectFortifySource(destination);
 	phaseLogPtr->printMsg("Player " + *name + " chose to use armies from Country (" + to_string(source->id) + ") " + source->name + " to fortify Country (" + to_string(destination->id) + ") " + destination->name);
 
+	// Choose the number of armies to move from source into destination
 	int armiesToMove = strategy->selectArmiesToMoveForFortification(source, destination);
 	phaseLogPtr->printMsg("Player " + *name + " chose to move " + to_string(armiesToMove) + " armies from Country (" + to_string(source->id) + ") " + source->name + " into Country (" + to_string(destination->id) + ") " + destination->name);
 
 	try {
+		// Remove armies from source and add them in destination
 		addOrRemoveArmies(source->id, -armiesToMove);
 		addOrRemoveArmies(destination->id, armiesToMove);
 

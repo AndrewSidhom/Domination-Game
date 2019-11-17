@@ -17,11 +17,13 @@ using std::vector;
 
 /* AGGRESSIVE PLAYER STRATEGY */
 
+// Constructors, destructor
 AggressivePlayerStrategy::AggressivePlayerStrategy() : strongestAttackingCountry(nullptr) {}
 AggressivePlayerStrategy::AggressivePlayerStrategy(Player* aPlayer) : PlayerStrategy(aPlayer), strongestAttackingCountry(nullptr) {}
 AggressivePlayerStrategy::AggressivePlayerStrategy(const AggressivePlayerStrategy & strategy) : PlayerStrategy(strategy.player), strongestAttackingCountry(nullptr) {}
 AggressivePlayerStrategy::~AggressivePlayerStrategy() {}
 
+// Assignment operator
 const AggressivePlayerStrategy & AggressivePlayerStrategy::operator=(const AggressivePlayerStrategy & rightSide)
 {
 	if (&rightSide != this) {
@@ -110,11 +112,13 @@ bool AggressivePlayerStrategy::decideToAttack()
 	return false;
 }
 
+// Choose the currently stored strongest Country
 Country * AggressivePlayerStrategy::selectAttackingCountry()
 {
 	return strongestAttackingCountry;
 }
 
+// Choose the Country to attack using the attackingCountry
 Country * AggressivePlayerStrategy::selectDefendingCountry(Country * attackingCountry)
 {
 	// The defendingCountry must 1. be a neighbour of the attacking country
@@ -230,12 +234,15 @@ int AggressivePlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 
 /* BENEVOLENT PLAYER STRATEGY */
 
+// Constructors
 BenevolentPlayerStrategy::BenevolentPlayerStrategy() {}
 BenevolentPlayerStrategy::BenevolentPlayerStrategy(Player* aPlayer) : PlayerStrategy(aPlayer) {}
 BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy & strategy) : PlayerStrategy(strategy.player) {}
 
+// Destructor
 BenevolentPlayerStrategy::~BenevolentPlayerStrategy() {}
 
+// Assignment operator
 const BenevolentPlayerStrategy & BenevolentPlayerStrategy::operator=(const BenevolentPlayerStrategy & rightSide)
 {
 	if (&rightSide != this) {
@@ -280,6 +287,18 @@ int BenevolentPlayerStrategy::promptExchangeForArmies(bool isMandatory)
 bool BenevolentPlayerStrategy::decideToAttack()
 {
 	return false;
+}
+
+// Returns the max of dice that can rolled for a given defending Country
+int BenevolentPlayerStrategy::selectNumDefenseDice(Country * defendingCountry)
+{
+	// The defense is allowed min: 1 die, max: 2 dice if the number of armies in defendingCountry >= 2
+	// Will choose the max number of dice
+	if (defendingCountry->armies >= 2) {
+		return 2;
+	}
+	
+	return 1;
 }
 
 // Returns true if there exists a Country owned by the Player with less armies than other Countries owned and which can be fortified
@@ -386,12 +405,15 @@ int BenevolentPlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 
 /* DEFAULT (HUMAN) PLAYER STRATEGY */
 
+// Constructors
 PlayerStrategy::PlayerStrategy() : player(nullptr) {}
 PlayerStrategy::PlayerStrategy(Player* aPlayer) : player(aPlayer) {}
 PlayerStrategy::PlayerStrategy(const PlayerStrategy & strategy) : player(strategy.player) {}
 
+// Destructor
 PlayerStrategy::~PlayerStrategy() {}
 
+// Assignment operator
 const PlayerStrategy& PlayerStrategy::operator =(const PlayerStrategy& rightSide) {
 	if (&rightSide != this) {
 		player = rightSide.player;
@@ -549,12 +571,14 @@ void PlayerStrategy::tradeInCards(int* cardsToExchange[])
 	player->hand->ownedCountries->at(selectedCountryId)->armies += 2;
 }*/
 
+// Does any action required to be done before deciding to attack
 void PlayerStrategy::attackInit()
 {
 	// do nothing
 	return;
 }
 
+// Ask user to choose whether to attack
 bool PlayerStrategy::decideToAttack()
 {
 	bool canAttack = false;
@@ -581,7 +605,6 @@ bool PlayerStrategy::decideToAttack()
 		return false;
 	}
 
-	// Add print of countries owned by Player + enemy neighbours
 	cout << endl << "Would you like to attack? Enter 0 for no or 1 for yes." << endl;
 
 	int choice = -1;
@@ -597,10 +620,9 @@ bool PlayerStrategy::decideToAttack()
 	return choice;
 }
 
+// Asks user to choose a country to attack from
 Country * PlayerStrategy::selectAttackingCountry()
 {
-	// display country info again
-
 	int countryId;
 	Country* selectedCountry = nullptr;
 	bool validCountryId = false;
@@ -645,6 +667,7 @@ Country * PlayerStrategy::selectAttackingCountry()
 	return selectedCountry;
 }
 
+// Asks user to choose the Country to attack using attackCountry
 Country * PlayerStrategy::selectDefendingCountry(Country * attackingCountry)
 {
 	// display info on neighbors of attackingCountry
@@ -694,6 +717,7 @@ Country * PlayerStrategy::selectDefendingCountry(Country * attackingCountry)
 	return selectedCountry;
 }
 
+// Asks user how many dice they want to use for the attack
 int PlayerStrategy::selectNumAttackDice(Country * attackingCountry)
 {
 	// The attack is allowed min: 1 die, max: (number of armies in the attacking Country - 1) dice
@@ -727,6 +751,7 @@ int PlayerStrategy::selectNumAttackDice(Country * attackingCountry)
 	return selectedNumAttackDice;
 }
 
+// Asks user for how many dice they want to roll for defending from an attack
 int PlayerStrategy::selectNumDefenseDice(Country * defendingCountry)
 {
 	// The defense is allowed min: 1 die, max: 2 dice if the number of armies in defendingCountry >= 2
@@ -766,6 +791,7 @@ int PlayerStrategy::selectNumDefenseDice(Country * defendingCountry)
 	return selectedNumDefenseDice;
 }
 
+// Asks user for how many armies they want to move from the attackingCountry into the newly claimed Country
 int PlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country * attackingCountry, Country * defendingCountry, int diceRolled)
 {
 	// The Player is allowed to move min: (number of dice rolled) armies, max: (number of armies in attacking Country - 1) armies
@@ -830,6 +856,7 @@ bool PlayerStrategy::canFortify()
 	return false;
 }
 
+// Returns true if destination has neighbor which belongs to the same Player and which has more than 1 army on it
 bool PlayerStrategy::isValidFortifyDestination(Country * destination)
 {
 	if (destination->player->id == player->id) {
@@ -847,6 +874,7 @@ bool PlayerStrategy::isValidFortifyDestination(Country * destination)
 	return false;
 }
 
+// Returns true if source is a neighbor of destination, is owned by the same Player and has at least two armies on it
 bool PlayerStrategy::isValidFortifiySource(Country * destination, Country * source)
 {
 	if (source->player->getId() == destination->player->getId() && source->armies >= 2) {
@@ -864,6 +892,7 @@ bool PlayerStrategy::isValidFortifiySource(Country * destination, Country * sour
 	return false;
 }
 
+// Asks user if they want to fortify a Country
 bool PlayerStrategy::decideToFortify()
 {
 	if (!canFortify()) {
@@ -873,7 +902,6 @@ bool PlayerStrategy::decideToFortify()
 		return false;
 	}
 
-	// Add print of countries owned by Player or something
 	cout << endl << "Would you like to fortify a Country? Enter 0 for no or 1 for yes." << endl;
 
 	int choice = -1;
@@ -889,6 +917,7 @@ bool PlayerStrategy::decideToFortify()
 	return choice;
 }
 
+// Asks user for which Country they want to fortify
 Country * PlayerStrategy::selectFortifyDestination()
 {
 	// A Player can fortify a Country if one of the Country's neighbors is owned by the Player and has at least 2 armies on it
@@ -924,6 +953,7 @@ Country * PlayerStrategy::selectFortifyDestination()
 	return selectedCountry;
 }
 
+// Asks user for which Country they to want to transfer armies into destination
 Country * PlayerStrategy::selectFortifySource(Country * destination)
 {
 	// A Country can be a fortification source if it is owned by the Player, is a neighbor of the destination, and has at least 2 armies on it
@@ -947,7 +977,7 @@ Country * PlayerStrategy::selectFortifySource(Country * destination)
 				validCountryId = true;
 			}
 			else {
-				// not valid
+				cout << "This Country is not a valid option." << endl;
 			}
 		}
 		catch (exception e) {
@@ -959,6 +989,7 @@ Country * PlayerStrategy::selectFortifySource(Country * destination)
 	return selectedCountry;
 }
 
+// Asks user for how many armies they want to move from source into destination
 int PlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country * destination)
 {
 	// The number of armies to move should be less than the number of armies on the source Country

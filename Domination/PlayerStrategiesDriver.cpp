@@ -5,6 +5,12 @@
 #include <iostream>
 using namespace std;
 
+// Driver goals are:
+//	1. Show that different players can be assigned different strategies that lead to different behavior for the reinforcement, attack, and fortification phases using the strategy pattern; 
+// 2. Show that the strategy adopted by a player can be changed dynamically during play;
+// 3. Show that the human player makes decisions according to user interaction, and computer players make decisions automatically, which are both implemented using the strategy pattern.
+
+
 // Show info on Player's Countries (which Countries belongs to them, how many armies are on them, which Countries are neighbors).
 void showPlayerCountriesInfo(Player* p, list<Country*> pCountries, Map* validMap) {
 	cout << "-------------------------" << endl;
@@ -82,7 +88,7 @@ int main() {
 	PhaseLog* phaseLog = new PhaseLog();
 	PhaseLogObserver* plo = new PhaseLogObserver(phaseLog);
 
-	// Create Players
+	// Create Players ans PlayerStrategies
 	AggressivePlayerStrategy* aggressiveStrategy = new AggressivePlayerStrategy();
 	BenevolentPlayerStrategy* benevolentStrategy = new BenevolentPlayerStrategy();
 	PlayerStrategy* humanStrategy = new PlayerStrategy();
@@ -123,6 +129,7 @@ int main() {
 	cout << endl;
 	showPlayerCountriesInfo(p2, p2Countries, validMap);
 
+	// Play for two turns
 	for (int i = 1; i < 3; i++) {
 		cout << "\n/////////////////" << endl;
 		cout << "TURN " << i << endl;
