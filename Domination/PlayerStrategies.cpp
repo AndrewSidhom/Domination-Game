@@ -943,7 +943,7 @@ int PlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country
 
 	do {
 		cout << endl << "Please enter the number of armies you wish to move from country " << source->name;
-		cout << " to country " << destination->name << " [" << min << "-" << max << "]." << endl;
+		cout << " to country " << destination->name << " [" << min << "-" << (max - 1) << "]." << endl;
 		cin >> selectedNumArmies;
 
 		if (!cin.good()) {
