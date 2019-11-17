@@ -99,5 +99,5 @@ void PhaseLogObserver::Update() {
 }
 
 void PhaseLogObserver::displayMsg() {
-	cout << endl << *(_subject->getMsg()) << endl;
+	cout << *(_subject->getMsg()) << endl;
 }
