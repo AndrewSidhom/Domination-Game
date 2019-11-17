@@ -51,6 +51,8 @@ void GameEngine::startGameLoop() {
         while(players[curPlayerIndex].getNumOfOwnedCountries() == 0) 
             { curPlayerIndex ++; }  // skip turn if current player has no countries left
 
+		Player* playerPtr = &players[curPlayerIndex];
+		players[curPlayerIndex].getStrategy()->setPlayer(playerPtr);
 		players[curPlayerIndex].reinforce();
 		players[curPlayerIndex].attack();
 		players[curPlayerIndex].fortify();
