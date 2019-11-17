@@ -17,7 +17,7 @@ void showPlayerCountriesInfo(Player* p, list<Country*> pCountries, Map* validMap
 	cout << "Player " << p->getName() << "'s Countries:" << endl;
 
 	for (auto& country : pCountries) {
-		cout << endl << "Country " << country->name << ":" << endl;
+		cout << endl << "Country (" << country->id << ") " << country->name << ":" << endl;
 		cout << "\tArmies: " << country->armies << endl;
 
 		cout << "\tNeighbouring Countries:";
@@ -61,7 +61,7 @@ void showCountriesInfo(list<Country*>* countries, Map* validMap) {
 	cout << "Countries info:" << endl;
 
 	for (auto& country : *countries) {
-		cout << endl << "Country " << country->name << ":" << endl;
+		cout << endl << "Country (" << country->id << ") " << country->name << ":" << endl;
 		cout << "\tPlayer owner: " << country->player->getName() << endl;
 		cout << "\tArmies: " << country->armies << endl;
 
