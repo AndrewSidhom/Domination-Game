@@ -109,6 +109,10 @@ void Player::reinforce() {
 //the player carries out a number of attacks
 void Player::attack()
 {
+	phaseLogPtr->printMsg("\n/////////////////////////////");
+	phaseLogPtr->printMsg("PLAYER " + *name + " ATTACK PHASE");
+	phaseLogPtr->printMsg("/////////////////////////////");
+
 	strategy->attackInit();
 	bool atLeastOneCountryConquered = false;
 
@@ -119,7 +123,7 @@ void Player::attack()
 		Country* attackingCountry = strategy->selectAttackingCountry();
 		Country* defendingCountry = strategy->selectDefendingCountry(attackingCountry);
 
-		phaseLogPtr->printMsg("\nPlayer " + *name + " will use Country " + attackingCountry->name + " to attack Player " + *(defendingCountry->player->name) + "'s Country " + defendingCountry->name);
+		phaseLogPtr->printMsg("\nPlayer " + *name + " will use Country (" + to_string(attackingCountry->id) + ") " + attackingCountry->name + " to attack Player " + *(defendingCountry->player->name) + "'s Country (" + to_string(defendingCountry->id) + ") " + defendingCountry->name);
 
 		// Select number of dice to roll
 		int numAttackDice = strategy->selectNumAttackDice(attackingCountry);
@@ -161,36 +165,36 @@ void Player::attack()
 			itDefenseRolls++;
 		}
 
-		phaseLogPtr->printMsg("\nPlayer " + *name + " loses " + to_string(attackerLoss) + " armies in Country " + attackingCountry->name);
-		phaseLogPtr->printMsg("Player " + *(defendingCountry->player->name) + " loses " + to_string(defenderLoss) + " armies in Country " + defendingCountry->name);
+		phaseLogPtr->printMsg("\nPlayer " + *name + " loses " + to_string(attackerLoss) + " armies in Country (" + to_string(attackingCountry->id) + ") " + attackingCountry->name);
+		phaseLogPtr->printMsg("Player " + *(defendingCountry->player->name) + " loses " + to_string(defenderLoss) + " armies in Country (" + to_string(defendingCountry->id) + ") " + defendingCountry->name);
 
 		// Remove army loss from armies in attacking Country
 		addOrRemoveArmies(attackingCountry->id, -1 * attackerLoss);
-		phaseLogPtr->printMsg("\nThere are now " + to_string(attackingCountry->armies) + " armies in Country " + attackingCountry->name);
+		phaseLogPtr->printMsg("\nThere are now " + to_string(attackingCountry->armies) + " armies in Country (" + to_string(attackingCountry->id) + ") " + attackingCountry->name);
 
 		// If all armies in defending Country are defeated, attacking Player conquers the defending Country
 		if (defendingCountry->armies - defenderLoss <= 0) {
-			phaseLogPtr->printMsg("\nPlayer " + *name + " defeated all of Player " + *(defendingCountry->player->name) + "'s armies in Country " + defendingCountry->name + "!");
-			phaseLogPtr->printMsg("Country " + defendingCountry->name + " now belongs to Player " + *name);
+			phaseLogPtr->printMsg("\nPlayer " + *name + " defeated all of Player " + *(defendingCountry->player->name) + "'s armies in Country (" + to_string(defendingCountry->id) + ") " + defendingCountry->name + "!");
+			phaseLogPtr->printMsg("Country (" + to_string(defendingCountry->id) + ") " + defendingCountry->name + " now belongs to Player " + *name);
 
 			// Calculate how many armies to move in newly conquered Country
 			int numArmiesToMove = strategy->selectNumArmiesToMoveAfterAttackSuccess(attackingCountry, defendingCountry, numAttackDice);
 
-			phaseLogPtr->printMsg("Player " + *name + " will move " + to_string(numArmiesToMove) + " armies in Country " + defendingCountry->name);
+			phaseLogPtr->printMsg("Player " + *name + " will move " + to_string(numArmiesToMove) + " armies in Country (" + to_string(defendingCountry->id) + ") " + defendingCountry->name);
 
 			// Change the defending Country's ownership and move armies in it
 			defendingCountry->player->loseCountry(defendingCountry->id);
 			claimCountry(defendingCountry, numArmiesToMove);
 			addOrRemoveArmies(attackingCountry->id, -1 * numArmiesToMove);
 
-			phaseLogPtr->printMsg("\nThere are now " + to_string(attackingCountry->armies) + " armies in Country " + attackingCountry->name + "\n");
+			phaseLogPtr->printMsg("\nThere are now " + to_string(attackingCountry->armies) + " armies in Country (" + to_string(attackingCountry->id) + ") " + attackingCountry->name + "\n");
 
 			atLeastOneCountryConquered = true;
 		}
 		else {
 			// Remove army loss from defending Country's armies
 			defendingCountry->player->addOrRemoveArmies(defendingCountry->id, -1 * defenderLoss);
-			phaseLogPtr->printMsg("\nThere are now " + to_string(defendingCountry->armies) + " armies in Country " + defendingCountry->name + "\n");
+			phaseLogPtr->printMsg("\nThere are now " + to_string(defendingCountry->armies) + " armies in Country (" + to_string(defendingCountry->id) + ") " + defendingCountry->name + "\n");
 		}
 	}
 
@@ -212,28 +216,40 @@ void Player::attack()
 			
 		hand->drawFromDeck();
 	}
+
+	phaseLogPtr->printMsg("\n/////////////////////////////");
+	phaseLogPtr->printMsg("END OF PLAYER " + *name + " ATTACK PHASE");
+	phaseLogPtr->printMsg("/////////////////////////////");
 }
 
 //move a number of armies from an owned country to another owned neighboring country
 void Player::fortify()
 {
-	cout << "**Fortification Phase**\n";
+	phaseLogPtr->printMsg("\n/////////////////////////////");
+	phaseLogPtr->printMsg("PLAYER " + *name + " FORTIFICATION PHASE");
+	phaseLogPtr->printMsg("/////////////////////////////");
+
 	if (!strategy->decideToFortify()) {
-		
+		phaseLogPtr->printMsg("\nPlayer " + *name + "chose not to fortify");
 		return;
 	}
 
 	Country* destination = strategy->selectFortifyDestination();
-	cout << "hey destination" << endl;
-	cout << destination->name << endl;
+	phaseLogPtr->printMsg("\nPlayer " + *name + " chose to fortify Country (" + to_string(destination->id) + ") " + destination->name);
+
 	Country* source = strategy->selectFortifySource(destination);
+	phaseLogPtr->printMsg("Player " + *name + " chose to use armies from Country (" + to_string(source->id) + ") " + source->name + " to fortify Country (" + to_string(destination->id) + ") " + destination->name);
 
 	int armiesToMove = strategy->selectArmiesToMoveForFortification(source, destination);
+	phaseLogPtr->printMsg("Player " + *name + " chose to move " + to_string(armiesToMove) + " armies from Country (" + to_string(source->id) + ") " + source->name + " into Country (" + to_string(destination->id) + ") " + destination->name);
 
 	try {
 		addOrRemoveArmies(source->id, -armiesToMove);
 		addOrRemoveArmies(destination->id, armiesToMove);
-		cout << "Fortification has successfully completed." << endl;
+
+		phaseLogPtr->printMsg("\n/////////////////////////////");
+		phaseLogPtr->printMsg("END OF PLAYER " + *name + " FORTIFICATION PHASE");
+		phaseLogPtr->printMsg("/////////////////////////////");
 	}
 	catch (invalid_argument e) {
 		cout << "Exception thrown when trying to add/remove armies:" << endl;
