@@ -35,6 +35,8 @@ class Deck
 public:
 	Deck(int totalCountries);	// Constructor. Creates and shuffles deck.
 	~Deck();					// Destructor.
+	Deck(const Deck &d);
+	Deck& operator=(const Deck &d);
 
 	//	Draws a card from top of deck. IMPORTANT: always use isEmpty on deck first to check.
 	Card draw();
@@ -58,6 +60,8 @@ class Hand
 public:
 	Hand(Deck* deck, map<int,Country*>* countries, PlayerStrategy* strat);
 	~Hand();
+	Hand(const Hand &h);
+	Hand& operator=(const Hand &h);
 
 	//  Get number of cards in player's hand.
 	int getHandCount() { return playerHand->size(); };

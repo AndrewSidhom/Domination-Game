@@ -26,6 +26,22 @@ Deck::~Deck()
 	delete cardDeck, exchangeArmies;
 }
 
+/*	Copy constructor of Cards class.
+*/
+Deck::Deck(const Deck &d) : cardDeck(d.cardDeck), exchangeArmies(d.exchangeArmies) {}
+
+/*	Copy assignment operator.
+*/
+Deck& Deck::operator=(const Deck &d) 
+{
+	if(&d != this) {
+		delete cardDeck, exchangeArmies;
+		cardDeck = d.cardDeck;
+		exchangeArmies = d.exchangeArmies;
+	}
+	return *this;
+}
+
 /*	Creates unshuffled deck equal to total number of countries
 	@param total number of countries
 */
@@ -114,16 +130,30 @@ int Deck::getExchangedArmies()
 
 /*	Default constructor.
 */
-Hand::Hand(Deck *deck, map<int,Country*> *countries) : deck(deck), ownedCountries(countries)
-{
-	playerHand = new vector<Card>();
-}
+Hand::Hand(Deck *deck, map<int,Country*> *countries) : deck(deck), ownedCountries(countries), playerHand(new vector<Card>()) {}
 
 /*	Destructor of Hand class.
 */
 Hand::~Hand()
 {
-	delete playerHand, deck, ownedCountries;
+	delete playerHand;
+}
+
+/*	Copy constructor of Hand class.
+*/
+Hand::Hand(const Hand &h) : playerHand(h.playerHand), deck(h.deck), ownedCountries(h.ownedCountries), strategy(h.strategy) {}
+
+/*	Copy assignment operator of Hand class.
+*/
+Hand& Hand::operator=(const Hand &h) 
+{
+	if(&h != this) {
+		playerHand = h.playerHand;
+		deck = h.deck;
+		ownedCountries = h.ownedCountries;
+		strategy = h.strategy;
+	}
+	return *this;
 }
 
 /*	Display cards in player's hand
