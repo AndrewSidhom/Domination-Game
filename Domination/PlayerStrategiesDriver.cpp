@@ -78,12 +78,17 @@ int main() {
 	// Create Deck
 	Deck* d = new Deck(6);
 
+	// Create PhaseLog
+	PhaseLog* phaseLog = new PhaseLog();
+	PhaseLogObserver* plo = new PhaseLogObserver(phaseLog);
+
 	// Create Players
 	AggressivePlayerStrategy* aggressiveStrategy = new AggressivePlayerStrategy();
 	BenevolentPlayerStrategy* benevolentStrategy = new BenevolentPlayerStrategy();
+	PlayerStrategy* humanStrategy = new PlayerStrategy();
 
-	Player* p1 = new Player("Judy", d, validMap, aggressiveStrategy);
-	Player* p2 = new Player("Nick", d, validMap, benevolentStrategy);
+	Player* p1 = new Player("Judy", d, validMap, aggressiveStrategy, phaseLog);
+	Player* p2 = new Player("Nick", d, validMap, benevolentStrategy, phaseLog);
 
 	// Give Countries to Players
 	list<Country*>* countries = validMap->getCountries();
