@@ -53,7 +53,7 @@ protected:
 
 	int exchangeAnyCardsForArmies(); // if have cards to exchange, return exchange armies; else return 0 (has no user input - mostly for AI)
 	void tradeInCards(int* cardsToExchange[]); // After choosing exchanged cards, trade in the cards
-	virtual void distributeExchangeBonus(vector<int>* matchingCountries); //	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
+	//virtual void distributeExchangeBonus(vector<int>* matchingCountries); //	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
 
 	// RELATED SERVICE FUNCS
 	int genRandomNum(int low, int high); // generates a random number in between range
@@ -89,7 +89,7 @@ public:
 	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination);
 
 protected:
-	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with most armies
+	//void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with most armies
 
 private:
 	Country* strongestAttackingCountry;
@@ -116,5 +116,5 @@ public:
 	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination);
 
 protected:
-	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
+	//void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
 };

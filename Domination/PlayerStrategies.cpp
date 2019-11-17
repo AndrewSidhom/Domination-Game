@@ -44,7 +44,7 @@ int AggressivePlayerStrategy::promptExchangeForArmies(bool isMandatory)
 /*	AI will choose to reinforce country with least armies
 	@param country ids that matches exchanged cards
 */
-void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
+/*void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
@@ -60,7 +60,7 @@ void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCoun
 
 	player->hand->ownedCountries->at(strongestCountryId)->armies += 2;
 	cout << "Choose a country to give 2 additional armies: " << strongestCountryId;
-}
+}*/
 
 // Find the strongest Country owned by the Player (Country with most armies) that can attack other Countries
 void AggressivePlayerStrategy::attackInit()
@@ -258,7 +258,7 @@ int BenevolentPlayerStrategy::promptExchangeForArmies(bool isMandatory)
 /*	AI will choose to reinforce country with least armies
 	@param country ids that matches exchanged cards
 */
-void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
+/*void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
@@ -274,7 +274,7 @@ void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCoun
 
 	player->hand->ownedCountries->at(weakestCountryId)->armies += 2;
 	cout << "Choose a country to give 2 additional armies: " << weakestCountryId;
-}
+}*/
 
 // Returns false. A benevolent Player never attacks.
 bool BenevolentPlayerStrategy::decideToAttack()
@@ -282,10 +282,39 @@ bool BenevolentPlayerStrategy::decideToAttack()
 	return false;
 }
 
-// Returns true if the Player can fortify (the Benevolent Player fortifies by default if they can fortify)
+// Returns true if there exists a Country owned by the Player with less armies than other Countries owned and which can be fortified
+// by a neighboring Country
 bool BenevolentPlayerStrategy::decideToFortify()
 {
-	return canFortify();
+	bool sameAmountArmiesEverywhere = true;
+	int minArmies = player->ownedCountries->begin()->second->armies;
+
+	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
+		if (ownedCountry->second->armies != minArmies) {
+			sameAmountArmiesEverywhere = false;
+		}
+	}
+
+	if (!sameAmountArmiesEverywhere) {
+		minArmies++;
+
+		for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
+			if (ownedCountry->second->armies < minArmies) {
+				list<int> neighbors = ownedCountry->second->neighbors;
+
+				for (auto const& neighbor : neighbors) {
+					Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+					// The number of armies in the neighbor should also be higher than the number of armies in the destination
+					if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2 && countryNeighbor->armies > ownedCountry->second->armies) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 // Returns the weakest Country which can be fortified. Returns a nullptr if no Country owned by the Player can be fortified
@@ -315,8 +344,7 @@ Country * BenevolentPlayerStrategy::selectFortifyDestination()
 			}
 		}
 	}
-
-	return nullptr;
+	return weakestFortifiableCountry;
 }
 
 // Returns the Country neighbor of destination which is owned by the Player and has the most armies on it
@@ -327,7 +355,6 @@ Country * BenevolentPlayerStrategy::selectFortifySource(Country * destination)
 	// Will choose the Country which fulfills the above requirement and has the most armies on it
 	Country* strongestOwnedNeighbor = nullptr;
 	int maxArmies = 2;
-
 	list<int> neighbors = destination->neighbors;
 
 	for (auto const& neighbor : neighbors) {
@@ -338,7 +365,6 @@ Country * BenevolentPlayerStrategy::selectFortifySource(Country * destination)
 			maxArmies = strongestOwnedNeighbor->armies;
 		}
 	}
-
 	return strongestOwnedNeighbor;
 }
 
@@ -477,8 +503,8 @@ void PlayerStrategy::tradeInCards(int* cardsToExchange[])
 			{ matchingCountries->push_back(countryId);	}	/// store country by reference
 	}
 	/// if have matching, prompt player input to choose which country to give +2 units
-	if (!matchingCountries->empty()) 
-		distributeExchangeBonus(matchingCountries);
+	//if (!matchingCountries->empty()) 
+		//distributeExchangeBonus(matchingCountries);
 	delete matchingCountries;
 
 	/// remove exchanged cards from hand
@@ -493,7 +519,7 @@ void PlayerStrategy::tradeInCards(int* cardsToExchange[])
 /*	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
 	@param country ids that matches exchanged cards
 */
-void PlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
+/*void PlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
@@ -521,7 +547,7 @@ void PlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries)
 	while (true);
 
 	player->hand->ownedCountries->at(selectedCountryId)->armies += 2;
-}
+}*/
 
 void PlayerStrategy::attackInit()
 {

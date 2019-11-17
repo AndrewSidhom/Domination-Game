@@ -204,117 +204,112 @@ void Player::reinforce() {
 void Player::attack()
 {
 	strategy->attackInit();
-	if (strategy->decideToAttack()) {
-		bool atLeastOneCountryConquered = false;
+	bool atLeastOneCountryConquered = false;
 
-		while (strategy->decideToAttack()) {
-			cout << endl << "Player " << *name << " chose to attack!" << endl;
+	while (strategy->decideToAttack()) {
+		cout << endl << "Player " << *name << " chose to attack!" << endl;
 
-			// Select attacking and defending Countries
-			Country* attackingCountry = strategy->selectAttackingCountry();
-			Country* defendingCountry = strategy->selectDefendingCountry(attackingCountry);
+		// Select attacking and defending Countries
+		Country* attackingCountry = strategy->selectAttackingCountry();
+		Country* defendingCountry = strategy->selectDefendingCountry(attackingCountry);
 
-			cout << endl << "Player " << *name << " will use Country " << attackingCountry->name << " to attack Player ";
-			cout << *(defendingCountry->player->name) << "'s Country " << defendingCountry->name << endl;
+		cout << endl << "Player " << *name << " will use Country " << attackingCountry->name << " to attack Player ";
+		cout << *(defendingCountry->player->name) << "'s Country " << defendingCountry->name << endl;
 
-			// Select number of dice to roll
-			int numAttackDice = strategy->selectNumAttackDice(attackingCountry);
-			int numDefenseDice = strategy->selectNumDefenseDice(defendingCountry);
+		// Select number of dice to roll
+		int numAttackDice = strategy->selectNumAttackDice(attackingCountry);
+		int numDefenseDice = strategy->selectNumDefenseDice(defendingCountry);
 
-			cout << endl << "Player " << *name << " will roll " << numAttackDice << " dice" << endl;
-			cout << "Player " << *(defendingCountry->player->name) << " will roll " << numDefenseDice << " dice" << endl;
+		cout << endl << "Player " << *name << " will roll " << numAttackDice << " dice" << endl;
+		cout << "Player " << *(defendingCountry->player->name) << " will roll " << numDefenseDice << " dice" << endl;
 
-			// Roll dice
-			list<int> attackRolls = dice->roll(numAttackDice);
-			list<int> defenseRolls = dice->roll(numDefenseDice);
+		// Roll dice
+		list<int> attackRolls = dice->roll(numAttackDice);
+		list<int> defenseRolls = dice->roll(numDefenseDice);
 
-			cout << endl << "Player " << *name << " rolled:";
-			for (auto const roll : attackRolls) {
-				cout << " " << roll << " ";
-			}
+		cout << endl << "Player " << *name << " rolled:";
+		for (auto const roll : attackRolls) {
+			cout << " " << roll << " ";
+		}
 
-			cout << endl << "Player " << *(defendingCountry->player->name) << " rolled:";
-			for (auto const roll : defenseRolls) {
-				cout << " " << roll << " ";
-			}
-			cout << endl;
+		cout << endl << "Player " << *(defendingCountry->player->name) << " rolled:";
+		for (auto const roll : defenseRolls) {
+			cout << " " << roll << " ";
+		}
+		cout << endl;
 
-			// Calculate army loss for attacking and defending Countries
-			int attackerLoss = 0;
-			int defenderLoss = 0;
-			auto itAttackRolls = attackRolls.begin();
-			auto itDefenseRolls = defenseRolls.begin();
-			while (itAttackRolls != attackRolls.end() && itDefenseRolls != defenseRolls.end()) {
-				if (*itAttackRolls > *itDefenseRolls) {
-					defenderLoss++;
-				}
-				else {
-					attackerLoss++;
-				}
-
-				itAttackRolls++;
-				itDefenseRolls++;
-			}
-
-			cout << endl << "Player " << *name << " loses " << attackerLoss << " armies in Country " << attackingCountry->name << endl;
-			cout << "Player " << *(defendingCountry->player->name) << " loses " << defenderLoss << " armies in Country "; 
-			cout << defendingCountry->name << endl;
-
-			// Remove army loss from armies in attacking Country
-			addOrRemoveArmies(attackingCountry->id, -1 * attackerLoss);
-			cout << "There are now " << attackingCountry->armies << " armies in Country " << attackingCountry->name << endl;
-
-			// If all armies in defending Country are defeated, attacking Player conquers the defending Country
-			if (defendingCountry->armies - defenderLoss <= 0) {
-				cout << endl << "Player " << *name << " defeated all of Player " << *(defendingCountry->player->name); 
-				cout << "'s armies in Country " << defendingCountry->name << "!" << endl;
-				cout << "Country " << defendingCountry->name << " now belongs to Player " << *name << endl;
-
-				// Calculate how many armies to move in newly conquered Country
-				int numArmiesToMove = strategy->selectNumArmiesToMoveAfterAttackSuccess(attackingCountry, defendingCountry, numAttackDice);
-
-				cout << endl << "Player " << *name << " will move " << numArmiesToMove << " armies in Country "; 
-				cout << defendingCountry->name << endl;
-
-				// Change the defending Country's ownership and move armies in it
-				defendingCountry->player->loseCountry(defendingCountry->id);
-				claimCountry(defendingCountry, numArmiesToMove);
-				addOrRemoveArmies(attackingCountry->id, -1 * numArmiesToMove);
-
-				cout << "There are now " << attackingCountry->armies << " armies in Country " << attackingCountry->name << endl;
-				cout << endl;
-
-				atLeastOneCountryConquered = true;
+		// Calculate army loss for attacking and defending Countries
+		int attackerLoss = 0;
+		int defenderLoss = 0;
+		auto itAttackRolls = attackRolls.begin();
+		auto itDefenseRolls = defenseRolls.begin();
+		while (itAttackRolls != attackRolls.end() && itDefenseRolls != defenseRolls.end()) {
+			if (*itAttackRolls > *itDefenseRolls) {
+				defenderLoss++;
 			}
 			else {
-				// Remove army loss from defending Country's armies
-				defendingCountry->player->addOrRemoveArmies(defendingCountry->id, -1 * defenderLoss);
-				cout << "There are now " << defendingCountry->armies << " armies in Country " << defendingCountry->name << endl;
-				cout << endl;
+				attackerLoss++;
 			}
+
+			itAttackRolls++;
+			itDefenseRolls++;
 		}
 
-		cout << endl << "Player " << *name << " chose to stop attacking" << endl << endl;
+		cout << endl << "Player " << *name << " loses " << attackerLoss << " armies in Country " << attackingCountry->name << endl;
+		cout << "Player " << *(defendingCountry->player->name) << " loses " << defenderLoss << " armies in Country "; 
+		cout << defendingCountry->name << endl;
 
-		if (atLeastOneCountryConquered) {
-			//TODO in A3: check if Player defeated other Player. Transfer cards and impose trading if necessary.
-			/* PSEUDOCODE
-			if(player defeats another player/or players) {
-				- transfer cards here
+		// Remove army loss from armies in attacking Country
+		addOrRemoveArmies(attackingCountry->id, -1 * attackerLoss);
+		cout << "There are now " << attackingCountry->armies << " armies in Country " << attackingCountry->name << endl;
 
-				// trigger mandatory exchange after claiming enemy's cards
-				if(hand->getHandCount() >= 6) {
-					while(hand->getHandCount() > 4)
-						exchange();	// force exchange until have 4 cards or less
-				}
-			}
-			*/
-			
-			hand->drawFromDeck();
+		// If all armies in defending Country are defeated, attacking Player conquers the defending Country
+		if (defendingCountry->armies - defenderLoss <= 0) {
+			cout << endl << "Player " << *name << " defeated all of Player " << *(defendingCountry->player->name); 
+			cout << "'s armies in Country " << defendingCountry->name << "!" << endl;
+			cout << "Country " << defendingCountry->name << " now belongs to Player " << *name << endl;
+
+			// Calculate how many armies to move in newly conquered Country
+			int numArmiesToMove = strategy->selectNumArmiesToMoveAfterAttackSuccess(attackingCountry, defendingCountry, numAttackDice);
+
+			cout << endl << "Player " << *name << " will move " << numArmiesToMove << " armies in Country "; 
+			cout << defendingCountry->name << endl;
+
+			// Change the defending Country's ownership and move armies in it
+			defendingCountry->player->loseCountry(defendingCountry->id);
+			claimCountry(defendingCountry, numArmiesToMove);
+			addOrRemoveArmies(attackingCountry->id, -1 * numArmiesToMove);
+
+			cout << "There are now " << attackingCountry->armies << " armies in Country " << attackingCountry->name << endl;
+			cout << endl;
+
+			atLeastOneCountryConquered = true;
+		}
+		else {
+			// Remove army loss from defending Country's armies
+			defendingCountry->player->addOrRemoveArmies(defendingCountry->id, -1 * defenderLoss);
+			cout << "There are now " << defendingCountry->armies << " armies in Country " << defendingCountry->name << endl;
+			cout << endl;
 		}
 	}
-	else {
-		cout << endl << "Player " << *name << " chose not to attack." << endl << endl;
+
+	cout << endl << "Player " << *name << " chose to not to attack" << endl << endl;
+
+	if (atLeastOneCountryConquered) {
+		//TODO in A3: check if Player defeated other Player. Transfer cards and impose trading if necessary.
+		/* PSEUDOCODE
+		if(player defeats another player/or players) {
+			- transfer cards here
+
+			// trigger mandatory exchange after claiming enemy's cards
+			if(hand->getHandCount() >= 6) {
+				while(hand->getHandCount() > 4)
+					exchange();	// force exchange until have 4 cards or less
+			}
+		}
+		*/
+			
+		hand->drawFromDeck();
 	}
 }
 
@@ -328,6 +323,8 @@ void Player::fortify()
 	}
 
 	Country* destination = strategy->selectFortifyDestination();
+	cout << "hey destination" << endl;
+	cout << destination->name << endl;
 	Country* source = strategy->selectFortifySource(destination);
 
 	int armiesToMove = strategy->selectArmiesToMoveForFortification(source, destination);
