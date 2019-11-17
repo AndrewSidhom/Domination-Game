@@ -119,12 +119,10 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	for (int i = 0; i < numOfPlayers; i++) {
 		PlayerStrategy* humanStrat = new PlayerStrategy();
 		string name = "Player " + to_string(i + 1);
-		players[i] = Player(name, deck, gameMap, humanStrat); 
+		players[i] = Player(name, deck, gameMap, humanStrat, phaseLog); 
 
 		Player* playerPtr = &players[i];
 		humanStrat->setPlayer(playerPtr);
-		//(players + i)->setHand(deck);
-		//(players + i)->setMap(gameMap);
 		phaseLog->printMsg((players + i)->getName() + ", enter your new name, or enter '0' to keep your current name: ");
 		cin >> name;
 		if (name != "0") 
@@ -139,7 +137,7 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 		else			
 			aiStrat = new BenevolentPlayerStrategy();
 		string name = "AI Player " + to_string(i + 1);
-		players[i] = Player(name, deck, gameMap, aiStrat); 
+		players[i] = Player(name, deck, gameMap, aiStrat, phaseLog); 
 		// pass player & hand ptr to strategy
 		Player* playerPtr = &players[i];
 		aiStrat->setPlayer(playerPtr);

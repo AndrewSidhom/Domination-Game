@@ -8,7 +8,7 @@ int* Player::currentGenId = new int(1);
 
 //constructor, destructor
 Player::Player() : id(new int(*currentGenId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
-Player::Player(string name, Deck * deck, Map * mapPtr, PlayerStrategy * aStrategy) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), mapPtr(mapPtr), hand(new Hand(deck, ownedCountries, aStrategy)), dice(new Dice()), strategy(aStrategy) { 
+Player::Player(string name, Deck * deck, Map * mapPtr, PlayerStrategy * aStrategy, PhaseLog* aPhaseLog) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), mapPtr(mapPtr), hand(new Hand(deck, ownedCountries, aStrategy)), dice(new Dice()), strategy(aStrategy), phaseLogPtr(aPhaseLog) { 
 	genNextID();
 	aStrategy->setPlayer(this);
 }
@@ -76,100 +76,6 @@ Country* Player::loseCountry(int id)
 	}
 }
 
-// Returns true if Player decides to attack, false otherwise
-bool Player::decideToAttack()
-{
-	for (auto ownedCountry = ownedCountries->begin(); ownedCountry != ownedCountries->end(); ownedCountry++) {
-		// continue attacking until there is no more countries that can be attacked
-		// a country can be attacked if 1. it's a neighbour of an owned country
-		// 2. it's not owned by the player
-		// 3. the owned country has at least two armies
-		list<int> neighbors = ownedCountry->second->neighbors;
-
-		for (auto const& neighbor : neighbors) {
-			Country* countryNeighbor = mapPtr->getCountryById(neighbor);
-
-			if (countryNeighbor->player->getId() != *id && ownedCountry->second->armies >= 2) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-// Returns a pointer to the Country which will be attacking
-Country * Player::selectAttackingCountry()
-{
-	// the attacking country must 1. have a neighbour that is not owned by that player
-	// 2. have at least two armies
-	Country* attackingCountry;
-
-	for (auto ownedCountry = ownedCountries->begin(); ownedCountry != ownedCountries->end(); ownedCountry++) {
-		list<int> neighbors = ownedCountry->second->neighbors;
-
-		for (auto const& neighbor : neighbors) {
-			Country* countryNeighbor = mapPtr->getCountryById(neighbor);
-
-			if (countryNeighbor->player->getId() != *id && ownedCountry->second->armies >= 2) {
-				attackingCountry = ownedCountry->second;
-				return attackingCountry;
-			}
-		}
-	}
-
-	throw exception("No countries owned by this Player can attack another country.");
-}
-
-// Returns a pointer to the Country which will be attacked
-Country * Player::selectDefendingCountry(Country * attackingCountry)
-{
-	// The attack target must 1. be a neighbour of the attacking country
-	// 2. must not be owned by this Player
-	Country* attackTarget;
-
-	list<int> neighbors = attackingCountry->neighbors;
-	for (auto const& neighbor : neighbors) {
-		Country* countryNeighbor = mapPtr->getCountryById(neighbor);
-
-		if (countryNeighbor->player->getId() != *id) {
-			attackTarget = countryNeighbor;
-			return attackTarget;
-		}
-	}
-
-	throw exception("No countries can be an attack target for the provided attacking country.");
-}
-
-// Returns an integer - the number of dice to be rolled by the attacker
-int Player::selectAttackDice(Country * attackingCountry)
-{
-	// The attack is allowed min: 1 die, max: (number of armies in the attacking Country - 1) dice
-	// Will select the max number of dice to roll
-	int max = attackingCountry->armies - 1;
-
-	return max;
-}
-
-// Returns an integer - the number of dice to be rolled by the defender
-int Player::selectDefenseDice(Country * defendingCountry)
-{
-	// The defense is allowed min: 1 die, max: 2 dice if the number of armies in defendingCountry >= 2
-	// Will select the min number of dice to roll
-
-	return 1;
-}
-
-// Returns the number of armies the attacker will move in newly conquered country
-int Player::selectArmiesToMoveAfterAttackSuccess(Country * attackingCountry, Country * defendingCountry, int diceRolled)
-{
-	// The Player is allowed to move min: (number of dice rolled) armies, max: (number of armies in attacking Country - 1) armies
-	// Will select the max number
-	int max = attackingCountry->armies - 1;
-
-	return max;
-}
-
 // TODO: to be removed?
 //rolls this number of dice, returns dice results
 vector<int> Player::rollDice(int howMany)
@@ -207,36 +113,36 @@ void Player::attack()
 	bool atLeastOneCountryConquered = false;
 
 	while (strategy->decideToAttack()) {
-		cout << endl << "Player " << *name << " chose to attack!" << endl;
+		phaseLogPtr->printMsg("\nPlayer " + *name + " chose to attack!");
 
 		// Select attacking and defending Countries
 		Country* attackingCountry = strategy->selectAttackingCountry();
 		Country* defendingCountry = strategy->selectDefendingCountry(attackingCountry);
 
-		cout << endl << "Player " << *name << " will use Country " << attackingCountry->name << " to attack Player ";
-		cout << *(defendingCountry->player->name) << "'s Country " << defendingCountry->name << endl;
+		phaseLogPtr->printMsg("\nPlayer " + *name + " will use Country " + attackingCountry->name + " to attack Player " + *(defendingCountry->player->name) + "'s Country " + defendingCountry->name);
 
 		// Select number of dice to roll
 		int numAttackDice = strategy->selectNumAttackDice(attackingCountry);
 		int numDefenseDice = strategy->selectNumDefenseDice(defendingCountry);
 
-		cout << endl << "Player " << *name << " will roll " << numAttackDice << " dice" << endl;
-		cout << "Player " << *(defendingCountry->player->name) << " will roll " << numDefenseDice << " dice" << endl;
+		phaseLogPtr->printMsg("\nPlayer " + *name + " will roll " + to_string(numAttackDice) + " dice");
+		phaseLogPtr->printMsg("Player " + *(defendingCountry->player->name) + " will roll " + to_string(numDefenseDice) + " dice");
 
 		// Roll dice
 		list<int> attackRolls = dice->roll(numAttackDice);
 		list<int> defenseRolls = dice->roll(numDefenseDice);
 
-		cout << endl << "Player " << *name << " rolled:";
+		string diceRolls = "\nPlayer " + *name + " rolled:";
 		for (auto const roll : attackRolls) {
-			cout << " " << roll << " ";
+			diceRolls = diceRolls + " " + to_string(roll) + " ";
 		}
+		phaseLogPtr->printMsg(diceRolls);
 
-		cout << endl << "Player " << *(defendingCountry->player->name) << " rolled:";
+		diceRolls = "Player " + *(defendingCountry->player->name) + " rolled:";
 		for (auto const roll : defenseRolls) {
-			cout << " " << roll << " ";
+			diceRolls = diceRolls + " " + to_string(roll) + " ";
 		}
-		cout << endl;
+		phaseLogPtr->printMsg(diceRolls);
 
 		// Calculate army loss for attacking and defending Countries
 		int attackerLoss = 0;
@@ -255,45 +161,40 @@ void Player::attack()
 			itDefenseRolls++;
 		}
 
-		cout << endl << "Player " << *name << " loses " << attackerLoss << " armies in Country " << attackingCountry->name << endl;
-		cout << "Player " << *(defendingCountry->player->name) << " loses " << defenderLoss << " armies in Country "; 
-		cout << defendingCountry->name << endl;
+		phaseLogPtr->printMsg("\nPlayer " + *name + " loses " + to_string(attackerLoss) + " armies in Country " + attackingCountry->name);
+		phaseLogPtr->printMsg("Player " + *(defendingCountry->player->name) + " loses " + to_string(defenderLoss) + " armies in Country " + defendingCountry->name);
 
 		// Remove army loss from armies in attacking Country
 		addOrRemoveArmies(attackingCountry->id, -1 * attackerLoss);
-		cout << "There are now " << attackingCountry->armies << " armies in Country " << attackingCountry->name << endl;
+		phaseLogPtr->printMsg("\nThere are now " + to_string(attackingCountry->armies) + " armies in Country " + attackingCountry->name);
 
 		// If all armies in defending Country are defeated, attacking Player conquers the defending Country
 		if (defendingCountry->armies - defenderLoss <= 0) {
-			cout << endl << "Player " << *name << " defeated all of Player " << *(defendingCountry->player->name); 
-			cout << "'s armies in Country " << defendingCountry->name << "!" << endl;
-			cout << "Country " << defendingCountry->name << " now belongs to Player " << *name << endl;
+			phaseLogPtr->printMsg("\nPlayer " + *name + " defeated all of Player " + *(defendingCountry->player->name) + "'s armies in Country " + defendingCountry->name + "!");
+			phaseLogPtr->printMsg("Country " + defendingCountry->name + " now belongs to Player " + *name);
 
 			// Calculate how many armies to move in newly conquered Country
 			int numArmiesToMove = strategy->selectNumArmiesToMoveAfterAttackSuccess(attackingCountry, defendingCountry, numAttackDice);
 
-			cout << endl << "Player " << *name << " will move " << numArmiesToMove << " armies in Country "; 
-			cout << defendingCountry->name << endl;
+			phaseLogPtr->printMsg("Player " + *name + " will move " + to_string(numArmiesToMove) + " armies in Country " + defendingCountry->name);
 
 			// Change the defending Country's ownership and move armies in it
 			defendingCountry->player->loseCountry(defendingCountry->id);
 			claimCountry(defendingCountry, numArmiesToMove);
 			addOrRemoveArmies(attackingCountry->id, -1 * numArmiesToMove);
 
-			cout << "There are now " << attackingCountry->armies << " armies in Country " << attackingCountry->name << endl;
-			cout << endl;
+			phaseLogPtr->printMsg("\nThere are now " + to_string(attackingCountry->armies) + " armies in Country " + attackingCountry->name + "\n");
 
 			atLeastOneCountryConquered = true;
 		}
 		else {
 			// Remove army loss from defending Country's armies
 			defendingCountry->player->addOrRemoveArmies(defendingCountry->id, -1 * defenderLoss);
-			cout << "There are now " << defendingCountry->armies << " armies in Country " << defendingCountry->name << endl;
-			cout << endl;
+			phaseLogPtr->printMsg("\nThere are now " + to_string(defendingCountry->armies) + " armies in Country " + defendingCountry->name + "\n");
 		}
 	}
 
-	cout << endl << "Player " << *name << " chose to not to attack" << endl << endl;
+	phaseLogPtr->printMsg("\nPlayer " + *name + " chose not to attack\n");
 
 	if (atLeastOneCountryConquered) {
 		//TODO in A3: check if Player defeated other Player. Transfer cards and impose trading if necessary.
@@ -397,15 +298,6 @@ void Player::distributeArmies(int totalArmies) {
 		}
 	}
 	displayOwnedCountries();
-}
-
-//returns the first neighbor of source which is found to be owned by the player, nullptr if there is no such neighbor
-Country* Player::getFortifyDestination(Country* source) {
-	for (int neighbor : source->neighbors) {
-		if (ownedCountries->count(neighbor) == 1) //if the neighbor is owned by the player
-			return ownedCountries->at(neighbor);  //return the first owned neighbor found
-	}
-	return nullptr;
 }
 
 /*	Armies can be a +ve or -ve integer, meaning add or remove this many armies.

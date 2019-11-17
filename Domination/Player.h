@@ -16,9 +16,7 @@ public:
 
 	//constructor, destructor
 	Player();
-	Player(string name, Deck *deck); 
-	Player(string name, Deck *deck, Map *mapPtr); 
-	Player(string name, Deck *deck, Map *mapPtr, PlayerStrategy *aStrategy);
+	Player(string name, Deck *deck, Map *mapPtr, PlayerStrategy *aStrategy, PhaseLog* aPhaseLog);
 	Player(const Player &p);
 	~Player();
 
@@ -64,24 +62,17 @@ private:
 	Hand* hand;
 	Dice* dice;
 	PlayerStrategy* strategy;
+	PhaseLog* phaseLogPtr;
 
 	// internal service methods
 	int getCountryReinforcement(); // Get armies from total countries divided by 3
 	int getContinentReinforcement(); // Get armies bonus from claiming entire continent
-	Country* getFortifyDestination(Country* source); //returns the first neighbor of source which is found to be owned by the player, nullptr if there is no such neighbor
 	void addOrRemoveArmies(int countryId, int armies); //armies can be a +ve or -ve integer, meaning add or remove this many armies. THROWS EXCEPTION if country is not owned or if the number of armies to remove >= current number of armies.
 
 	int promptNumberInput(); // Prompt user to input a NUMBER only.
 
 	// print out methods
 	void displayOwnedCountries(); // Display owned countries' armies and continent id.
-
-	bool decideToAttack(); // Choose whether to attack an enemy country or not
-	Country* selectAttackingCountry(); // Choose which Country to attack from. This Country should have at least 2 armies within it and should have neighbouring enemy Countries
-	Country* selectDefendingCountry(Country* attackingCountry); // Choose a Country to attack from the attacking Country
-	int selectAttackDice(Country* attackingCountry); // Choose the number of dice to roll for attack
-	int selectDefenseDice(Country* defendingCountry); // Choose the number of dice to roll for defending against an attack
-	int selectArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); // Choose the number of armies to move from the attackingCountry to the defendingCountry after the Player won an attack
 
 	friend class AggressivePlayerStrategy;
 	friend class PlayerStrategy;
