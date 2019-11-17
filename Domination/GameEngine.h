@@ -19,6 +19,9 @@ private:
 	PhaseLog* phaseLog;	// observable obj that notifies change whenever a msg needs to be printed to console
     const int *NUM_OF_PLAYERS; // number of total players in the game; do not modify
     const int *NUM_OF_COUNTRIES; // number of total countries in the game; do not modify
+	AggressivePlayerStrategy* aggressiveStrategy; // The Agressive computer strategy
+	BenevolentPlayerStrategy* benevolentStrategy; // The Benveolent computer strategy
+	PlayerStrategy* humanStrategy; // The Human strategy
 
 	bool aPlayerOwnsAllCountries(); // Checks if a player owns all countries on the map.
 

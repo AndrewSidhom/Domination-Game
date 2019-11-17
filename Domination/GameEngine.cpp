@@ -32,6 +32,10 @@ GameEngine::GameEngine() {
 	// Assign all countries to players
 	assignCountriesToPlayers(gameMap);
 	assignArmiesToCountries();	
+
+	aggressiveStrategy = new AggressivePlayerStrategy();
+	benevolentStrategy = new BenevolentPlayerStrategy();
+	humanStrategy = new PlayerStrategy();
 }
 
 // Destructor
@@ -39,6 +43,9 @@ GameEngine::~GameEngine() {
 	delete [] players;
 	players = nullptr;
 	delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
+	delete aggressiveStrategy;
+	delete benevolentStrategy;
+	delete humanStrategy;
 }
 
 /*	Responsible for starting the game loop. Loop ends when a player owns all countries on map.
@@ -50,6 +57,33 @@ void GameEngine::startGameLoop() {
     do {
         while(players[curPlayerIndex].getNumOfOwnedCountries() == 0) 
             { curPlayerIndex ++; }  // skip turn if current player has no countries left
+
+		cout << "\nChoose one of the following strategies for Player " << players[curPlayerIndex].getName() << ":" << endl;
+		cout << "\t(0) Agressive strategy" << endl;
+		cout << "\t(1) Benevolent strategy" << endl;
+		cout << "\t(2) Human strategy" << endl;
+
+		int choice = -1;
+		cin >> choice;
+
+		while (!cin.good() || (choice != 0 && choice != 1 && choice != 2)) {
+			cout << endl << "This input is wrong. Please enter 0, 1 or 2.";
+			cin >> choice;
+		}
+
+		cout << endl;
+
+		switch (choice) {
+		case 0:
+			players[curPlayerIndex].setStrategy(aggressiveStrategy);
+			break;
+		case 1:
+			players[curPlayerIndex].setStrategy(benevolentStrategy);
+			break;
+		case 2:
+			players[curPlayerIndex].setStrategy(humanStrategy);
+			break;
+		}
 
 		Player* playerPtr = &players[curPlayerIndex];
 		players[curPlayerIndex].getStrategy()->setPlayer(playerPtr);
