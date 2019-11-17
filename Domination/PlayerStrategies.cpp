@@ -485,9 +485,9 @@ void PlayerStrategy::tradeInCards(int* cardsToExchange[])
 	/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
 	/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
 	sort(begin(*cardsToExchangeIndex), end(*cardsToExchangeIndex), greater<int>());
-	player->hand->playerHand->erase(hand->playerHand->begin() + *cardsToExchangeIndex[0]);
-	player->hand->playerHand->erase(hand->playerHand->begin() + *cardsToExchangeIndex[1]);
-	player->hand->playerHand->erase(hand->playerHand->begin() + *cardsToExchangeIndex[2]);
+	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[0]);
+	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[1]);
+	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[2]);
 }
 
 /*	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
