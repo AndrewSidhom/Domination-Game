@@ -18,14 +18,13 @@ public:
 	const int MIN_NUM_ARMIES_ON_COUNTRY = 1;
 
 	PlayerStrategy();
-	PlayerStrategy(Player* aPlayer, Hand* aHand);
+	PlayerStrategy(Player* aPlayer);
 	PlayerStrategy(const PlayerStrategy& strategy);
 	virtual ~PlayerStrategy();
 
 	const PlayerStrategy& operator =(const PlayerStrategy& rightSide);
 
 	void setPlayer(Player* aPlayer) { player = aPlayer; };
-	void setHand(Hand* handPtr) { hand = handPtr; };
 
 	// REINFORCE
 	virtual bool ifPlayerWantsToExchange(); // Prompt if user wants to exchange
@@ -51,7 +50,6 @@ public:
 
 protected:
 	Player* player;
-	Hand* hand;
 
 	int exchangeAnyCardsForArmies(); // if have cards to exchange, return exchange armies; else return 0 (has no user input - mostly for AI)
 	void tradeInCards(int* cardsToExchange); // After choosing exchanged cards, trade in the cards
@@ -66,13 +64,11 @@ private:
 
 class AggressivePlayerStrategy : public PlayerStrategy {
 public:
-
-	AgressivePlayerStrategy();
-	AgressivePlayerStrategy(Player* aPlayer);
-	AgressivePlayerStrategy(const AgressivePlayerStrategy& strategy);
-	virtual ~AgressivePlayerStrategy();
-
-	const AgressivePlayerStrategy& operator =(const AgressivePlayerStrategy& rightSide);
+	AggressivePlayerStrategy();
+	AggressivePlayerStrategy(Player* aPlayer);
+	AggressivePlayerStrategy(const AggressivePlayerStrategy& strategy);
+	virtual ~AggressivePlayerStrategy();
+	const AggressivePlayerStrategy& operator =(const AggressivePlayerStrategy& rightSide);
 
 	// Strategy: reinforce strongest country
 	bool ifPlayerWantsToExchange(); // Returns true when have cards >= 3
@@ -102,7 +98,7 @@ private:
 class BenevolentPlayerStrategy : public PlayerStrategy {
 public:
 	BenevolentPlayerStrategy();
-	BenevolentPlayerStrategy(Player* aPlayer, Hand* aHand);
+	BenevolentPlayerStrategy(Player* aPlayer);
 	BenevolentPlayerStrategy(const BenevolentPlayerStrategy& strategy);
 	virtual ~BenevolentPlayerStrategy();
 

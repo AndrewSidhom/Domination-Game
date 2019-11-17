@@ -32,10 +32,10 @@ public:
 	PlayerStrategy* getStrategy() { return strategy; };
 	
 	//mutators
-	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries); };
+	void setHand(Deck *deck) { hand = new Hand(deck, ownedCountries, strategy); };
 	void setName(string newName) { *name = newName; };
 	void setMap(Map *newMapPtr) { mapPtr = newMapPtr; };
-	void setStrategy(PlayerStrategy* aStrategy) { strategy = aStrategy; };
+	void setStrategy(PlayerStrategy* aStrategy) { strategy = aStrategy; hand->setPlayerStrategy(aStrategy); };
 
 	void claimCountry(Country* country, int armies); // Used during attack(). Adds this country to the ones owned by the player, places on it this many armies
 	Country* loseCountry(int id); // Used during attack(). Returns a pointer to the lost country so that another player can add it to their collection. Returns nullptr if the country with this id is not owned

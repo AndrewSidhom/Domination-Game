@@ -128,9 +128,9 @@ int Deck::getExchangedArmies()
 	return *exchangeArmies;
 }
 
-/*	Default constructor.
+/*	Constructor.
 */
-Hand::Hand(Deck *deck, map<int,Country*> *countries) : deck(deck), ownedCountries(countries), playerHand(new vector<Card>()) {}
+Hand::Hand(Deck *deck, map<int,Country*> *countries, PlayerStrategy* aStrategy) : deck(deck), ownedCountries(countries), playerHand(new vector<Card>()), strategy(aStrategy) {}
 
 /*	Destructor of Hand class.
 */
