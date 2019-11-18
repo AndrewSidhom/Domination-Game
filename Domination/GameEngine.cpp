@@ -23,7 +23,9 @@ GameEngine::GameEngine() {
 
 	// Create players
 	setupPlayers(&deck, gameMap);
+	cout << "after set up" << endl;
 	randomizePlayerOrder();
+	cout << "after random" << endl;
 	phaseLog->printMsg("Order of player's turn\n-------------------");
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {	
 		phaseLog->printMsg(players[i].getName());
@@ -123,9 +125,9 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	// determine number of players and AIs
 	int numOfPlayers = queryNumOfPlayers();
 	int numOfAIs = 0;
-	if(numOfPlayers < 6)
-		numOfAIs = queryNumOfAIs(numOfPlayers);
-	NUM_OF_PLAYERS = new int(numOfPlayers + numOfAIs);
+	//if(numOfPlayers < 6)
+		//numOfAIs = queryNumOfAIs(numOfPlayers);
+	NUM_OF_PLAYERS = new int(numOfPlayers);
 
 	// instantiate strategies
 	humanStrategy = new PlayerStrategy();
@@ -137,12 +139,12 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	for (int i = 0; i < numOfPlayers; i++) {
 		string name = "Player " + to_string(i + 1);
 		players[i] = Player(name, deck, gameMap, humanStrategy, phaseLog); 
-
 		phaseLog->printMsg((players + i)->getName() + ", enter your new name, or enter '0' to keep your current name: ");
 		cin >> name;
 		if (name != "0") 
 			(players + i)->setName(name);
 	}
+
 	// create AI objects
 	for (int i = numOfPlayers; i < *NUM_OF_PLAYERS; i++) {
 		string name = "AI Player " + to_string(i + 1);
@@ -223,12 +225,14 @@ void GameEngine::randomizePlayerOrder() {
 	mt19937 mt(rd());
 	uniform_int_distribution<int> dist(0, *NUM_OF_PLAYERS - 1);
 
-	for (int i = 0; i < *NUM_OF_PLAYERS; i++)
+	for (int i = 0; i < *NUM_OF_PLAYERS - 1; i++)
 	{
 		int rnd = dist(mt);
-		Player *temp = new Player(players[i]);
-		players[i] = players[rnd];
-		players[rnd] = *temp;
+		if (rnd != i) {
+			Player *temp = new Player(players[i]);
+			players[i] = players[rnd];
+			players[rnd] = *temp;
+		}
 	}
 }
 

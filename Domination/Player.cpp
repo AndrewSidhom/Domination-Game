@@ -10,10 +10,9 @@ int* Player::currentGenId = new int(1);
 Player::Player() : id(new int(*currentGenId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
 Player::Player(string name, Deck * deck, Map * mapPtr, PlayerStrategy * aStrategy, PhaseLog* aPhaseLog) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), mapPtr(mapPtr), hand(new Hand(deck, ownedCountries, aStrategy)), dice(new Dice()), strategy(aStrategy), phaseLogPtr(aPhaseLog) { 
 	genNextID();
-	aStrategy->setPlayer(this);
 }
 Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), mapPtr(p.mapPtr), hand(p.hand), dice(p.dice), numOfOwnedCountriesPerContinent(p.numOfOwnedCountriesPerContinent), strategy(p.strategy) {}
-Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice, mapPtr, strategy; }
+Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice; }
 
 // Assignment operator
 const Player & Player::operator=(const Player & rightSide)
@@ -23,17 +22,27 @@ const Player & Player::operator=(const Player & rightSide)
 		delete name;
 		delete ownedCountries;
 		delete numOfOwnedCountriesPerContinent;
-		delete hand;
-		delete dice;
-
-		id = new int(*rightSide.id);
+		id = currentGenId;
+		genNextID();
 		name = new string(*rightSide.name);
-		*ownedCountries = *rightSide.ownedCountries;
-		*numOfOwnedCountriesPerContinent = *numOfOwnedCountriesPerContinent;
+		ownedCountries = new map<int, Country*>();
+		for (auto it = rightSide.ownedCountries->begin(); it != rightSide.ownedCountries->end(); it++) {
+			(*ownedCountries)[it->first] = it->second;
+		}
+		numOfOwnedCountriesPerContinent = new map<int, int>();
+		for (auto it = rightSide.numOfOwnedCountriesPerContinent->begin(); it != rightSide.numOfOwnedCountriesPerContinent->end(); it++) {
+			(*numOfOwnedCountriesPerContinent)[it->first] = it->second;
+		}
 		mapPtr = rightSide.mapPtr;
-		hand = new Hand(*rightSide.hand);
-		dice = new Dice(*rightSide.dice);
 		strategy = rightSide.strategy;
+		if (hand != rightSide.hand) {
+			delete hand;
+			hand = new Hand(*rightSide.hand);
+		}
+		if (dice!= rightSide.dice) {
+			delete dice;
+			dice = new Dice(*rightSide.dice);
+		}
 	}
 	return *this;
 }

@@ -137,6 +137,9 @@ Hand::Hand(Deck *deck, map<int,Country*> *countries, PlayerStrategy* aStrategy) 
 Hand::~Hand()
 {
 	delete playerHand;
+	playerHand = nullptr;
+	delete ownedCountries;
+	ownedCountries = nullptr;
 }
 
 /*	Copy constructor of Hand class.
