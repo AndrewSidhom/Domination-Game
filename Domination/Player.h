@@ -46,7 +46,8 @@ public:
 	// service methods for external classes (i.e. GameEngine)
 	int getNumOfOwnedCountries() { return ownedCountries->size(); }; // Get the number of Countries owned by the Player
 	int getNumOfMapCountries() { return mapPtr->getCountries()->size(); }; // Get the total number of Countries in the Map
-	void distributeArmies(int armies);	// Prompt user to choose which countries to distribute their reinforcement armies
+	// print out methods
+	void displayOwnedCountries(); // Display owned countries' armies and continent id.
 
 protected:
 	map<int, Country*>* getOwnedCountries() { return ownedCountries; }; // Get a map of the Countries owned by the Player
@@ -67,11 +68,6 @@ private:
 	int getCountryReinforcement(); // Get armies from total countries divided by 3
 	int getContinentReinforcement(); // Get armies bonus from claiming entire continent
 	void addOrRemoveArmies(int countryId, int armies); //armies can be a +ve or -ve integer, meaning add or remove this many armies. THROWS EXCEPTION if country is not owned or if the number of armies to remove >= current number of armies.
-
-	int promptNumberInput(); // Prompt user to input a NUMBER only.
-
-	// print out methods
-	void displayOwnedCountries(); // Display owned countries' armies and continent id.
 
 	// Friends
 	friend class AggressivePlayerStrategy;

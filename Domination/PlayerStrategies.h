@@ -5,7 +5,6 @@ using std::vector;
 
 // forward-declaration to resolve circular dependency
 class Player;
-class Hand;
 
 // The Player Strategy to be inherited by Concrete Stragies. Its default behaviour is that of a HUMAN Player 
 // (requests for input for any kind of decision)
@@ -31,6 +30,7 @@ public:
 	// REINFORCE
 	virtual bool ifPlayerWantsToExchange(); // Prompt if user wants to exchange
 	virtual int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
+	virtual void distributeArmies(int totalArmies); // Prompt user to choose which countries to distribute their reinforcement armies
 
 	// ATTACK
 	virtual void attackInit(); // Do whatever initialization is required before deciding to attack or not
@@ -56,12 +56,15 @@ protected:
 	int exchangeAnyCardsForArmies(); // if have cards to exchange, return exchange armies; else return 0 (has no user input - mostly for AI)
 	void tradeInCards(int cardsToExchange[]); // After choosing exchanged cards, trade in the cards
 	virtual void distributeExchangeBonus(vector<int>* matchingCountries); //	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
+	virtual int promptCountryToReinforce(); // prompt which country to reinforce
+	virtual int promptNumOfArmiesToPlace(int totalArmies); // prompt how many armies to place
 
 	// RELATED SERVICE FUNCS
 	int genRandomNum(int low, int high); // generates a random number in between range
 
 private:
 	int getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen, int cardsToExchangeIndex[]); //	Prompt user to choose which card from their hand to exchange.
+	int promptNumberInput(); // Prompt user to input a NUMBER only.
 };
 
 class AggressivePlayerStrategy : public PlayerStrategy {
@@ -98,6 +101,8 @@ public:
 
 protected:
 	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with most armies
+	int promptCountryToReinforce(); // return any country with most armies
+	int promptNumOfArmiesToPlace(int totalArmies); // return all of given armies
 
 private:
 	Country* strongestAttackingCountry; // The Country owned by the Player which has the most armies on it and can attack at least one other Country at the beginning of the Player's attack phase
@@ -130,4 +135,6 @@ public:
 
 protected:
 	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
+	int promptCountryToReinforce(); // return any country with least armies
+	int promptNumOfArmiesToPlace(int totalArmies); // return all of given armies
 };

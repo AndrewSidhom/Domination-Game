@@ -105,7 +105,7 @@ void Player::reinforce() {
 		r = 0;
 	}
 
-	distributeArmies(armies);
+	strategy->distributeArmies(armies);
 }
 
 //the player carries out a number of attacks
@@ -290,39 +290,6 @@ int Player::getContinentReinforcement() {
 	return reinforcements;
 }
 
-/*	Prompt user to choose which countries to distribute their reinforcement armies
-	@param int: total armies from reinforcement to distribute
-*/
-void Player::distributeArmies(int totalArmies) {
-
-	int countryInput, armiesInput, i = 0;
-
-	displayOwnedCountries();
-	while(totalArmies > 0) 
-	{
-		cout << "---\nYou have " << totalArmies << " armies" << (i++? " left.\n" : ". Deploy your armies!\n"); // ++ to show different msg the second time
-		try {
-			// prompt choose country to add armies
-			cout << "Country: ";
-			countryInput = promptNumberInput();
-			if(ownedCountries->count(countryInput) == 0)
-				throw "\nYou do not own this country.";
-			// prompt # of armies to place in that chosen country
-			cout << "Armies: ";
-			armiesInput = promptNumberInput();
-			if (armiesInput > totalArmies || armiesInput < 0) 
-				throw ("\nYou must enter armies in the range given.");
-			
-			addOrRemoveArmies(countryInput, armiesInput);
-			totalArmies -= armiesInput;
-		}
-		catch(const char* msg) {
-			cout << msg << endl;
-		}
-	}
-	displayOwnedCountries();
-}
-
 /*	Armies can be a +ve or -ve integer, meaning add or remove this many armies.
 	@exception throws if country is not owned or if the number of armies to remove >= current number of armies.
 */
@@ -337,25 +304,6 @@ void Player::addOrRemoveArmies(int countryId, int armies)
 		else
 			(*ownedCountries)[countryId]->armies = currentArmies + armies;
 	}
-}
-
-/*	Prompt user to input a NUMBER only.
-	@return valid number input
-*/
-int Player::promptNumberInput() {
-
-	int n;
-	do {
-		cin >> n;
-		if (!cin.good()) {	/// !good() when input doesnt match declared type
-			cout << "\nInvalid number input. Please try again.\n";
-			cin.clear();		   /// clear error flag
-			cin.ignore(100, '\n'); /// clear buffer
-		}
-		else break;
-	} while (true);
-
-	return n;
 }
 
 /*	Display owned countries' armies and continent id.
