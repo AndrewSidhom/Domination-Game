@@ -20,6 +20,16 @@ Graph::~Graph() { delete adjLists; };
 //copy constructor
 Graph::Graph(const Graph& old) { adjLists = new map<int, list<int> >(*old.adjLists); }
 
+//assignment operator
+const Graph& Graph::operator=(const Graph& g)
+{
+	if (&g != this) {
+		delete adjLists;
+		adjLists = new map<int, list<int> >(*(g.adjLists));
+	}
+	return *this;
+}
+
 //get map of nodes
 map<int, list<int>> Graph::getNodes(){
 	return *adjLists;
@@ -97,6 +107,22 @@ Continent::Continent(const Continent& old) {
 	isValid = new bool(*old.isValid);
 }
 
+//assignment operator
+const Continent& Continent::operator=(const Continent& c)
+{
+	if (&c != this) {
+		delete id; delete name; delete worth, delete innerGraph; delete validated; delete isValid;
+		id = new int(*c.id);
+		name = new string(*c.name);
+		worth = new int(*c.worth);
+		size = new int(*c.size);
+		innerGraph = new Graph(*c.innerGraph);
+		validated = new bool(*c.validated);
+		isValid = new bool(*c.isValid);
+	}
+	return *this;
+}
+
 //adds a country to the continent's innerGraph, increments continent size. Sets "validated" to false because now the continent has been modified, it needs to be validated again.
 void Continent::addCountryToGraph(Country country)
 {
@@ -142,6 +168,20 @@ Map::Map(const Map& old) {
 	countries = new list<Country*>(*old.countries);
 	validated = new bool(*old.validated);
 	isValid = new bool(*old.isValid);
+}
+
+//assignment operator
+const Map& Map::operator=(const Map& m)
+{
+	if (&m != this) {
+		name = new string(*m.name);
+		continents = new list<Continent>(*m.continents);
+		graph = new Graph(*m.graph);
+		countries = new list<Country*>(*m.countries);
+		validated = new bool(*m.validated);
+		isValid = new bool(*m.isValid);
+	}
+	return *this;
 }
 
 //adds a country to the Map and to its corresponding Continent's graph. Sets "validated" to false because now the map has been modified, it needs to be validated again.

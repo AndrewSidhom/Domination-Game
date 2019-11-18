@@ -31,6 +31,7 @@ public:
 	Graph();  //constructor
 	~Graph();  //destructor
 	Graph(const Graph& old); //copy constructor
+	const Graph& operator=(const Graph& g); //assignment operator
 	void addOrUpdateNode(int id, list<int> neighbors); //update if node with this id exists, add otherwise.
 	bool isConnected();
 };
@@ -38,9 +39,6 @@ public:
 
 
 //Representation of a country
-// [IMPORTANT] Most data members are not pointers because we thought when doing in A1 that we were allowed to have non-pointer 
-// types in structs. We did not have time to fix this in A2 because we received our grade a bit late to know that this was a problem.
-// We will fix this in A3 if need be.
 struct Country {
 	int id;
 	int continentId;   //the continent this country belongs to
@@ -78,10 +76,11 @@ public:
 	bool getValidated() { return *validated; };
 	bool getIsValid() { return *isValid; };
 
-	//constructor, copy constructor, destructor
+	//constructor, copy constructor, destructor, assignment operator
 	Continent(int id, string name, int worth);
 	Continent(const Continent& old);
 	~Continent();
+	const Continent& operator=(const Continent& c); //assignment operator
 
 	//methods
 	void addCountryToGraph(Country country); //adds a country to the continent's innerGraph, increments continent size. Sets "validated" to false because now the continent has been modified, it needs to be validated again.
@@ -110,10 +109,11 @@ public:
 	bool getValidated() { return *validated; };
 	bool getIsValid() { return *isValid; };
 
-	//constructor, copy constructor, destructor
+	//constructor, copy constructor, destructor, assignment operator
 	Map(string name);
 	Map(const Map& old);
 	~Map();
+	const Map& operator=(const Map& m); //assignment operator
 
 	//methods
 	void addCountry(Country country); //adds a country to the Map and to its corresponding Continent's graph. Sets "validated" to false because now the map has been modified, it needs to be validated again.

@@ -47,13 +47,13 @@
 //    }
 //
 //    // make every country have every other countries as neighbors
-//    for(Country c : map.getCountries()) {
+//    for(Country* c : *map.getCountries()) {
 //        list<int> neighbors;
 //        for(int id : allCountriesId) {
 //            // make sure it doesn't add itself as its own neighbor
-//            if(id != c.id) neighbors.push_back(id);
+//            if(id != c->id) neighbors.push_back(id);
 //        }
-//        map.getCountryById(c.id)->neighbors = neighbors;
+//        map.getCountryById(c->id)->neighbors = neighbors;
 //    }
 //
 //    return map;
