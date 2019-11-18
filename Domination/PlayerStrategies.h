@@ -54,8 +54,8 @@ protected:
 	Player* player; // The current Player using this strategy
 
 	int exchangeAnyCardsForArmies(); // if have cards to exchange, return exchange armies; else return 0 (has no user input - mostly for AI)
-	void tradeInCards(int* cardsToExchange[]); // After choosing exchanged cards, trade in the cards
-	//virtual void distributeExchangeBonus(vector<int>* matchingCountries); //	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
+	void tradeInCards(int cardsToExchange[]); // After choosing exchanged cards, trade in the cards
+	virtual void distributeExchangeBonus(vector<int>* matchingCountries); //	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
 
 	// RELATED SERVICE FUNCS
 	int genRandomNum(int low, int high); // generates a random number in between range
@@ -97,7 +97,7 @@ public:
 	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination); // Will move the most armies it can
 
 protected:
-	//void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with most armies
+	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with most armies
 
 private:
 	Country* strongestAttackingCountry; // The Country owned by the Player which has the most armies on it and can attack at least one other Country at the beginning of the Player's attack phase
@@ -129,5 +129,5 @@ public:
 	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination); // Will distribute armies such that the number of armies in source and destination is equal as much as possible
 
 protected:
-	//void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
+	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
 };

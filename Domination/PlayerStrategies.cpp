@@ -46,7 +46,7 @@ int AggressivePlayerStrategy::promptExchangeForArmies(bool isMandatory)
 /*	AI will choose to reinforce country with least armies
 	@param country ids that matches exchanged cards
 */
-/*void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
+void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
@@ -62,7 +62,7 @@ int AggressivePlayerStrategy::promptExchangeForArmies(bool isMandatory)
 
 	player->hand->ownedCountries->at(strongestCountryId)->armies += 2;
 	cout << "Choose a country to give 2 additional armies: " << strongestCountryId;
-}*/
+}
 
 // Find the strongest Country owned by the Player (Country with most armies) that can attack other Countries
 void AggressivePlayerStrategy::attackInit()
@@ -265,7 +265,7 @@ int BenevolentPlayerStrategy::promptExchangeForArmies(bool isMandatory)
 /*	AI will choose to reinforce country with least armies
 	@param country ids that matches exchanged cards
 */
-/*void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
+void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
@@ -281,7 +281,7 @@ int BenevolentPlayerStrategy::promptExchangeForArmies(bool isMandatory)
 
 	player->hand->ownedCountries->at(weakestCountryId)->armies += 2;
 	cout << "Choose a country to give 2 additional armies: " << weakestCountryId;
-}*/
+}
 
 // Returns false. A benevolent Player never attacks.
 bool BenevolentPlayerStrategy::decideToAttack()
@@ -446,7 +446,7 @@ bool PlayerStrategy::ifPlayerWantsToExchange()
 int PlayerStrategy::promptExchangeForArmies(bool isMandatory) 
 {
 	int numOfCardsChosen = 0;
-	int* cardsToExchangeIndex = new int[3];
+	int cardsToExchangeIndex[3];
 
 	do {
 		/// get player input
@@ -464,8 +464,10 @@ int PlayerStrategy::promptExchangeForArmies(bool isMandatory)
 		if (numOfCardsChosen == 3) {
 			if (player->hand->isValidExchangeCards(cardsToExchangeIndex[0], cardsToExchangeIndex[1], cardsToExchangeIndex[2]))
 			{
-				//tradeInCards(cardsToExchangeIndex);
-				delete [] cardsToExchangeIndex;
+				/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
+				/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
+				sort(begin(cardsToExchangeIndex), end(cardsToExchangeIndex), greater<int>());
+				tradeInCards(cardsToExchangeIndex);
 				/// exchange is successful
 				return player->hand->deck->getExchangedArmies();
 			}
@@ -514,34 +516,31 @@ int PlayerStrategy::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChose
 	@param 3 card indexes to exchange
 	@return armies from exchange (excluding the matching bonus)
 */
-void PlayerStrategy::tradeInCards(int* cardsToExchange[]) 
+void PlayerStrategy::tradeInCards(int cardsToExchange[]) 
 {
 	/// give bonus +2 armies if cards match owned countries
 	vector<int>* matchingCountries = new vector<int>();
 	
 	for (int i = 0; i < 3; i++) {	/// loop each exchanged cards if matches owned countries	
-		int countryId = player->hand->playerHand->at(*cardsToExchange[i]).countryId;
+		int countryId = player->hand->playerHand->at(cardsToExchange[i]).countryId;
 		if(player->hand->ownedCountries->count(countryId) > 0)	/// 0 if not an element, 1 if is
 			{ matchingCountries->push_back(countryId);	}	/// store country by reference
 	}
 	/// if have matching, prompt player input to choose which country to give +2 units
-	//if (!matchingCountries->empty()) 
-		//distributeExchangeBonus(matchingCountries);
+	if (!matchingCountries->empty()) 
+		distributeExchangeBonus(matchingCountries);
 	delete matchingCountries;
 
-	/// remove exchanged cards from hand
-	/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
-	/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
-	/*sort(begin(*cardsToExchangeIndex), end(*cardsToExchangeIndex), greater<int>());
-	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[0]);
-	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[1]);
-	player->hand->playerHand->erase(player->hand->playerHand->begin() + *cardsToExchangeIndex[2]);*/
+	/// remove exchanged cards from hand (note already sorted by descending order)
+	player->hand->playerHand->erase(player->hand->playerHand->begin() + cardsToExchange[0]);
+	player->hand->playerHand->erase(player->hand->playerHand->begin() + cardsToExchange[1]);
+	player->hand->playerHand->erase(player->hand->playerHand->begin() + cardsToExchange[2]);
 }
 
 /*	Prompt user to choose which country that matches the exchanged cards to receive +2 bonus armies.
 	@param country ids that matches exchanged cards
 */
-/*void PlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
+void PlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
@@ -569,7 +568,7 @@ void PlayerStrategy::tradeInCards(int* cardsToExchange[])
 	while (true);
 
 	player->hand->ownedCountries->at(selectedCountryId)->armies += 2;
-}*/
+}
 
 // Does any action required to be done before deciding to attack
 void PlayerStrategy::attackInit()
@@ -1030,54 +1029,58 @@ int PlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country
 int PlayerStrategy::exchangeAnyCardsForArmies() {
 
 	// indexes of cards to exchange
-	int cardIndexes[4][3]; // 4 card types, max 3 size (3 of 1 type => matching => exchange immediately)
-	int infCtr = 0, artCtr = 0, cavCtr = 0, wildCtr = 0;
-	int* cardsToExchange = nullptr;
+	vector<int> cardsByType[4]; // temp container organized by 4 card types
+	vector<int> cardsToExchange;
 	int handCount = player->hand->getHandCount();
 
 	for(int i = 0; i < handCount; i++) {
 		switch(player->hand->playerHand->at(i).type)	
 		{	// separate each card in hand by their type
-			case INFANTRY:	cardIndexes[0][infCtr] = i; infCtr++; break;
-			case ARTILLERY:	cardIndexes[1][artCtr] = i; artCtr++; break;
-			case CAVALRY:	cardIndexes[2][cavCtr] = i; cavCtr++; break;
-			case WILD:		cardIndexes[3][wildCtr] = i; wildCtr++; break;
+			case INFANTRY:	cardsByType[0].push_back(i); break;
+			case ARTILLERY:	cardsByType[1].push_back(i); break;
+			case CAVALRY:	cardsByType[2].push_back(i); break;
+			case WILD:		cardsByType[3].push_back(i); break;
 		}
 
 		// if found 3 of one type, break loop early
-		if(infCtr == 3)	{ cardsToExchange = cardIndexes[0]; break; }
-		if(artCtr == 3)	{ cardsToExchange = cardIndexes[1]; break; }
-		if(cavCtr == 3)	{ cardsToExchange = cardIndexes[2]; break; }
+		// use assign to make deep copies
+		if(cardsByType[0].size() == 3) { cardsToExchange.assign(cardsByType[0].begin(), cardsByType[0].end()); break; }
+		if(cardsByType[1].size() == 3) { cardsToExchange.assign(cardsByType[1].begin(), cardsByType[1].end()); break; }
+		if(cardsByType[2].size() == 3) { cardsToExchange.assign(cardsByType[2].begin(), cardsByType[2].end()); break; }
 		// if found 1 of each type, break loop early
-		if(infCtr > 0 && artCtr > 0 && cavCtr > 0) { 
-			cardsToExchange = new int[3];
-			cardsToExchange[0] = cardIndexes[0][0]; 
-			cardsToExchange[1] = cardIndexes[1][0]; 
-			cardsToExchange[2] = cardIndexes[2][0]; 
+		if(cardsByType[0].size() > 0 && cardsByType[1].size() > 0 && cardsByType[2].size() > 0) { 
+			cardsToExchange.push_back(cardsByType[0].at(0)); 
+			cardsToExchange.push_back(cardsByType[1].at(0)); 
+			cardsToExchange.push_back(cardsByType[2].at(0)); 
 			break; 
 		}
 		// if found a wild card, choose any other 2 random cards and break loop early
-		if(wildCtr > 0) {
+		if(cardsByType[3].size() > 0) {
 			// keep generating random index until 2 indexes points to a card that ISNT this wild card
 			int rndIndex1 = -1, rndIndex2 = -1;
 			while(rndIndex1 == rndIndex2 || rndIndex1 == i || rndIndex2 == i) {	
 				rndIndex1 = genRandomNum(0, handCount - 1);
 				rndIndex2 = genRandomNum(0, handCount - 1);
 			}
-			cardsToExchange = new int[3];
-			cardsToExchange[0] = i; 
-			cardsToExchange[1] = rndIndex1; 
-			cardsToExchange[2] = rndIndex2; 
+			cardsToExchange.push_back(i); 
+			cardsToExchange.push_back(rndIndex1); 
+			cardsToExchange.push_back(rndIndex2); 
 			break; 
 		}
 	}
 
-	if(cardsToExchange == nullptr)	// if no sets of exchangable cards at all
+	if(cardsToExchange.size() != 3)	// if no sets of exchangable cards at all
 		return 0;
 	else {
-		cout << "Exchanging with card " << cardsToExchange[0] << ", card " << cardsToExchange[1] << ", and card " << cardsToExchange[2];
-		//tradeInCards(cardsToExchange);
-		delete [] cardsToExchange;
+		/// convert vector to array so it can pass to func param
+		int exchangeCardsArr[3];
+		for(int i = 0; i < 3; i++)
+			exchangeCardsArr[i] = cardsToExchange.at(i);
+		cout << "Exchanging with card " << exchangeCardsArr[0] << ", card " << exchangeCardsArr[1] << ", and card " << exchangeCardsArr[2];
+		/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
+		/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
+		sort(begin(exchangeCardsArr), end(exchangeCardsArr), greater<int>());
+		tradeInCards(exchangeCardsArr);
 		/// exchange is successful
 		return player->hand->deck->getExchangedArmies();
 	}
