@@ -181,8 +181,8 @@ int GameEngine::queryNumOfAIs(int numHumanPlayers) {
 	int spotsLeft = 6 - numHumanPlayers;
 	int numOfAIs = 0;
 	do {
-		phaseLog->printMsg("You have " + *NUM_OF_PLAYERS + string(" players out of 6."));
-		phaseLog->printMsg("How many AIs players will join the conquest? (0 to " + spotsLeft + string("): "));
+		phaseLog->printMsg("You have " + to_string(numHumanPlayers) + " players out of 6.");
+		phaseLog->printMsg("How many AIs players will join the conquest? (0 to " + to_string(spotsLeft) + "): ");
 		cin >> input;
 		if(input == "0" || input == "1" || input == "2" || input == "3" || input == "4") {
 			numOfAIs = stoi(input);
