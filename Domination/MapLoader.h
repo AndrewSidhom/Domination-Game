@@ -56,8 +56,7 @@ private:
 //Adapter class 
 class ConquestMapAdapter : public MapLoader {
 private: 
-	ConquestMapLoader conquestMapLoader;
+	static ConquestMapLoader* conquestMapLoader;
 public:
-	ConquestMapAdapter(ConquestMapLoader cml);
-	Map* loadMapFile(string fileName);	
+	static Map* loadMapFile(string fileName);	
 };

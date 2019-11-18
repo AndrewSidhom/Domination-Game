@@ -11,6 +11,7 @@ using namespace std;
 int* MapLoader::continentId = new int(1);
 string* MapLoader::processedSection = new string("");
 string* MapLoader::mapName = new string("");
+ConquestMapLoader* ConquestMapAdapter::conquestMapLoader = new ConquestMapLoader();
 
 // If any issue was encountered while loading the map file, a nullptr is returned
 Map* MapLoader::loadMapFile(std::string fileName) {
@@ -456,11 +457,8 @@ Country ConquestMapLoader::processTerritory(string line) {
 	return country;
 }
 
-ConquestMapAdapter::ConquestMapAdapter(ConquestMapLoader cml) {
-	conquestMapLoader = cml;
-}
 
 Map* ConquestMapAdapter::loadMapFile(string fileName) {
-	Map* conquestMap = conquestMapLoader.loadConquestMapFile(fileName);
+	Map* conquestMap = conquestMapLoader->loadConquestMapFile(fileName);
 	return conquestMap;
 }
