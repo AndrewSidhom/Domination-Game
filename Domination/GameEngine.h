@@ -34,5 +34,5 @@ private:
 	void randomizePlayerOrder();
 	void assignCountriesToPlayers(Map *gameMap);
 	void assignArmiesToCountries();
-	
+	void promptChangeStrategy(Player* curPlayer);
 };

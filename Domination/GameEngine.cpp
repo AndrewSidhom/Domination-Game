@@ -54,43 +54,19 @@ GameEngine::~GameEngine() {
 void GameEngine::startGameLoop() {
     
     int curPlayerIndex = 0; // index of current player's turn
+	Player* curPlayerPtr;
     do {
-        while(players[curPlayerIndex].getNumOfOwnedCountries() == 0) 
-            { curPlayerIndex ++; }  // skip turn if current player has no countries left
-
-		cout << "\nChoose one of the following strategies for Player " << players[curPlayerIndex].getName() << ":" << endl;
-		cout << "\t(0) Agressive strategy" << endl;
-		cout << "\t(1) Benevolent strategy" << endl;
-		cout << "\t(2) Human strategy" << endl;
-
-		int choice = -1;
-		cin >> choice;
-
-		while (!cin.good() || (choice != 0 && choice != 1 && choice != 2)) {
-			cout << endl << "This input is wrong. Please enter 0, 1 or 2.";
-			cin >> choice;
+		curPlayerPtr = &players[curPlayerIndex];
+        while(curPlayerPtr->getNumOfOwnedCountries() == 0) { 
+			curPlayerIndex++;  // skip turn if current player has no countries left
+			curPlayerPtr = &players[curPlayerIndex];
 		}
+		promptChangeStrategy(curPlayerPtr);
+		curPlayerPtr->getStrategy()->setPlayer(curPlayerPtr); // appoint different player to specific strategy every time
 
-		cout << endl;
-
-		switch (choice) {
-		case 0:
-			players[curPlayerIndex].setStrategy(aggressiveStrategy);
-			break;
-		case 1:
-			players[curPlayerIndex].setStrategy(benevolentStrategy);
-			break;
-		case 2:
-			players[curPlayerIndex].setStrategy(humanStrategy);
-			break;
-		}
-
-		Player* playerPtr = &players[curPlayerIndex];
-		players[curPlayerIndex].getStrategy()->setPlayer(playerPtr); // appoint different player to specific strategy every time
-
-		players[curPlayerIndex].reinforce();
-		players[curPlayerIndex].attack();
-		players[curPlayerIndex].fortify();
+		curPlayerPtr->reinforce();
+		curPlayerPtr->attack();
+		curPlayerPtr->fortify();
 		
         if(curPlayerIndex == *NUM_OF_PLAYERS - 1)
             curPlayerIndex = 0;
@@ -152,15 +128,15 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	NUM_OF_PLAYERS = new int(numOfPlayers + numOfAIs);
 
 	// instantiate strategies
-	PlayerStrategy* humanStrat = new PlayerStrategy();
-	PlayerStrategy* aggressiveAIStrat = new AggressivePlayerStrategy();
-	PlayerStrategy* benevolentAIStrat = new AggressivePlayerStrategy();
+	humanStrategy = new PlayerStrategy();
+	aggressiveStrategy = new AggressivePlayerStrategy();
+	benevolentStrategy = new BenevolentPlayerStrategy();
 
 	// create player objects
 	players = new Player[*NUM_OF_PLAYERS];
 	for (int i = 0; i < numOfPlayers; i++) {
 		string name = "Player " + to_string(i + 1);
-		players[i] = Player(name, deck, gameMap, humanStrat, phaseLog); 
+		players[i] = Player(name, deck, gameMap, humanStrategy, phaseLog); 
 
 		phaseLog->printMsg((players + i)->getName() + ", enter your new name, or enter '0' to keep your current name: ");
 		cin >> name;
@@ -172,9 +148,9 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 		string name = "AI Player " + to_string(i + 1);
 		// alternate between different AIs
 		if(i % 2 == 0)	
-			players[i] = Player(name, deck, gameMap, aggressiveAIStrat, phaseLog); 
+			players[i] = Player(name, deck, gameMap, aggressiveStrategy, phaseLog); 
 		else			
-			players[i] = Player(name, deck, gameMap, benevolentAIStrat, phaseLog); 
+			players[i] = Player(name, deck, gameMap, benevolentStrategy, phaseLog); 
 	}
 }
 
@@ -298,12 +274,42 @@ void GameEngine::assignArmiesToCountries() {
 		int remainingArmies = getStartupArmies() - players[i].getNumOfOwnedCountries();
 		players[i].distributeArmies(remainingArmies);
 	}
-	// int remainingArmies = getStartupArmies();
-	// while(remainingArmies > 0) {
-	// 	for (int j = 0; j < *NUM_OF_PLAYERS; j++) {
-	// 		phaseLog->printMsg(players[j].getName() + "'s turn: ");
-	// 		players[j].distributeArmies(1);
-	// 	}
-	// 	remainingArmies--;
-	// }
+}
+
+void GameEngine::promptChangeStrategy(Player* curPlayer) {
+
+	phaseLog->printMsg("Would you like to change " + curPlayer->getName() + "'s current strategy? (y/n): ");
+	string input;
+	do {
+		cin >> input;
+		if(input.compare("y") == 0 || input.compare("n") == 0)  // 0 means equal
+			break;
+		else
+			cout << "\nInput must be 'y' or 'n'\n";
+	} 
+	while (true);
+
+	if (input.compare("y") == 0) {
+		phaseLog->printMsg("\nChoose one of the following strategies for " + curPlayer->getName() + ":");
+		phaseLog->printMsg("\t(0) Aggressive strategy\n\t(1) Benevolent strategy\n\t(2) Human strategy");
+
+		int choice = -1;
+		cin >> choice;
+		while (!cin.good() || (choice != 0 && choice != 1 && choice != 2)) {
+			phaseLog->printMsg("This input is wrong. Please enter 0, 1 or 2.");
+			cin >> choice;
+		}
+
+		switch (choice) {
+		case 0:
+			curPlayer->setStrategy(aggressiveStrategy);
+			break;
+		case 1:
+			curPlayer->setStrategy(benevolentStrategy);
+			break;
+		case 2:
+			curPlayer->setStrategy(humanStrategy);
+			break;
+		}
+	}
 }
