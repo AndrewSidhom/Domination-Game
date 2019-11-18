@@ -6,19 +6,23 @@
 using namespace std;
 
 /*************** Subject class *****************/
-
+// Constructor
 Subject::Subject() {
 	_observers = new list<Observer*>;
 }
+// Destructor
 Subject::~Subject() {
 	delete _observers;
 }
+// Attach observer to subject by adding to observer list
 void Subject::Attach(Observer* o) {
 	_observers->push_back(o);
 };
+// Detach observer to subject by removing from observer list
 void Subject::Detach(Observer* o) {
 	_observers->remove(o);
 };
+// Iterate through observer list and call update on each observers
 void Subject::Notify() {
 	list<Observer*>::iterator i = _observers->begin();
 	for (; i != _observers->end(); ++i)
@@ -26,19 +30,18 @@ void Subject::Notify() {
 };
 
 /*************** Observer class *****************/
-
-Observer::Observer() {
-};
-Observer::~Observer() {
-};
+// Abstract Constructor
+Observer::Observer() {};
+// Abstract Destructor
+Observer::~Observer() {};
 
 /*************** StatsObserver class *****************/
-
+// Constructor
 StatsObserver::StatsObserver(vector<Player*> subjects) {
 	_subjects = new vector<Player*>(subjects);
 	mapSize = new int(subjects.at(0)->getNumOfMapCountries());
 }
-
+// Destructor
 StatsObserver::~StatsObserver() {
 	delete _subjects;
 	delete mapSize;
@@ -84,20 +87,20 @@ void StatsObserver::display() {
 
 }
 /************ PhaseLogObserver class **************/
-
+// Constructor for observer. Calls subject to attach itself to subject.
 PhaseLogObserver::PhaseLogObserver(PhaseLog *s) {
 	_subject = s;
 	_subject->Attach(this);
 }
-
+// Destructor for observer. Calls subject to detaches itself from subject.
 PhaseLogObserver::~PhaseLogObserver() {
 	_subject->Detach(this);
 }
-
+// Updates log when game is updated
 void PhaseLogObserver::Update() {
 	displayMsg();
 }
-
+// Print out the message given from game to console.
 void PhaseLogObserver::displayMsg() {
 	cout << *(_subject->getMsg()) << endl;
 }
