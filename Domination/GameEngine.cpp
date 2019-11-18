@@ -86,7 +86,8 @@ void GameEngine::startGameLoop() {
 		}
 
 		Player* playerPtr = &players[curPlayerIndex];
-		players[curPlayerIndex].getStrategy()->setPlayer(playerPtr);
+		players[curPlayerIndex].getStrategy()->setPlayer(playerPtr); // appoint different player to specific strategy every time
+
 		players[curPlayerIndex].reinforce();
 		players[curPlayerIndex].attack();
 		players[curPlayerIndex].fortify();
@@ -150,10 +151,14 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 		numOfAIs = queryNumOfAIs(numOfPlayers);
 	NUM_OF_PLAYERS = new int(numOfPlayers + numOfAIs);
 
+	// instantiate strategies
+	PlayerStrategy* humanStrat = new PlayerStrategy();
+	PlayerStrategy* aggressiveAIStrat = new AggressivePlayerStrategy();
+	PlayerStrategy* benevolentAIStrat = new AggressivePlayerStrategy();
+
 	// create player objects
 	players = new Player[*NUM_OF_PLAYERS];
 	for (int i = 0; i < numOfPlayers; i++) {
-		PlayerStrategy* humanStrat = new PlayerStrategy();
 		string name = "Player " + to_string(i + 1);
 		players[i] = Player(name, deck, gameMap, humanStrat, phaseLog); 
 
@@ -164,14 +169,12 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	}
 	// create AI objects
 	for (int i = numOfPlayers; i < *NUM_OF_PLAYERS; i++) {
-		PlayerStrategy* aiStrat;
+		string name = "AI Player " + to_string(i + 1);
 		// alternate between different AIs
 		if(i % 2 == 0)	
-			aiStrat = new AggressivePlayerStrategy();
+			players[i] = Player(name, deck, gameMap, aggressiveAIStrat, phaseLog); 
 		else			
-			aiStrat = new BenevolentPlayerStrategy();
-		string name = "AI Player " + to_string(i + 1);
-		players[i] = Player(name, deck, gameMap, aiStrat, phaseLog); 
+			players[i] = Player(name, deck, gameMap, benevolentAIStrat, phaseLog); 
 	}
 }
 
