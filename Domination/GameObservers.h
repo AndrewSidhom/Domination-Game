@@ -33,8 +33,8 @@ class StatsObserver : public Observer {
 public:
 	StatsObserver(vector<Player*> subjects);
 	~StatsObserver();
-	void Update();	// update status of player
-	void display(); // displays updated statistics of player
+	void Update();	// update status of players
+	void display(); // displays updated statistics of players
 private:
 	vector<Player*>* _subjects;
 	int* mapSize;  //number of countries on the game's map

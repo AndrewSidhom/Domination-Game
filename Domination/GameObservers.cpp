@@ -39,27 +39,38 @@ Observer::~Observer() {};
 // Constructor
 StatsObserver::StatsObserver(vector<Player*> subjects) {
 	_subjects = new vector<Player*>(subjects);
+	
+	//register this observer with each Player subject
+	for (Player* pl : *_subjects)
+		pl->Attach(this);
+	
 	mapSize = new int(subjects.at(0)->getNumOfMapCountries());
 }
 // Destructor
 StatsObserver::~StatsObserver() {
+	for (Player* pl : *_subjects)
+		pl->Detach(this);
 	delete _subjects;
 	delete mapSize;
 }
 
 void StatsObserver::Update() {
+	//check if there is a player who is no longer playing (i.e. owns zero countries). If there is, set removePlayer to true
 	bool removePlayer = false;
 	vector<Player*>::iterator it = _subjects->begin();
 	while (it != _subjects->end()) {
 		if ((*it)->getNumOfOwnedCountries() == 0) {
 			removePlayer = true;
-			break;
+			break; //Note: we break as soon as a player to remove is found because everytime the observer is notified, there is at most 1 such player
 		}
 		it++;
 	}
+	//if removePlayer is true, use the current iterator value (which was iterating through Player subjects) to remove that Player from subjects
 	if (removePlayer)
 		_subjects->erase(it);
-	if (_subjects->size() == 1) { //only one player left means the player has won the game
+
+	//check if there is only one player left, i.e. the player has won the game
+	if (_subjects->size() == 1) { 
 		cout << endl;
 		cout << "CONGRATULATIONS " << _subjects->at(0)->getName() << "!! You have conquered the map and won this game!!" << endl;
 	}
@@ -74,7 +85,7 @@ void StatsObserver::display() {
 		float fractionDominated = (float) player->getNumOfOwnedCountries() / *mapSize;
 		string dashes = "";
 		int i = 1;
-		while (i <= floor(fractionDominated * 50)) {
+		while (i <= floor(fractionDominated * 50)) { //this loop adds dashes proportional to how much of the world the player dominates, for a visual representation of domination.
 			dashes += "-";
 			i++;
 		}

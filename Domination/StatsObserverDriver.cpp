@@ -16,10 +16,6 @@ int main() {
 	
 	//initialize the Observer by passing to it its subjects
 	StatsObserver observer (playersVec);
-	
-	//register the observer with each Player subject
-	for(Player* pl : playersVec)
-		pl->Attach(&observer);
 
 	ge.startGameLoop();
 
