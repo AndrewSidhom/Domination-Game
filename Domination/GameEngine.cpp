@@ -276,7 +276,7 @@ void GameEngine::assignArmiesToCountries() {
 		phaseLog->printMsg(players[i].getName() + "'s turn: ");
 		// note setOwnedCountries already place 1 army in each owned countries to be identified as claimed
 		int remainingArmies = getStartupArmies() - players[i].getNumOfOwnedCountries();
-		players[i].distributeArmies(remainingArmies);
+		players[i].getStrategy()->distributeArmies(remainingArmies);
 	}
 }
 

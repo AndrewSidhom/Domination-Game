@@ -24,12 +24,13 @@ AggressivePlayerStrategy::AggressivePlayerStrategy(const AggressivePlayerStrateg
 AggressivePlayerStrategy::~AggressivePlayerStrategy() {}
 
 // Assignment operator
-const AggressivePlayerStrategy & AggressivePlayerStrategy::operator=(const AggressivePlayerStrategy & rightSide)
+const AggressivePlayerStrategy& AggressivePlayerStrategy::operator=(const AggressivePlayerStrategy& rightSide)
 {
 	if (&rightSide != this) {
 		PlayerStrategy::operator=(rightSide);
 	}
 	return *this;
+}
 
 // Returns true when have cards >= 3
 bool AggressivePlayerStrategy::ifPlayerWantsToExchange() 
@@ -72,7 +73,7 @@ int AggressivePlayerStrategy::promptCountryToReinforce()
 	map<int, Country*>::iterator iter = player->ownedCountries->begin();
 	int strongestCountryId = iter->first;
 	int highestArmyCount = iter->second->armies;
-	for (; iter != ownedCountries->end(); ++iter)
+	for (; iter != player->ownedCountries->end(); ++iter)
 	{
 		if(iter->second->armies > highestArmyCount) {
 			strongestCountryId = iter->first;
@@ -267,12 +268,13 @@ BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrateg
 BenevolentPlayerStrategy::~BenevolentPlayerStrategy() {}
 
 // Assignment operator
-const BenevolentPlayerStrategy & BenevolentPlayerStrategy::operator=(const BenevolentPlayerStrategy & rightSide)
+const BenevolentPlayerStrategy& BenevolentPlayerStrategy::operator=(const BenevolentPlayerStrategy& rightSide)
 {
 	if (&rightSide != this) {
 		PlayerStrategy::operator=(rightSide);
 	}
 	return *this;
+}
 
 // Returns true when have cards >= 3
 bool BenevolentPlayerStrategy::ifPlayerWantsToExchange() 
@@ -315,7 +317,7 @@ int BenevolentPlayerStrategy::promptCountryToReinforce()
 	map<int, Country*>::iterator iter = player->ownedCountries->begin();
 	int weakestCountryId = iter->first;
 	int lowestArmyCount = iter->second->armies;
-	for (; iter != ownedCountries->end(); ++iter)
+	for (; iter != player->ownedCountries->end(); ++iter)
 	{
 		if(iter->second->armies == 1)	// 1 is lowest anyways so return first country without looping further
 			return iter->first;
@@ -471,6 +473,7 @@ const PlayerStrategy& PlayerStrategy::operator =(const PlayerStrategy& rightSide
 		player->hand = rightSide.player->hand;
 	}
 	return *this;
+}
 
 //	Return if player wants to exchange
 bool PlayerStrategy::ifPlayerWantsToExchange() 
@@ -647,7 +650,7 @@ int PlayerStrategy::promptCountryToReinforce()
 	do {
 		cout << "Country: ";
 		countryInput = promptNumberInput();
-		if(ownedCountries->count(countryInput) == 0)
+		if(player->ownedCountries->count(countryInput) == 0)
 			cout << "\nYou do not own this country.";
 		else break;
 	} while(true);
