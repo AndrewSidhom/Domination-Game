@@ -25,7 +25,6 @@ GameEngine::GameEngine() {
 	// Create players
 	setupPlayers(&deck, gameMap);
 	randomizePlayerOrder();
-	cout << "after random" << endl;
 	phaseLog->printMsg("Order of player's turn\n-------------------");
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {	
 		phaseLog->printMsg(playerPtrs->at(i)->getName());
@@ -34,10 +33,6 @@ GameEngine::GameEngine() {
 	// Assign all countries to players
 	assignCountriesToPlayers(gameMap);
 	assignArmiesToCountries();	
-
-	aggressiveStrategy = new AggressivePlayerStrategy();
-	benevolentStrategy = new BenevolentPlayerStrategy();
-	humanStrategy = new PlayerStrategy();
 }
 
 // Destructor
@@ -227,12 +222,10 @@ void GameEngine::randomizePlayerOrder() {
 	{
 		int rnd = dist(mt);
 		if (rnd != i) {
+			
 			Player* tempPtr = playerPtrs->at(i);
-			swap(playerPtrs[i], playerPtrs[rnd]); // swap pointer elements
+			playerPtrs->at(i) = playerPtrs->at(rnd);
 			playerPtrs->at(rnd) = tempPtr;
-			// Player *temp = new Player(players[i]);
-			// players[i] = players[rnd];
-			// players[rnd] = *temp;
 		}
 	}
 }
@@ -277,8 +270,8 @@ void GameEngine::assignArmiesToCountries() {
 		phaseLog->printMsg(playerPtrs->at(i)->getName() + "'s turn: ");
 		// note setOwnedCountries already place 1 army in each owned countries to be identified as claimed
 		int remainingArmies = getStartupArmies() - playerPtrs->at(i)->getNumOfOwnedCountries();
-		playerPtrs->at(i)->getStrategy()->distributeArmies(remainingArmies);
-	}
+		playerPtrs->at(i)->getStrategy()->distributeArmies(remainingArmies);cout << "\nDUDE\n";
+	}cout << "\nZZZZ\n";
 }
 
 void GameEngine::promptChangeStrategy(Player* curPlayer) {
