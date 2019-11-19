@@ -270,8 +270,9 @@ void GameEngine::assignArmiesToCountries() {
 		phaseLog->printMsg(playerPtrs->at(i)->getName() + "'s turn: ");
 		// note setOwnedCountries already place 1 army in each owned countries to be identified as claimed
 		int remainingArmies = getStartupArmies() - playerPtrs->at(i)->getNumOfOwnedCountries();
-		playerPtrs->at(i)->getStrategy()->distributeArmies(remainingArmies);cout << "\nDUDE\n";
-	}cout << "\nZZZZ\n";
+		playerPtrs->at(i)->getStrategy()->setPlayer(playerPtrs->at(i));
+		playerPtrs->at(i)->getStrategy()->distributeArmies(remainingArmies);cout << "\nafter distribute\n";
+	}cout << "\nDone assign armies\n";
 }
 
 void GameEngine::promptChangeStrategy(Player* curPlayer) {

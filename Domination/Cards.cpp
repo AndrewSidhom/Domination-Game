@@ -6,7 +6,7 @@
 
 // Card struct constructor
 Card::Card(int id, Card_Type type) : countryId(id), type(type){}
-Card::Card(const Card &card) : countryId(card.countryId), type(card.type){}
+Card::Card(const Card &card) : countryId(card.countryId), type(card.type){} 
 
 /*	Constructor that creates and shuffles the deck
 	@param total number of countries
@@ -36,8 +36,12 @@ Deck& Deck::operator=(const Deck &d)
 {
 	if(&d != this) {
 		delete cardDeck, exchangeArmies;
-		cardDeck = d.cardDeck;
-		exchangeArmies = d.exchangeArmies;
+		cardDeck = new vector<Card>();
+		for (auto iter = d.cardDeck->begin(); iter != d.cardDeck->end(); ++iter) {
+			Card c(*iter);
+			cardDeck->push_back(c);
+		}
+		exchangeArmies = new int(d.exchangeArmies);
 	}
 	return *this;
 }
@@ -138,8 +142,6 @@ Hand::~Hand()
 {
 	delete playerHand;
 	playerHand = nullptr;
-	delete ownedCountries;
-	ownedCountries = nullptr;
 }
 
 /*	Copy constructor of Hand class.
@@ -151,7 +153,12 @@ Hand::Hand(const Hand &h) : playerHand(h.playerHand), deck(h.deck), ownedCountri
 Hand& Hand::operator=(const Hand &h) 
 {
 	if(&h != this) {
-		playerHand = h.playerHand;
+		delete playerHand;
+		playerHand = new vector<Card>();
+		for (auto iter = h.playerHand->begin(); iter != h.playerHand->end(); ++iter) {
+			Card c(*iter);
+			playerHand->push_back(c);
+		}
 		deck = h.deck;
 		ownedCountries = h.ownedCountries;
 		strategy = h.strategy;
