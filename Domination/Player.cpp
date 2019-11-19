@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <map>
 using namespace std;
 
 int* Player::currentGenId = new int(1);
@@ -25,11 +26,11 @@ const Player & Player::operator=(const Player & rightSide)
 		id = currentGenId;
 		genNextID();
 		name = new string(*rightSide.name);
-		ownedCountries = new map<int, Country*>();
+		ownedCountries = new map<int, Country*>;
 		for (auto it = rightSide.ownedCountries->begin(); it != rightSide.ownedCountries->end(); it++) {
 			(*ownedCountries)[it->first] = it->second;
 		}
-		numOfOwnedCountriesPerContinent = new map<int, int>();
+		numOfOwnedCountriesPerContinent = new map<int, int>;
 		for (auto it = rightSide.numOfOwnedCountriesPerContinent->begin(); it != rightSide.numOfOwnedCountriesPerContinent->end(); it++) {
 			(*numOfOwnedCountriesPerContinent)[it->first] = it->second;
 		}

@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <list>
-#include <map>
 #include <string>
 #include "Map.h"
 #include "Cards.h"
