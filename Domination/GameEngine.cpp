@@ -5,6 +5,7 @@
 #include "PlayerStrategies.h"
 #include <string>
 #include <vector>
+#include <random>
 using std::cout;
 using std::cin;
 using std::endl;
@@ -23,12 +24,11 @@ GameEngine::GameEngine() {
 
 	// Create players
 	setupPlayers(&deck, gameMap);
-	cout << "after set up" << endl;
 	randomizePlayerOrder();
 	cout << "after random" << endl;
 	phaseLog->printMsg("Order of player's turn\n-------------------");
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {	
-		phaseLog->printMsg(players[i].getName());
+		phaseLog->printMsg(playerPtrs->at(i)->getName());
 	}	
 	
 	// Assign all countries to players
@@ -42,8 +42,8 @@ GameEngine::GameEngine() {
 
 // Destructor
 GameEngine::~GameEngine() {
-	delete [] players;
-	players = nullptr;
+	delete playerPtrs;
+	playerPtrs = nullptr;
 	delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
 	delete aggressiveStrategy;
 	delete benevolentStrategy;
@@ -55,25 +55,22 @@ GameEngine::~GameEngine() {
 */
 void GameEngine::startGameLoop() {
     
-    int curPlayerIndex = 0; // index of current player's turn
-	Player* curPlayerPtr;
+    int turn = 0; // index of current player's turn
     do {
-		curPlayerPtr = &players[curPlayerIndex];
-        while(curPlayerPtr->getNumOfOwnedCountries() == 0) { 
-			curPlayerIndex++;  // skip turn if current player has no countries left
-			curPlayerPtr = &players[curPlayerIndex];
-		}
-		promptChangeStrategy(curPlayerPtr);
-		curPlayerPtr->getStrategy()->setPlayer(curPlayerPtr); // appoint different player to specific strategy every time
+        while(playerPtrs->at(turn)->getNumOfOwnedCountries() == 0) 
+			{ turn++; }
 
-		curPlayerPtr->reinforce();
-		curPlayerPtr->attack();
-		curPlayerPtr->fortify();
+		promptChangeStrategy(playerPtrs->at(turn));
+		playerPtrs->at(turn)->getStrategy()->setPlayer(playerPtrs->at(turn)); // appoint different player to specific strategy every time
+
+		playerPtrs->at(turn)->reinforce();
+		playerPtrs->at(turn)->attack();
+		playerPtrs->at(turn)->fortify();
 		
-        if(curPlayerIndex == *NUM_OF_PLAYERS - 1)
-            curPlayerIndex = 0;
+        if(turn == *NUM_OF_PLAYERS - 1)
+            turn = 0;
 		else
-			curPlayerIndex++;
+			turn++;
     } 
     while(!aPlayerOwnsAllCountries());
 }
@@ -84,7 +81,7 @@ void GameEngine::startGameLoop() {
 bool GameEngine::aPlayerOwnsAllCountries() {
 
     for(int i = 0; i < *NUM_OF_PLAYERS; i++) {
-        if(players[i].getNumOfOwnedCountries() == *NUM_OF_COUNTRIES) 
+        if(playerPtrs->at(i)->getNumOfOwnedCountries() == *NUM_OF_COUNTRIES) 
             return true;
     }
     return false;
@@ -124,7 +121,7 @@ Map* GameEngine::loadGameMap() {
 void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	// determine number of players and AIs
 	int numOfPlayers = queryNumOfPlayers();
-	int numOfAIs = 0;
+	//int numOfAIs = 0;
 	//if(numOfPlayers < 6)
 		//numOfAIs = queryNumOfAIs(numOfPlayers);
 	NUM_OF_PLAYERS = new int(numOfPlayers);
@@ -135,25 +132,26 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	benevolentStrategy = new BenevolentPlayerStrategy();
 
 	// create player objects
-	players = new Player[*NUM_OF_PLAYERS];
+	playerPtrs = new vector<Player*>();
 	for (int i = 0; i < numOfPlayers; i++) {
 		string name = "Player " + to_string(i + 1);
-		players[i] = Player(name, deck, gameMap, humanStrategy, phaseLog); 
-		phaseLog->printMsg((players + i)->getName() + ", enter your new name, or enter '0' to keep your current name: ");
+		Player* playerPtr = new Player(name, deck, gameMap, humanStrategy, phaseLog); 
+		phaseLog->printMsg(playerPtr->getName() + ", enter your new name, or enter '0' to keep your current name: ");
 		cin >> name;
 		if (name != "0") 
-			(players + i)->setName(name);
+			playerPtr->setName(name);
+		playerPtrs->push_back(playerPtr);
 	}
 
 	// create AI objects
-	for (int i = numOfPlayers; i < *NUM_OF_PLAYERS; i++) {
-		string name = "AI Player " + to_string(i + 1);
-		// alternate between different AIs
-		if(i % 2 == 0)	
-			players[i] = Player(name, deck, gameMap, aggressiveStrategy, phaseLog); 
-		else			
-			players[i] = Player(name, deck, gameMap, benevolentStrategy, phaseLog); 
-	}
+	// for (int i = numOfPlayers; i < *NUM_OF_PLAYERS; i++) {
+	// 	string name = "AI Player " + to_string(i + 1);
+	// 	// alternate between different AIs
+	// 	if(i % 2 == 0)	
+	// 		players[i] = Player(name, deck, gameMap, aggressiveStrategy, phaseLog); 
+	// 	else			
+	// 		players[i] = Player(name, deck, gameMap, benevolentStrategy, phaseLog); 
+	// }
 }
 
 /* 	Asks input for the number of Players.
@@ -229,9 +227,12 @@ void GameEngine::randomizePlayerOrder() {
 	{
 		int rnd = dist(mt);
 		if (rnd != i) {
-			Player *temp = new Player(players[i]);
-			players[i] = players[rnd];
-			players[rnd] = *temp;
+			Player* tempPtr = playerPtrs->at(i);
+			swap(playerPtrs[i], playerPtrs[rnd]); // swap pointer elements
+			playerPtrs->at(rnd) = tempPtr;
+			// Player *temp = new Player(players[i]);
+			// players[i] = players[rnd];
+			// players[rnd] = *temp;
 		}
 	}
 }
@@ -264,7 +265,7 @@ void GameEngine::assignCountriesToPlayers(Map *gameMap) {
 		playerIndex = (playerIndex + 1) % *NUM_OF_PLAYERS;
 	}
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
-		players[i].setOwnedCountries(ownedCountries[i]);
+		playerPtrs->at(i)->setOwnedCountries(ownedCountries[i]);
 	}
 }
 
@@ -273,10 +274,10 @@ void GameEngine::assignArmiesToCountries() {
 
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) 
 	{
-		phaseLog->printMsg(players[i].getName() + "'s turn: ");
+		phaseLog->printMsg(playerPtrs->at(i)->getName() + "'s turn: ");
 		// note setOwnedCountries already place 1 army in each owned countries to be identified as claimed
-		int remainingArmies = getStartupArmies() - players[i].getNumOfOwnedCountries();
-		players[i].getStrategy()->distributeArmies(remainingArmies);
+		int remainingArmies = getStartupArmies() - playerPtrs->at(i)->getNumOfOwnedCountries();
+		playerPtrs->at(i)->getStrategy()->distributeArmies(remainingArmies);
 	}
 }
 

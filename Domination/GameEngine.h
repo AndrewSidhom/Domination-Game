@@ -1,21 +1,22 @@
 #pragma once
 #include "Player.h"
 #include "Map.h"
-#include <random>
+#include <vector>
+using std::vector;
 
 class GameEngine {
 
 public:
     GameEngine();   // constructor
     ~GameEngine();  // destructor
-	Player* getPlayers() { return players; }
+	vector<Player*>* getPlayers() { return playerPtrs; }
 	int getNumOfPlayers() { return *NUM_OF_PLAYERS; }
 
     void startGameLoop();   // Start the game loop. Game ends when a player owns all countries. 
 
 private:
 
-    Player* players; // dynamic array
+    vector<Player*>* playerPtrs; // dynamic array
 	PhaseLog* phaseLog;	// observable obj that notifies change whenever a msg needs to be printed to console
     const int *NUM_OF_PLAYERS; // number of total players in the game; do not modify
     const int *NUM_OF_COUNTRIES; // number of total countries in the game; do not modify
