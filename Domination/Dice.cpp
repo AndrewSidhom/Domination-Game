@@ -32,6 +32,26 @@ Dice::~Dice() {
 	delete [] stats;
 }
 
+// Copy Constructor
+Dice::Dice(const Dice& d) {
+	rollCounters = d.rollCounters;
+	totalRolls = d.totalRolls;
+	stats = d.stats;
+}
+
+// Assignment operator =	
+Dice& Dice::operator=(const Dice& d) {
+	if (&d != this) {
+		delete [] rollCounters;
+		delete totalRolls;
+		delete [] stats;
+		rollCounters = d.rollCounters;
+		totalRolls = d.totalRolls;
+		stats = d.stats;
+	}
+	return *this;
+}
+
 /**
 * Asks user how many dice to roll, rolls the appropriate amount of dice, and updates the percentage
 * @return dice in a container (sorted in descending order)

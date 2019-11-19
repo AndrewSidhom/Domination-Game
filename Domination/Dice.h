@@ -7,6 +7,8 @@ class Dice {
 public:
 	Dice();
 	~Dice();
+	Dice(const Dice& d);
+	Dice& operator=(const Dice& d);
 	list<int> roll();
 	list<int> roll(int numberOfDiceToRoll);
 	void showInfo(); 
