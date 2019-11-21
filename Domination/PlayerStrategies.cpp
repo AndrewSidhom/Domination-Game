@@ -20,7 +20,7 @@ using std::vector;
 // Constructors, destructor
 AggressivePlayerStrategy::AggressivePlayerStrategy() : strongestAttackingCountry(nullptr) {}
 AggressivePlayerStrategy::AggressivePlayerStrategy(Player* aPlayer) : PlayerStrategy(aPlayer), strongestAttackingCountry(nullptr) {}
-AggressivePlayerStrategy::AggressivePlayerStrategy(const AggressivePlayerStrategy & strategy) : PlayerStrategy(strategy.player), strongestAttackingCountry(nullptr) {}
+AggressivePlayerStrategy::AggressivePlayerStrategy(const AggressivePlayerStrategy &strategy) : PlayerStrategy(strategy.player), strongestAttackingCountry(nullptr) {}
 AggressivePlayerStrategy::~AggressivePlayerStrategy() {}
 
 // Assignment operator
@@ -461,7 +461,7 @@ int BenevolentPlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 // Constructors
 PlayerStrategy::PlayerStrategy() : player(nullptr) {}
 PlayerStrategy::PlayerStrategy(Player* aPlayer) : player(aPlayer) {}
-PlayerStrategy::PlayerStrategy(const PlayerStrategy & strategy) : player(strategy.player) {}
+PlayerStrategy::PlayerStrategy(const PlayerStrategy &strategy) : player(strategy.player) {}
 
 // Destructor
 PlayerStrategy::~PlayerStrategy() {}
@@ -470,7 +470,6 @@ PlayerStrategy::~PlayerStrategy() {}
 const PlayerStrategy& PlayerStrategy::operator =(const PlayerStrategy& rightSide) {
 	if (&rightSide != this) {
 		player = rightSide.player;
-		player->hand = rightSide.player->hand;
 	}
 	return *this;
 }

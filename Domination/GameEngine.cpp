@@ -35,6 +35,40 @@ GameEngine::GameEngine() {
 	assignArmiesToCountries();	
 }
 
+// Copy constructor
+GameEngine::GameEngine(const GameEngine &ge)
+{
+	playerPtrs = new vector<Player*>();
+	for(Player* ptr : *ge.playerPtrs)
+		playerPtrs->push_back(ptr);
+	NUM_OF_COUNTRIES = new int(*ge.NUM_OF_COUNTRIES);
+	NUM_OF_PLAYERS = new int(*ge.NUM_OF_PLAYERS);
+	aggressiveStrategy = new AggressivePlayerStrategy(*ge.aggressiveStrategy);
+	benevolentStrategy = new BenevolentPlayerStrategy(*ge.benevolentStrategy);
+	humanStrategy = new PlayerStrategy(*ge.humanStrategy);
+}
+	
+// Assignment operator
+GameEngine& GameEngine::operator=(const GameEngine &ge)
+{
+	if(&ge != this) {
+		delete playerPtrs;
+		delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
+		delete aggressiveStrategy;
+		delete benevolentStrategy;
+		delete humanStrategy;
+		playerPtrs = new vector<Player*>();
+		for(Player* ptr : *ge.playerPtrs)
+			playerPtrs->push_back(ptr);
+		NUM_OF_COUNTRIES = new int(*ge.NUM_OF_COUNTRIES);
+		NUM_OF_PLAYERS = new int(*ge.NUM_OF_PLAYERS);
+		aggressiveStrategy = new AggressivePlayerStrategy(*ge.aggressiveStrategy);
+		benevolentStrategy = new BenevolentPlayerStrategy(*ge.benevolentStrategy);
+		humanStrategy = new PlayerStrategy(*ge.humanStrategy);
+	}
+	return *this;
+}
+
 // Destructor
 GameEngine::~GameEngine() {
 	delete playerPtrs;

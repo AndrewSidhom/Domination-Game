@@ -8,7 +8,11 @@ class GameEngine {
 
 public:
     GameEngine();   // constructor
+	GameEngine(const GameEngine &ge); // copy constructor
+	GameEngine& operator=(const GameEngine &ge); // assignment operator
     ~GameEngine();  // destructor
+	
+
 	vector<Player*>* getPlayers() { return playerPtrs; }
 	int getNumOfPlayers() { return *NUM_OF_PLAYERS; }
 

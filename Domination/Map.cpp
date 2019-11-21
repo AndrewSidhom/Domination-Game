@@ -174,6 +174,7 @@ Map::Map(const Map& old) {
 const Map& Map::operator=(const Map& m)
 {
 	if (&m != this) {
+		delete name, continents, graph, countries, validated, isValid;
 		name = new string(*m.name);
 		continents = new list<Continent>(*m.continents);
 		graph = new Graph(*m.graph);

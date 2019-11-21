@@ -327,9 +327,12 @@ void Player::displayOwnedCountries() {
 
 PhaseLog::PhaseLog() : msg(new string("")) {}
 PhaseLog::~PhaseLog() { delete msg; };
-PhaseLog::PhaseLog(const PhaseLog &pl) : msg(pl.msg) {}
+PhaseLog::PhaseLog(const PhaseLog &pl) : msg(new string(*pl.msg)) {}
 PhaseLog& PhaseLog::operator=(const PhaseLog &pl) {
-	msg = pl.msg;
+	if(&pl != this) {
+		delete msg;
+		msg = new string(*pl.msg);
+	}
 	return *this;
 }
 
