@@ -7,15 +7,28 @@ using namespace std;
 
 int* Player::currentGenId = new int(1);
 
-//constructor, destructor
+//constructors
 Player::Player() : id(new int(*currentGenId)), name(new string("Player " + to_string(*id))), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), hand(NULL), dice(new Dice()) {	genNextID(); }
 Player::Player(string name, Deck * deck, Map * mapPtr, PlayerStrategy * aStrategy, PhaseLog* aPhaseLog) : id(new int(*currentGenId)), name(new string(name)), ownedCountries(new map<int, Country*>), numOfOwnedCountriesPerContinent(new map<int, int>), mapPtr(mapPtr), hand(new Hand(deck, ownedCountries, aStrategy)), dice(new Dice()), strategy(aStrategy), phaseLogPtr(aPhaseLog) { 
 	genNextID();
 }
-Player::Player(const Player &p) : id(p.id), name(p.name), ownedCountries(p.ownedCountries), mapPtr(p.mapPtr), hand(p.hand), dice(p.dice), numOfOwnedCountriesPerContinent(p.numOfOwnedCountriesPerContinent), strategy(p.strategy) {}
+// Copy constructor. Creates a new player with same fields (deep copied) with different id
+Player::Player(const Player &p) {
+	id = new int(*currentGenId);
+	genNextID(); 
+	name = new string(*p.name);
+	ownedCountries = new map<int,Country*>(*p.ownedCountries);
+	mapPtr = p.mapPtr;
+	hand = new Hand(*p.hand);
+	dice = new Dice(*p.dice);
+	numOfOwnedCountriesPerContinent = new map<int,int>(*p.numOfOwnedCountriesPerContinent);
+	strategy = p.strategy;
+} 
+
+// Destructor
 Player::~Player() { delete id, name, ownedCountries, numOfOwnedCountriesPerContinent, hand, dice; }
 
-// Assignment operator
+// Assignment operator. Creates the same player with same id and fields.
 const Player & Player::operator=(const Player & rightSide)
 {
 	if (&rightSide != this) {
@@ -23,17 +36,10 @@ const Player & Player::operator=(const Player & rightSide)
 		delete name;
 		delete ownedCountries;
 		delete numOfOwnedCountriesPerContinent;
-		id = currentGenId;
-		genNextID();
+		id = new int(*rightSide.id);
 		name = new string(*rightSide.name);
-		ownedCountries = new map<int, Country*>;
-		for (auto it = rightSide.ownedCountries->begin(); it != rightSide.ownedCountries->end(); it++) {
-			(*ownedCountries)[it->first] = it->second;
-		}
-		numOfOwnedCountriesPerContinent = new map<int, int>;
-		for (auto it = rightSide.numOfOwnedCountriesPerContinent->begin(); it != rightSide.numOfOwnedCountriesPerContinent->end(); it++) {
-			(*numOfOwnedCountriesPerContinent)[it->first] = it->second;
-		}
+		ownedCountries = new map<int, Country*>(*rightSide.ownedCountries);
+		numOfOwnedCountriesPerContinent = new map<int, int>(*rightSide.numOfOwnedCountriesPerContinent);
 		mapPtr = rightSide.mapPtr;
 		strategy = rightSide.strategy;
 		if (hand != rightSide.hand) {
