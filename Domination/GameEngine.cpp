@@ -300,7 +300,7 @@ void GameEngine::assignArmiesToCountries() {
 
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) 
 	{
-		phaseLog->printMsg(playerPtrs->at(i)->getName() + "'s turn: \n");
+		phaseLog->printMsg("\n" + playerPtrs->at(i)->getName() + "'s turn: ");
 		// note setOwnedCountries already place 1 army in each owned countries to be identified as claimed
 		int remainingArmies = getStartupArmies() - playerPtrs->at(i)->getNumOfOwnedCountries();
 		playerPtrs->at(i)->getStrategy()->setPlayer(playerPtrs->at(i));

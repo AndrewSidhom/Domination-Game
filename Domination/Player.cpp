@@ -97,8 +97,8 @@ Country* Player::loseCountry(int id)
 */
 void Player::reinforce() {
 
-	cout << endl << *name << "'s turn!";
-	cout << "\n//**Reinforcement Phase**//\n";
+	cout << endl << *name << "'s turn!\n---------------------------";
+	cout << "\n//  Reinforcement Phase  //\n";
 	displayOwnedCountries();
 	int armies = 0, r = 0;
 	armies += getCountryReinforcement();

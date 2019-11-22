@@ -57,7 +57,7 @@ void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCoun
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
-			cout << "Country " << id << "|" << endl;
+			cout << " > Country " << id << endl;
 
 	// choose strongest country
 	int strongestCountryId = matchingCountries->at(0);
@@ -70,7 +70,7 @@ void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCoun
 	}
 
 	player->hand->ownedCountries->at(strongestCountryId)->armies += 2;
-	cout << "Choose a country to give 2 additional armies: " << strongestCountryId;
+	cout << "Choose a country to give 2 additional armies: " << strongestCountryId << "\n---";
 }
 
 // Return any country with most armies
@@ -309,7 +309,7 @@ void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCoun
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
-			cout << "Country " << id << "|" << endl;
+			cout << " > Country " << id << endl;
 
 	// choose weakest country
 	int weakestCountryId = matchingCountries->at(0);
@@ -322,7 +322,7 @@ void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCoun
 	}
 
 	player->hand->ownedCountries->at(weakestCountryId)->armies += 2;
-	cout << "Choose a country to give 2 additional armies: " << weakestCountryId;
+	cout << "Choose a country to give 2 additional armies: " << weakestCountryId << "\n---";
 }
 
 // Return any country with least armies
@@ -333,10 +333,12 @@ int BenevolentPlayerStrategy::promptCountryToReinforce()
 	int lowestArmyCount = iter->second->armies;
 	for (; iter != player->ownedCountries->end(); ++iter)
 	{
-		if(iter->second->armies == 1)	// 1 is lowest anyways so return first country without looping further
-			return iter->first;
-		
-		if(iter->second->armies < lowestArmyCount) {
+		if(iter->second->armies == 1) {	
+			// 1 is lowest anyways so return first country without looping further
+			weakestCountryId = iter->first;
+			break;
+		}
+		else if(iter->second->armies < lowestArmyCount) {
 			weakestCountryId = iter->first;
 			lowestArmyCount = iter->second->armies;
 		}
@@ -517,14 +519,14 @@ void RandomPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountrie
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
-			cout << "Country " << id << "|" << endl;
+			cout << " > Country " << id << endl;
 
-	// choose randomly 1 of the 3 countries
-	int ranNum = genRandomNum(0, 2);
+	// choose randomly 1 of the matching countries
+	int ranNum = genRandomNum(0, matchingCountries->size()-1);
 	int randomCountryId = matchingCountries->at(ranNum);
 
 	player->hand->ownedCountries->at(randomCountryId)->armies += 2;
-	cout << "Choose a country to give 2 additional armies: " << randomCountryId;
+	cout << "Choose a country to give 2 additional armies: " << randomCountryId << "\n---";
 }
 
 // Return a random country player owns.
@@ -589,13 +591,14 @@ void CheaterPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountri
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
-			cout << "Country " << id << "|" << endl;
+			cout << " > Country " << id << endl;
 	cout << "Choose a country to give 2 additional armies: ";
 
 	for(int id : *matchingCountries) {
 		player->hand->ownedCountries->at(id)->armies += 2;
 		cout << id << " ";
 	}
+	cout << "\n---";
 }
 
 /*	Prompt user to choose which countries to distribute their reinforcement armies
@@ -756,7 +759,7 @@ void PlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries)
 {
 	cout << "\nCountries you own matches with your exchanged cards:\n";
 		for (int id : *matchingCountries)
-			cout << "Country " << id << "|" << endl;
+			cout << " > Country " << id << endl;
 
 	int selectedCountryId;
 	do {
@@ -778,6 +781,7 @@ void PlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries)
 		}
 	} 
 	while (true);
+	cout << "\n---";
 
 	player->hand->ownedCountries->at(selectedCountryId)->armies += 2;
 }
@@ -823,7 +827,7 @@ int PlayerStrategy::promptNumOfArmiesToPlace(int totalArmies)
 		cout << "Armies: ";
 		armiesInput = promptNumberInput();
 		if (armiesInput > totalArmies || armiesInput < 0) 
-			cout << "\nYou must enter armies in the range given.";
+			cout << "\nYou must enter armies in the range given.\n";
 		else break;
 	} while(true);
 	return armiesInput;
