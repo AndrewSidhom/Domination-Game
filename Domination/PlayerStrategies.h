@@ -30,7 +30,7 @@ public:
 	// REINFORCE
 	virtual bool ifPlayerWantsToExchange(); // Prompt if user wants to exchange
 	virtual int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
-	virtual void distributeArmies(int totalArmies); // Prompt user to choose which countries to distribute their reinforcement armies
+	void distributeArmies(int totalArmies); // Prompt user to choose which countries to distribute their reinforcement armies
 
 	// ATTACK
 	virtual void attackInit(); // Do whatever initialization is required before deciding to attack or not
@@ -115,7 +115,7 @@ public:
 	BenevolentPlayerStrategy(Player* aPlayer);
 	BenevolentPlayerStrategy(const BenevolentPlayerStrategy& strategy);
 	virtual ~BenevolentPlayerStrategy();
-
+	// Assignment operator
 	const BenevolentPlayerStrategy& operator =(const BenevolentPlayerStrategy& rightSide);
 	
 	// Reinforce methods
@@ -137,4 +137,25 @@ protected:
 	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
 	int promptCountryToReinforce(); // return any country with least armies
 	int promptNumOfArmiesToPlace(int totalArmies); // return all of given armies
+};
+
+class RandomPlayerStrategy : public PlayerStrategy
+{
+public:
+	// Constructors, destructor
+	RandomPlayerStrategy();
+	RandomPlayerStrategy(Player* aPlayer);
+	RandomPlayerStrategy(const RandomPlayerStrategy& strategy);
+	virtual ~RandomPlayerStrategy();
+	// Assignment operator
+	const RandomPlayerStrategy& operator =(const RandomPlayerStrategy& rightSide);
+
+	// REINFORCE
+	virtual bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a 50/50 decision to exchange or not.
+	virtual int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
+
+protected:
+	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
+	virtual int promptCountryToReinforce(); // prompt which country to reinforce
+	virtual int promptNumOfArmiesToPlace(int totalArmies); // prompt how many armies to place
 };

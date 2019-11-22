@@ -72,6 +72,7 @@ private:
 	friend class AggressivePlayerStrategy;
 	friend class PlayerStrategy;
 	friend class BenevolentPlayerStrategy;
+	friend class RandomPlayerStrategy;
 };
 
 class PhaseLog : public Subject {

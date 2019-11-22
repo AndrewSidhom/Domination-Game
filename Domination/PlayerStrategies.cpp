@@ -455,8 +455,75 @@ int BenevolentPlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 	return armiesToMove;
 }
 
+//////////////////////////////////////////////
+/***** DEFAULT (HUMAN) PLAYER STRATEGY ******/
+// Default constructor
+RandomPlayerStrategy::RandomPlayerStrategy() {}
+// Overloaded constructors
+RandomPlayerStrategy::RandomPlayerStrategy(Player* aPlayer) : PlayerStrategy(aPlayer) {}
+// Copy constructor
+RandomPlayerStrategy::RandomPlayerStrategy(const RandomPlayerStrategy& strategy) : PlayerStrategy(strategy.player) {}
+// Destructor 
+RandomPlayerStrategy::~RandomPlayerStrategy() {}
+// Assignment operator
+const RandomPlayerStrategy& RandomPlayerStrategy::operator =(const RandomPlayerStrategy& rightSide) {
+	if(&rightSide != this) {
+		PlayerStrategy::operator=(rightSide);
+	}
+	return *this;
+}
 
-/* DEFAULT (HUMAN) PLAYER STRATEGY */
+// If have >= 3 cards, make a 50/50 decision to exchange or not.
+bool RandomPlayerStrategy::ifPlayerWantsToExchange()
+{
+	if(player->hand->getHandCount() >= 3) {
+		return genRandomNum(0, 1);
+	}
+	else return false;
+}
+
+// Automatically choose any cards in hands to exchange (has no user input)
+int RandomPlayerStrategy::promptExchangeForArmies(bool isMandatory) 
+{
+	return exchangeAnyCardsForArmies();
+}
+
+// Choose random country to give +2 bonus
+void RandomPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries)
+{
+	cout << "\nCountries you own matches with your exchanged cards:\n";
+		for (int id : *matchingCountries)
+			cout << "Country " << id << "|" << endl;
+
+	// choose randomly 1 of the 3 countries
+	int ranNum = genRandomNum(0, 2);
+	int randomCountryId = matchingCountries->at(ranNum);
+
+	player->hand->ownedCountries->at(randomCountryId)->armies += 2;
+	cout << "Choose a country to give 2 additional armies: " << randomCountryId;
+}
+
+// Return a random country player owns.
+int RandomPlayerStrategy::promptCountryToReinforce() 
+{
+	vector<int> ownedIds;
+	// get all owned country's id
+	map<int, Country*>::iterator iter = player->ownedCountries->begin();
+	for (; iter != player->ownedCountries->end(); ++iter)
+		ownedIds.push_back(iter->first);
+
+	int rand = genRandomNum(0, ownedIds.size()-1);
+	return ownedIds.at(rand);
+}
+
+// Return random amount of armies to place.
+int RandomPlayerStrategy::promptNumOfArmiesToPlace(int totalArmies)
+{
+	return genRandomNum(1, totalArmies);
+} 
+
+////////////////////////////////////////////////
+/****** DEFAULT (HUMAN) PLAYER STRATEGY *******/
 
 // Constructors
 PlayerStrategy::PlayerStrategy() : player(nullptr) {}

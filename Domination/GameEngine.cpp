@@ -16,6 +16,7 @@ GameEngine::GameEngine() {
 
 	// Inits
 	setupObservers();
+	setupStrategies();
 	phaseLog->printMsg("Welcome to Domination!");
 	
 	// Set up map and deck
@@ -123,6 +124,14 @@ void GameEngine::setupObservers() {
 	PhaseLogObserver* plo = new PhaseLogObserver(phaseLog);
 }
 
+// instantiate strategies
+void GameEngine::setupStrategies() {
+	humanStrategy = new PlayerStrategy();
+	aggressiveStrategy = new AggressivePlayerStrategy();
+	benevolentStrategy = new BenevolentPlayerStrategy();
+	randomStrategy = new RandomPlayerStrategy();
+}
+
 /* 	Asks input for the map to be use in the game. Also stores number of total countries on map.
 	@return a pointer to a Map object that corresponds to the loaded map.
 */
@@ -150,15 +159,7 @@ Map* GameEngine::loadGameMap() {
 void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 	// determine number of players and AIs
 	int numOfPlayers = queryNumOfPlayers();
-	//int numOfAIs = 0;
-	//if(numOfPlayers < 6)
-		//numOfAIs = queryNumOfAIs(numOfPlayers);
 	NUM_OF_PLAYERS = new int(numOfPlayers);
-
-	// instantiate strategies
-	humanStrategy = new PlayerStrategy();
-	aggressiveStrategy = new AggressivePlayerStrategy();
-	benevolentStrategy = new BenevolentPlayerStrategy();
 
 	// create player objects
 	playerPtrs = new vector<Player*>();
@@ -171,16 +172,6 @@ void GameEngine::setupPlayers(Deck *deck, Map *gameMap) {
 			playerPtr->setName(name);
 		playerPtrs->push_back(playerPtr);
 	}
-
-	// create AI objects
-	// for (int i = numOfPlayers; i < *NUM_OF_PLAYERS; i++) {
-	// 	string name = "AI Player " + to_string(i + 1);
-	// 	// alternate between different AIs
-	// 	if(i % 2 == 0)	
-	// 		players[i] = Player(name, deck, gameMap, aggressiveStrategy, phaseLog); 
-	// 	else			
-	// 		players[i] = Player(name, deck, gameMap, benevolentStrategy, phaseLog); 
-	// }
 }
 
 /* 	Asks input for the number of Players.
@@ -305,8 +296,8 @@ void GameEngine::assignArmiesToCountries() {
 		// note setOwnedCountries already place 1 army in each owned countries to be identified as claimed
 		int remainingArmies = getStartupArmies() - playerPtrs->at(i)->getNumOfOwnedCountries();
 		playerPtrs->at(i)->getStrategy()->setPlayer(playerPtrs->at(i));
-		playerPtrs->at(i)->getStrategy()->distributeArmies(remainingArmies);cout << "\nafter distribute\n";
-	}cout << "\nDone assign armies\n";
+		playerPtrs->at(i)->getStrategy()->distributeArmies(remainingArmies);
+	}
 }
 
 void GameEngine::promptChangeStrategy(Player* curPlayer) {
@@ -318,31 +309,35 @@ void GameEngine::promptChangeStrategy(Player* curPlayer) {
 		if(input.compare("y") == 0 || input.compare("n") == 0)  // 0 means equal
 			break;
 		else
-			cout << "\nInput must be 'y' or 'n'\n";
+			phaseLog->printMsg("\nInput must be 'y' or 'n'\n");
 	} 
 	while (true);
 
 	if (input.compare("y") == 0) {
 		phaseLog->printMsg("\nChoose one of the following strategies for " + curPlayer->getName() + ":");
-		phaseLog->printMsg("\t(0) Aggressive strategy\n\t(1) Benevolent strategy\n\t(2) Human strategy");
+		phaseLog->printMsg("\t(0) Human strategy\n\t(1) Aggressive strategy\n\t(2) Benevolent strategy");
+		phaseLog->printMsg("\t(3) Random strategy");
 
 		int choice = -1;
 		cin >> choice;
-		while (!cin.good() || (choice != 0 && choice != 1 && choice != 2)) {
+		while (!cin.good() || (choice != 0 && choice != 1 && choice != 2 && choice != 3)) {
 			phaseLog->printMsg("This input is wrong. Please enter 0, 1 or 2.");
 			cin >> choice;
 		}
 
 		switch (choice) {
 		case 0:
-			curPlayer->setStrategy(aggressiveStrategy);
-			break;
-		case 1:
-			curPlayer->setStrategy(benevolentStrategy);
-			break;
-		case 2:
 			curPlayer->setStrategy(humanStrategy);
 			break;
+		case 1:
+			curPlayer->setStrategy(aggressiveStrategy);
+			break;
+		case 2:
+			curPlayer->setStrategy(benevolentStrategy);
+			break;
+		case 3:
+			curPlayer->setStrategy(randomStrategy);
+
 		}
 	}
 }
