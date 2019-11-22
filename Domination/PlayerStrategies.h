@@ -30,7 +30,7 @@ public:
 	// REINFORCE
 	virtual bool ifPlayerWantsToExchange(); // Prompt if user wants to exchange
 	virtual int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
-	void distributeArmies(int totalArmies); // Prompt user to choose which countries to distribute their reinforcement armies
+	virtual void distributeArmies(int totalArmies); // Prompt user to choose which countries to distribute their reinforcement armies
 
 	// ATTACK
 	virtual void attackInit(); // Do whatever initialization is required before deciding to attack or not
@@ -63,7 +63,9 @@ protected:
 	int genRandomNum(int low, int high); // generates a random number in between range
 
 private:
+	// REINFORCE
 	int getPlayersCardOfChoice(bool isMandatory, int numOfCardsChosen, int cardsToExchangeIndex[]); //	Prompt user to choose which card from their hand to exchange.
+	// RELATED SERVICE FUNCS
 	int promptNumberInput(); // Prompt user to input a NUMBER only.
 };
 
@@ -100,6 +102,7 @@ public:
 	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination); // Will move the most armies it can
 
 protected:
+	// REINFORCE
 	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with most armies
 	int promptCountryToReinforce(); // return any country with most armies
 	int promptNumOfArmiesToPlace(int totalArmies); // return all of given armies
@@ -134,6 +137,7 @@ public:
 	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination); // Will distribute armies such that the number of armies in source and destination is equal as much as possible
 
 protected:
+	// REINFORCE
 	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
 	int promptCountryToReinforce(); // return any country with least armies
 	int promptNumOfArmiesToPlace(int totalArmies); // return all of given armies
@@ -151,11 +155,32 @@ public:
 	const RandomPlayerStrategy& operator =(const RandomPlayerStrategy& rightSide);
 
 	// REINFORCE
-	virtual bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a 50/50 decision to exchange or not.
-	virtual int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
+	bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a 50/50 decision to exchange or not.
+	int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
 
 protected:
+	// REINFORCE
 	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
 	virtual int promptCountryToReinforce(); // prompt which country to reinforce
 	virtual int promptNumOfArmiesToPlace(int totalArmies); // prompt how many armies to place
+};
+
+class CheaterPlayerStrategy : public PlayerStrategy
+{
+public:
+	// Constructors, destructor
+	CheaterPlayerStrategy();
+	CheaterPlayerStrategy(Player* aPlayer);
+	CheaterPlayerStrategy(const CheaterPlayerStrategy& strategy);
+	virtual ~CheaterPlayerStrategy();
+	// Assignment operator
+	const CheaterPlayerStrategy& operator =(const CheaterPlayerStrategy& rightSide);
+
+	// REINFORCE
+	bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a 50/50 decision to exchange or not.
+	int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
+	void distributeArmies(int totalArmies); // Reinforce by doubling every owned country's armies
+
+protected:
+	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies
 };

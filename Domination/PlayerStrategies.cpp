@@ -15,7 +15,8 @@ using std::random_device;
 using std::uniform_int_distribution;
 using std::vector;
 
-/* AGGRESSIVE PLAYER STRATEGY */
+//////////////////////////////////////////
+/****** AGGRESSIVE PLAYER STRATEGY ******/
 
 // Constructors, destructor
 AggressivePlayerStrategy::AggressivePlayerStrategy() : strongestAttackingCountry(nullptr) {}
@@ -35,7 +36,12 @@ const AggressivePlayerStrategy& AggressivePlayerStrategy::operator=(const Aggres
 // Returns true when have cards >= 3
 bool AggressivePlayerStrategy::ifPlayerWantsToExchange() 
 {
-	return (player->hand->getHandCount() >= 3);	// attempt exchange whenever it's possible
+	bool b = player->hand->getHandCount() >= 3;
+	cout << "\nWould you like to exchange your cards? (y/n): ";
+	if(b)	cout << "y\n";
+	else	cout << "n\n";
+
+	return b;	// attempt exchange whenever it's possible
 }
 
 // Automatically choose any cards in hands to exchange (has no user input)
@@ -80,12 +86,15 @@ int AggressivePlayerStrategy::promptCountryToReinforce()
 			highestArmyCount = iter->second->armies;
 		}
 	}
+
+	cout << "Country: " << strongestCountryId << endl;
 	return strongestCountryId;
 }
 
 // Return all of given armies
 int AggressivePlayerStrategy::promptNumOfArmiesToPlace(int totalArmies)
 {
+	cout << "Armies: " << totalArmies << endl;
 	return totalArmies;
 }
 
@@ -256,8 +265,8 @@ int AggressivePlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 	return source->armies - 1;
 }
 
-
-/* BENEVOLENT PLAYER STRATEGY */
+///////////////////////////////////////////
+/******* BENEVOLENT PLAYER STRATEGY ******/
 
 // Constructors
 BenevolentPlayerStrategy::BenevolentPlayerStrategy() {}
@@ -279,7 +288,12 @@ const BenevolentPlayerStrategy& BenevolentPlayerStrategy::operator=(const Benevo
 // Returns true when have cards >= 3
 bool BenevolentPlayerStrategy::ifPlayerWantsToExchange() 
 {
-	return (player->hand->getHandCount() >= 3);	// attempt exchange whenever it's possible
+	bool b = player->hand->getHandCount() >= 3;
+	cout << "\nWould you like to exchange your cards? (y/n): ";
+	if(b)	cout << "y\n";
+	else	cout << "n\n";
+	
+	return b; // attempt exchange whenever it's possible
 }
 
 // Automatically choose any cards in hands to exchange (has no user input)
@@ -327,12 +341,15 @@ int BenevolentPlayerStrategy::promptCountryToReinforce()
 			lowestArmyCount = iter->second->armies;
 		}
 	}
+
+	cout << "Country: " << weakestCountryId << endl;
 	return weakestCountryId;
 }
 
 // Return all of given armies
 int BenevolentPlayerStrategy::promptNumOfArmiesToPlace(int totalArmies)
 {
+	cout << "Armies: " << totalArmies << endl;
 	return totalArmies;
 }
 
@@ -455,8 +472,8 @@ int BenevolentPlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 	return armiesToMove;
 }
 
-//////////////////////////////////////////////
-/***** DEFAULT (HUMAN) PLAYER STRATEGY ******/
+//////////////////////////////////////////
+/***** RANDOM (AI) PLAYER STRATEGY ******/
 // Default constructor
 RandomPlayerStrategy::RandomPlayerStrategy() {}
 // Overloaded constructors
@@ -476,10 +493,17 @@ const RandomPlayerStrategy& RandomPlayerStrategy::operator =(const RandomPlayerS
 // If have >= 3 cards, make a 50/50 decision to exchange or not.
 bool RandomPlayerStrategy::ifPlayerWantsToExchange()
 {
+	int b = 0;
 	if(player->hand->getHandCount() >= 3) {
-		return genRandomNum(0, 1);
+		b = genRandomNum(0, 1);
 	}
-	else return false;
+
+	cout << "\nWould you like to exchange your cards? (y/n): ";
+	if(b)	cout << "y\n";
+	else	cout << "n\n";
+	
+	return b;
+	
 }
 
 // Automatically choose any cards in hands to exchange (has no user input)
@@ -513,14 +537,82 @@ int RandomPlayerStrategy::promptCountryToReinforce()
 		ownedIds.push_back(iter->first);
 
 	int rand = genRandomNum(0, ownedIds.size()-1);
+	cout << "Country: " << ownedIds.at(rand) << endl;
 	return ownedIds.at(rand);
 }
 
 // Return random amount of armies to place.
 int RandomPlayerStrategy::promptNumOfArmiesToPlace(int totalArmies)
 {
-	return genRandomNum(1, totalArmies);
+	int rand = genRandomNum(1, totalArmies);
+	cout << "Armies: " << rand << endl;
+	return rand;
 } 
+
+//////////////////////////////////////////
+/***** CHEATER (AI) PLAYER STRATEGY ******/
+// Default constructor
+CheaterPlayerStrategy::CheaterPlayerStrategy() {}
+// Overloaded constructors
+CheaterPlayerStrategy::CheaterPlayerStrategy(Player* aPlayer) : PlayerStrategy(aPlayer) {}
+// Copy constructor
+CheaterPlayerStrategy::CheaterPlayerStrategy(const CheaterPlayerStrategy& strategy) : PlayerStrategy(strategy.player) {}
+// Destructor 
+CheaterPlayerStrategy::~CheaterPlayerStrategy() {}
+// Assignment operator
+const CheaterPlayerStrategy& CheaterPlayerStrategy::operator =(const CheaterPlayerStrategy& rightSide) {
+	if(&rightSide != this) {
+		PlayerStrategy::operator=(rightSide);
+	}
+	return *this;
+}
+
+// Return true if have >= 3 cards
+bool CheaterPlayerStrategy::ifPlayerWantsToExchange()
+{
+	bool b = player->hand->getHandCount() >= 3;
+	cout << "\nWould you like to exchange your cards? (y/n): ";
+	if(b)	cout << "y\n";
+	else	cout << "n\n";
+	
+	return b; // attempt exchange whenever it's possible
+}
+
+// Automatically choose any cards in hands to exchange (has no user input)
+int CheaterPlayerStrategy::promptExchangeForArmies(bool isMandatory) 
+{
+	return exchangeAnyCardsForArmies();
+}
+
+// Give bonus to ALL matching countries
+void CheaterPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries)
+{
+	cout << "\nCountries you own matches with your exchanged cards:\n";
+		for (int id : *matchingCountries)
+			cout << "Country " << id << "|" << endl;
+	cout << "Choose a country to give 2 additional armies: ";
+
+	for(int id : *matchingCountries) {
+		player->hand->ownedCountries->at(id)->armies += 2;
+		cout << id << " ";
+	}
+}
+
+/*	Prompt user to choose which countries to distribute their reinforcement armies
+	@param int: total armies from reinforcement to distribute
+*/
+void CheaterPlayerStrategy::distributeArmies(int totalArmies)
+{
+	int countryInput, armiesInput, i = 0;
+	map<int,Country*>::iterator iter = player->ownedCountries->begin();
+
+	player->displayOwnedCountries();
+	cout << "Double your armies in every country and display true supremacy?: Yes.\n";
+	for(; iter != player->ownedCountries->end(); ++iter) {
+		player->ownedCountries->at(iter->first)->armies = (2 * iter->second->armies);
+	}
+	player->displayOwnedCountries();
+}
 
 ////////////////////////////////////////////////
 /****** DEFAULT (HUMAN) PLAYER STRATEGY *******/
@@ -1255,17 +1347,19 @@ int PlayerStrategy::exchangeAnyCardsForArmies() {
 		}
 	}
 
-	if(cardsToExchange.size() != 3)	// if no sets of exchangable cards at all
+	if(cardsToExchange.size() != 3)	{// if no sets of exchangable cards at all
+		cout << "0\n";
 		return 0;
+	}
 	else {
 		/// convert vector to array so it can pass to func param
 		int exchangeCardsArr[3];
 		for(int i = 0; i < 3; i++)
 			exchangeCardsArr[i] = cardsToExchange.at(i);
-		cout << "Exchanging with card " << exchangeCardsArr[0] << ", card " << exchangeCardsArr[1] << ", and card " << exchangeCardsArr[2];
 		/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
 		/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
 		sort(begin(exchangeCardsArr), end(exchangeCardsArr), greater<int>());
+		cout << "Exchanging with card " << (exchangeCardsArr[2]) + 1 << ", card " << exchangeCardsArr[1] + 1 << ", and card " << exchangeCardsArr[0] + 1 << endl;
 		tradeInCards(exchangeCardsArr);
 		/// exchange is successful
 		return player->hand->deck->getExchangedArmies();

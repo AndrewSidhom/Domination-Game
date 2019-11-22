@@ -1,6 +1,5 @@
 #include "GameEngine.h"
 #include "MapLoader.h"
-#include "Cards.h"
 #include "GameObservers.h"
 #include "PlayerStrategies.h"
 #include <string>
@@ -20,11 +19,11 @@ GameEngine::GameEngine() {
 	phaseLog->printMsg("Welcome to Domination!");
 	
 	// Set up map and deck
-	Map *gameMap = loadGameMap();
-	Deck deck(*NUM_OF_COUNTRIES);
+	gameMap = loadGameMap();
+	deck = new Deck(*NUM_OF_COUNTRIES);
 
 	// Create players
-	setupPlayers(&deck, gameMap);
+	setupPlayers(deck, gameMap);
 	randomizePlayerOrder();
 	phaseLog->printMsg("Order of player's turn\n-------------------");
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {	
@@ -42,42 +41,50 @@ GameEngine::GameEngine(const GameEngine &ge)
 	playerPtrs = new vector<Player*>();
 	for(Player* ptr : *ge.playerPtrs)
 		playerPtrs->push_back(ptr);
+	phaseLog = new PhaseLog(*ge.phaseLog);
+	phaseLogObserver = new PhaseLogObserver(phaseLog);
+	gameMap = new Map(*ge.gameMap);
+	deck = new Deck(*ge.deck);
 	NUM_OF_COUNTRIES = new int(*ge.NUM_OF_COUNTRIES);
 	NUM_OF_PLAYERS = new int(*ge.NUM_OF_PLAYERS);
 	aggressiveStrategy = new AggressivePlayerStrategy(*ge.aggressiveStrategy);
 	benevolentStrategy = new BenevolentPlayerStrategy(*ge.benevolentStrategy);
 	humanStrategy = new PlayerStrategy(*ge.humanStrategy);
+	randomStrategy = new RandomPlayerStrategy(*ge.randomStrategy);
+	cheaterStrategy = new CheaterPlayerStrategy(*ge.cheaterStrategy);
 }
 	
 // Assignment operator
 GameEngine& GameEngine::operator=(const GameEngine &ge)
 {
 	if(&ge != this) {
-		delete playerPtrs;
+		delete playerPtrs, phaseLog, phaseLogObserver, gameMap, deck;
 		delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
-		delete aggressiveStrategy;
-		delete benevolentStrategy;
-		delete humanStrategy;
+		delete aggressiveStrategy, benevolentStrategy, humanStrategy, randomStrategy, cheaterStrategy;
 		playerPtrs = new vector<Player*>();
 		for(Player* ptr : *ge.playerPtrs)
 			playerPtrs->push_back(ptr);
+		phaseLog = new PhaseLog(*ge.phaseLog);
+		phaseLogObserver = new PhaseLogObserver(phaseLog);
+		gameMap = new Map(*ge.gameMap);
+		deck = new Deck(*ge.deck);
 		NUM_OF_COUNTRIES = new int(*ge.NUM_OF_COUNTRIES);
 		NUM_OF_PLAYERS = new int(*ge.NUM_OF_PLAYERS);
 		aggressiveStrategy = new AggressivePlayerStrategy(*ge.aggressiveStrategy);
 		benevolentStrategy = new BenevolentPlayerStrategy(*ge.benevolentStrategy);
 		humanStrategy = new PlayerStrategy(*ge.humanStrategy);
+		randomStrategy = new RandomPlayerStrategy(*ge.randomStrategy);
+		cheaterStrategy = new CheaterPlayerStrategy(*ge.cheaterStrategy);
 	}
 	return *this;
 }
 
 // Destructor
 GameEngine::~GameEngine() {
-	delete playerPtrs;
+	delete playerPtrs, phaseLog, phaseLogObserver, gameMap, deck;
 	playerPtrs = nullptr;
 	delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
-	delete aggressiveStrategy;
-	delete benevolentStrategy;
-	delete humanStrategy;
+	delete aggressiveStrategy, benevolentStrategy, humanStrategy, randomStrategy, cheaterStrategy;
 }
 
 /*	Responsible for starting the game loop. Loop ends when a player owns all countries on map.
@@ -121,7 +128,7 @@ bool GameEngine::aPlayerOwnsAllCountries() {
 */
 void GameEngine::setupObservers() {
 	phaseLog = new PhaseLog();
-	PhaseLogObserver* plo = new PhaseLogObserver(phaseLog);
+	phaseLogObserver = new PhaseLogObserver(phaseLog);
 }
 
 // instantiate strategies
@@ -130,6 +137,7 @@ void GameEngine::setupStrategies() {
 	aggressiveStrategy = new AggressivePlayerStrategy();
 	benevolentStrategy = new BenevolentPlayerStrategy();
 	randomStrategy = new RandomPlayerStrategy();
+	cheaterStrategy = new CheaterPlayerStrategy();
 }
 
 /* 	Asks input for the map to be use in the game. Also stores number of total countries on map.
@@ -292,7 +300,7 @@ void GameEngine::assignArmiesToCountries() {
 
 	for (int i = 0; i < *NUM_OF_PLAYERS; i++) 
 	{
-		phaseLog->printMsg(playerPtrs->at(i)->getName() + "'s turn: ");
+		phaseLog->printMsg(playerPtrs->at(i)->getName() + "'s turn: \n");
 		// note setOwnedCountries already place 1 army in each owned countries to be identified as claimed
 		int remainingArmies = getStartupArmies() - playerPtrs->at(i)->getNumOfOwnedCountries();
 		playerPtrs->at(i)->getStrategy()->setPlayer(playerPtrs->at(i));
@@ -316,28 +324,22 @@ void GameEngine::promptChangeStrategy(Player* curPlayer) {
 	if (input.compare("y") == 0) {
 		phaseLog->printMsg("\nChoose one of the following strategies for " + curPlayer->getName() + ":");
 		phaseLog->printMsg("\t(0) Human strategy\n\t(1) Aggressive strategy\n\t(2) Benevolent strategy");
-		phaseLog->printMsg("\t(3) Random strategy");
+		phaseLog->printMsg("\t(3) Random strategy\n\t(4) Cheater strategy");
 
 		int choice = -1;
 		cin >> choice;
-		while (!cin.good() || (choice != 0 && choice != 1 && choice != 2 && choice != 3)) {
-			phaseLog->printMsg("This input is wrong. Please enter 0, 1 or 2.");
+		while (!cin.good() || (choice != 0 && choice != 1 && choice != 2 && choice != 3 && choice != 4)) {
+			phaseLog->printMsg("This input is wrong. Please enter 0, 1, 2, 3, or 4.");
 			cin >> choice;
 		}
 
 		switch (choice) {
-		case 0:
-			curPlayer->setStrategy(humanStrategy);
-			break;
-		case 1:
-			curPlayer->setStrategy(aggressiveStrategy);
-			break;
-		case 2:
-			curPlayer->setStrategy(benevolentStrategy);
-			break;
-		case 3:
-			curPlayer->setStrategy(randomStrategy);
-
+			case 0: curPlayer->setStrategy(humanStrategy); break;
+			case 1: curPlayer->setStrategy(aggressiveStrategy); break;
+			case 2: curPlayer->setStrategy(benevolentStrategy); break;
+			case 3: curPlayer->setStrategy(randomStrategy); break;
+			case 4: curPlayer->setStrategy(cheaterStrategy); break;
+			default:break;
 		}
 	}
 }

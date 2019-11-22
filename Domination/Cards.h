@@ -17,6 +17,7 @@ struct Card
 	Card() {};
 	Card(int id, enum Card_Type type);
 	Card(const Card &c);
+	Card& operator=(const Card &c);
 
 	int countryId;
 	enum Card_Type type;	
@@ -89,4 +90,5 @@ private:
 	friend class AggressivePlayerStrategy;
 	friend class BenevolentPlayerStrategy;
 	friend class RandomPlayerStrategy;
+	friend class CheaterPlayerStrategy;
 };

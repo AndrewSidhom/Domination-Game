@@ -1,6 +1,7 @@
 #pragma once
 #include "Player.h"
 #include "Map.h"
+#include "Cards.h"
 #include <vector>
 using std::vector;
 
@@ -22,11 +23,15 @@ private:
 
     vector<Player*>* playerPtrs; // dynamic array
 	PhaseLog* phaseLog;	// observable obj that notifies change whenever a msg needs to be printed to console
+	PhaseLogObserver* phaseLogObserver; // phase log observer;
+	Map* gameMap;
+	Deck* deck;
     const int *NUM_OF_PLAYERS; // number of total players in the game; do not modify
     const int *NUM_OF_COUNTRIES; // number of total countries in the game; do not modify
 	AggressivePlayerStrategy* aggressiveStrategy; // The Agressive computer strategy
 	BenevolentPlayerStrategy* benevolentStrategy; // The Benveolent computer strategy
 	RandomPlayerStrategy* randomStrategy;
+	CheaterPlayerStrategy* cheaterStrategy;
 	PlayerStrategy* humanStrategy; // The Human strategy
 
 	bool aPlayerOwnsAllCountries(); // Checks if a player owns all countries on the map.

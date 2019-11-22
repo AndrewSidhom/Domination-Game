@@ -7,6 +7,13 @@
 // Card struct constructor
 Card::Card(int id, Card_Type type) : countryId(id), type(type){}
 Card::Card(const Card &card) : countryId(card.countryId), type(card.type){} 
+Card& Card::operator=(const Card &c) { 
+	if(&c != this) {
+		countryId = c.countryId; 
+		type = c.type;
+	}
+	return *this; 
+}
 
 /*	Constructor that creates and shuffles the deck
 	@param total number of countries
@@ -107,7 +114,7 @@ void Deck::shuffleDeck()
 	@return Card object
 */
 Card Deck::draw()
-{
+{	
 	Card last = cardDeck->back();
 	cardDeck->pop_back();
 
@@ -146,7 +153,12 @@ Hand::~Hand()
 
 /*	Copy constructor of Hand class.
 */
-Hand::Hand(const Hand &h) : playerHand(h.playerHand), deck(h.deck), ownedCountries(h.ownedCountries), strategy(h.strategy) {}
+Hand::Hand(const Hand &h) {
+	playerHand = new vector<Card>(*h.playerHand);
+	deck = h.deck;
+	ownedCountries = h.ownedCountries;
+	strategy = h.strategy;
+}
 
 /*	Copy assignment operator of Hand class.
 */
@@ -182,7 +194,7 @@ void Hand::showHand()
 
 void Hand::drawFromDeck()
 {
-	if(!deck->isEmpty()) {	
+	if(!deck->isEmpty()) {
 		Card c = deck->draw();
 		playerHand->push_back(c);
 	}

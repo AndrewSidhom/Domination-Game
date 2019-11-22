@@ -97,7 +97,9 @@ Country* Player::loseCountry(int id)
 */
 void Player::reinforce() {
 
-	cout << "**Reinforcement Phase**\n";
+	cout << endl << *name << "'s turn!";
+	cout << "\n//**Reinforcement Phase**//\n";
+	displayOwnedCountries();
 	int armies = 0, r = 0;
 	armies += getCountryReinforcement();
 	armies += getContinentReinforcement();
@@ -106,8 +108,10 @@ void Player::reinforce() {
 		r += hand->exchange();
 		if (r == 0)	// note 0 means user cancelled exchange action
 			break;
-		else if (hand->getHandCount() >= 3)
+		else if (hand->getHandCount() >= 3) {
+			displayOwnedCountries();
 			cout << "\nYou still have " << hand->getHandCount() << " cards left.\n";
+		}
 		armies += r;
 		r = 0;
 	}
