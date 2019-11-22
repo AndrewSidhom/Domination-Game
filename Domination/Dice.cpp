@@ -45,7 +45,7 @@ Dice& Dice::operator=(const Dice& d) {
 		delete [] rollCounters;
 		delete totalRolls;
 		delete [] stats;
-		totalRolls = new int(d.totalRolls);
+		totalRolls = new int(*d.totalRolls);
 		rollCounters = new int[6];
 		for (int i = 0; i < 6; i++) {
 			rollCounters[i] = d.rollCounters[i];

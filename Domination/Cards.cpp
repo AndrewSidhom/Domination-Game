@@ -41,7 +41,7 @@ Deck& Deck::operator=(const Deck &d)
 			Card c(*iter);
 			cardDeck->push_back(c);
 		}
-		exchangeArmies = new int(d.exchangeArmies);
+		exchangeArmies = new int(*d.exchangeArmies);
 	}
 	return *this;
 }
