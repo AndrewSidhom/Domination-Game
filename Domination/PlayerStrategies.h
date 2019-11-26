@@ -5,6 +5,7 @@ using std::vector;
 
 // forward-declaration to resolve circular dependency
 class Player;
+class PhaseLog;
 
 // The Player Strategy to be inherited by Concrete Stragies. Its default behaviour is that of a HUMAN Player 
 // (requests for input for any kind of decision)
@@ -18,14 +19,15 @@ public:
 
 	// Constructors, destructors
 	PlayerStrategy();
-	PlayerStrategy(Player* aPlayer);
+	PlayerStrategy(PhaseLog* phaseLogPtr);
 	PlayerStrategy(const PlayerStrategy& strategy);
 	virtual ~PlayerStrategy();
 
 	// Assignment operator
-	const PlayerStrategy& operator =(const PlayerStrategy& rightSide);
+	PlayerStrategy& operator =(const PlayerStrategy& rightSide);
 
 	void setPlayer(Player* aPlayer) { player = aPlayer; }; // Set the player data member
+	void setPhaseLog(PhaseLog* phaseLogPtr) { phaseLog = phaseLogPtr; };
 
 	// REINFORCE
 	virtual bool ifPlayerWantsToExchange(); // Prompt if user wants to exchange
@@ -52,6 +54,7 @@ public:
 
 protected:
 	Player* player; // The current Player using this strategy
+	PhaseLog* phaseLog; // Phase logger
 
 	int exchangeAnyCardsForArmies(); // if have cards to exchange, return exchange armies; else return 0 (has no user input - mostly for AI)
 	void tradeInCards(int cardsToExchange[]); // After choosing exchanged cards, trade in the cards
@@ -73,12 +76,12 @@ class AggressivePlayerStrategy : public PlayerStrategy {
 public:
 	// Constructors, destructor
 	AggressivePlayerStrategy();
-	AggressivePlayerStrategy(Player* aPlayer);
+	AggressivePlayerStrategy(PhaseLog* phaseLogPtr);
 	AggressivePlayerStrategy(const AggressivePlayerStrategy& strategy);
 	virtual ~AggressivePlayerStrategy();
 
 	// Assignment operator
-	const AggressivePlayerStrategy& operator =(const AggressivePlayerStrategy& rightSide);
+	AggressivePlayerStrategy& operator =(const AggressivePlayerStrategy& rightSide);
 
 	// Reinforce methods
 	// Strategy: reinforce strongest country
@@ -115,11 +118,11 @@ class BenevolentPlayerStrategy : public PlayerStrategy {
 public:
 	// Constructors, destructor
 	BenevolentPlayerStrategy();
-	BenevolentPlayerStrategy(Player* aPlayer);
+	BenevolentPlayerStrategy(PhaseLog* phaseLogPtr);
 	BenevolentPlayerStrategy(const BenevolentPlayerStrategy& strategy);
 	virtual ~BenevolentPlayerStrategy();
 	// Assignment operator
-	const BenevolentPlayerStrategy& operator =(const BenevolentPlayerStrategy& rightSide);
+	BenevolentPlayerStrategy& operator =(const BenevolentPlayerStrategy& rightSide);
 	
 	// Reinforce methods
 	// Strategy: reinforce weakest countries
@@ -148,11 +151,11 @@ class RandomPlayerStrategy : public PlayerStrategy
 public:
 	// Constructors, destructor
 	RandomPlayerStrategy();
-	RandomPlayerStrategy(Player* aPlayer);
+	RandomPlayerStrategy(PhaseLog* phaseLogPtr);
 	RandomPlayerStrategy(const RandomPlayerStrategy& strategy);
 	virtual ~RandomPlayerStrategy();
 	// Assignment operator
-	const RandomPlayerStrategy& operator =(const RandomPlayerStrategy& rightSide);
+	RandomPlayerStrategy& operator =(const RandomPlayerStrategy& rightSide);
 
 	// REINFORCE
 	bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a 50/50 decision to exchange or not.
@@ -170,11 +173,11 @@ class CheaterPlayerStrategy : public PlayerStrategy
 public:
 	// Constructors, destructor
 	CheaterPlayerStrategy();
-	CheaterPlayerStrategy(Player* aPlayer);
+	CheaterPlayerStrategy(PhaseLog* phaseLogPtr);
 	CheaterPlayerStrategy(const CheaterPlayerStrategy& strategy);
 	virtual ~CheaterPlayerStrategy();
 	// Assignment operator
-	const CheaterPlayerStrategy& operator =(const CheaterPlayerStrategy& rightSide);
+	CheaterPlayerStrategy& operator =(const CheaterPlayerStrategy& rightSide);
 
 	// REINFORCE
 	bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a 50/50 decision to exchange or not.

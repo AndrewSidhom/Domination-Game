@@ -133,11 +133,11 @@ void GameEngine::setupObservers() {
 
 // instantiate strategies
 void GameEngine::setupStrategies() {
-	humanStrategy = new PlayerStrategy();
-	aggressiveStrategy = new AggressivePlayerStrategy();
-	benevolentStrategy = new BenevolentPlayerStrategy();
-	randomStrategy = new RandomPlayerStrategy();
-	cheaterStrategy = new CheaterPlayerStrategy();
+	humanStrategy = new PlayerStrategy(phaseLog);
+	aggressiveStrategy = new AggressivePlayerStrategy(phaseLog);
+	benevolentStrategy = new BenevolentPlayerStrategy(phaseLog);
+	randomStrategy = new RandomPlayerStrategy(phaseLog);
+	cheaterStrategy = new CheaterPlayerStrategy(phaseLog);
 }
 
 /* 	Asks input for the map to be use in the game. Also stores number of total countries on map.
@@ -201,32 +201,6 @@ int GameEngine::queryNumOfPlayers() {
 	return numOfPlayers;
 }
 
-/* 	Asks input for the number of AIs depending on how many humans are playing
-	@returns the number of AIs.
-*/
-int GameEngine::queryNumOfAIs(int numHumanPlayers) {
-	string input;
-	int spotsLeft = 6 - numHumanPlayers;
-	int numOfAIs = 0;
-	do {
-		phaseLog->printMsg("You have " + to_string(numHumanPlayers) + " players out of 6.");
-		phaseLog->printMsg("How many AIs players will join the conquest? (0 to " + to_string(spotsLeft) + "): ");
-		cin >> input;
-		if(input == "0" || input == "1" || input == "2" || input == "3" || input == "4") {
-			numOfAIs = stoi(input);
-			if(numOfAIs <= spotsLeft)
-				break;
-			else
-				phaseLog->printMsg("There cannot be more than 6 players.");
-		}
-		else
-			phaseLog->printMsg("Error: Invalid input");
-				
-	} while (true);
-	
-	return numOfAIs;
-}
-
 // Determines how many armies should be distributed amongst the Players in the startup phase depending on
 // the total number of Players.
 int GameEngine::getStartupArmies() {
@@ -241,8 +215,8 @@ int GameEngine::getStartupArmies() {
 		return 25; break;
 	case 6:
 		return 20; break;
+	default: return 0;
 	}
-	
 }
 
 // Changes randomly the order of the Players stored in players

@@ -15,17 +15,20 @@ using std::random_device;
 using std::uniform_int_distribution;
 using std::vector;
 
+// NOTE FOR MARKERS: some cout are not replaced by PhaseLog due to the printing format preference (UI less ugly)
+// because each PhaseLog->printMsg starts a newline
+
 //////////////////////////////////////////
 /****** AGGRESSIVE PLAYER STRATEGY ******/
 
 // Constructors, destructor
 AggressivePlayerStrategy::AggressivePlayerStrategy() : strongestAttackingCountry(nullptr) {}
-AggressivePlayerStrategy::AggressivePlayerStrategy(Player* aPlayer) : PlayerStrategy(aPlayer), strongestAttackingCountry(nullptr) {}
-AggressivePlayerStrategy::AggressivePlayerStrategy(const AggressivePlayerStrategy &strategy) : PlayerStrategy(strategy.player), strongestAttackingCountry(nullptr) {}
+AggressivePlayerStrategy::AggressivePlayerStrategy(PhaseLog* phaseLogPtr) : PlayerStrategy(phaseLogPtr), strongestAttackingCountry(nullptr) {}
+AggressivePlayerStrategy::AggressivePlayerStrategy(const AggressivePlayerStrategy &strategy) : PlayerStrategy(strategy), strongestAttackingCountry(nullptr) {}
 AggressivePlayerStrategy::~AggressivePlayerStrategy() {}
 
 // Assignment operator
-const AggressivePlayerStrategy& AggressivePlayerStrategy::operator=(const AggressivePlayerStrategy& rightSide)
+AggressivePlayerStrategy& AggressivePlayerStrategy::operator=(const AggressivePlayerStrategy& rightSide)
 {
 	if (&rightSide != this) {
 		PlayerStrategy::operator=(rightSide);
@@ -38,8 +41,8 @@ bool AggressivePlayerStrategy::ifPlayerWantsToExchange()
 {
 	bool b = player->hand->getHandCount() >= 3;
 	cout << "\nWould you like to exchange your cards? (y/n): ";
-	if(b)	cout << "y\n";
-	else	cout << "n\n";
+	if(b)	phaseLog->printMsg("y");
+	else	phaseLog->printMsg("n");
 
 	return b;	// attempt exchange whenever it's possible
 }
@@ -55,9 +58,9 @@ int AggressivePlayerStrategy::promptExchangeForArmies(bool isMandatory)
 */
 void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
 {
-	cout << "\nCountries you own matches with your exchanged cards:\n";
+	phaseLog->printMsg("\nCountries you own matches with your exchanged cards:");
 		for (int id : *matchingCountries)
-			cout << " > Country " << id << endl;
+			phaseLog->printMsg(" > Country " + to_string(id));
 
 	// choose strongest country
 	int strongestCountryId = matchingCountries->at(0);
@@ -70,7 +73,8 @@ void AggressivePlayerStrategy::distributeExchangeBonus(vector<int>* matchingCoun
 	}
 
 	player->hand->ownedCountries->at(strongestCountryId)->armies += 2;
-	cout << "Choose a country to give 2 additional armies: " << strongestCountryId << "\n---";
+	phaseLog->printMsg("Choose a country to give 2 additional armies: " + to_string(strongestCountryId));
+	cout << "---";
 }
 
 // Return any country with most armies
@@ -87,7 +91,7 @@ int AggressivePlayerStrategy::promptCountryToReinforce()
 		}
 	}
 
-	cout << "Country: " << strongestCountryId << endl;
+	phaseLog->printMsg("Country: " + to_string(strongestCountryId));
 	return strongestCountryId;
 }
 
@@ -270,14 +274,14 @@ int AggressivePlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 
 // Constructors
 BenevolentPlayerStrategy::BenevolentPlayerStrategy() {}
-BenevolentPlayerStrategy::BenevolentPlayerStrategy(Player* aPlayer) : PlayerStrategy(aPlayer) {}
-BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy & strategy) : PlayerStrategy(strategy.player) {}
+BenevolentPlayerStrategy::BenevolentPlayerStrategy(PhaseLog* phaseLogPtr) : PlayerStrategy(phaseLogPtr) {}
+BenevolentPlayerStrategy::BenevolentPlayerStrategy(const BenevolentPlayerStrategy &strategy) : PlayerStrategy(strategy) {}
 
 // Destructor
 BenevolentPlayerStrategy::~BenevolentPlayerStrategy() {}
 
 // Assignment operator
-const BenevolentPlayerStrategy& BenevolentPlayerStrategy::operator=(const BenevolentPlayerStrategy& rightSide)
+BenevolentPlayerStrategy& BenevolentPlayerStrategy::operator=(const BenevolentPlayerStrategy& rightSide)
 {
 	if (&rightSide != this) {
 		PlayerStrategy::operator=(rightSide);
@@ -290,8 +294,8 @@ bool BenevolentPlayerStrategy::ifPlayerWantsToExchange()
 {
 	bool b = player->hand->getHandCount() >= 3;
 	cout << "\nWould you like to exchange your cards? (y/n): ";
-	if(b)	cout << "y\n";
-	else	cout << "n\n";
+	if(b)	phaseLog->printMsg("y");
+	else	phaseLog->printMsg("n");
 	
 	return b; // attempt exchange whenever it's possible
 }
@@ -307,9 +311,9 @@ int BenevolentPlayerStrategy::promptExchangeForArmies(bool isMandatory)
 */
 void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
 {
-	cout << "\nCountries you own matches with your exchanged cards:\n";
+	phaseLog->printMsg("\nCountries you own matches with your exchanged cards:");
 		for (int id : *matchingCountries)
-			cout << " > Country " << id << endl;
+			phaseLog->printMsg(" > Country " + to_string(id));
 
 	// choose weakest country
 	int weakestCountryId = matchingCountries->at(0);
@@ -322,7 +326,8 @@ void BenevolentPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCoun
 	}
 
 	player->hand->ownedCountries->at(weakestCountryId)->armies += 2;
-	cout << "Choose a country to give 2 additional armies: " << weakestCountryId << "\n---";
+	phaseLog->printMsg("Choose a country to give 2 additional armies: " + to_string(weakestCountryId));
+	cout << "---";
 }
 
 // Return any country with least armies
@@ -344,7 +349,7 @@ int BenevolentPlayerStrategy::promptCountryToReinforce()
 		}
 	}
 
-	cout << "Country: " << weakestCountryId << endl;
+	phaseLog->printMsg("Country: " + to_string(weakestCountryId));
 	return weakestCountryId;
 }
 
@@ -479,13 +484,13 @@ int BenevolentPlayerStrategy::selectArmiesToMoveForFortification(Country * sourc
 // Default constructor
 RandomPlayerStrategy::RandomPlayerStrategy() {}
 // Overloaded constructors
-RandomPlayerStrategy::RandomPlayerStrategy(Player* aPlayer) : PlayerStrategy(aPlayer) {}
+RandomPlayerStrategy::RandomPlayerStrategy(PhaseLog* phaseLogPtr) : PlayerStrategy(phaseLogPtr) {}
 // Copy constructor
-RandomPlayerStrategy::RandomPlayerStrategy(const RandomPlayerStrategy& strategy) : PlayerStrategy(strategy.player) {}
+RandomPlayerStrategy::RandomPlayerStrategy(const RandomPlayerStrategy& strategy) : PlayerStrategy(strategy) {}
 // Destructor 
 RandomPlayerStrategy::~RandomPlayerStrategy() {}
 // Assignment operator
-const RandomPlayerStrategy& RandomPlayerStrategy::operator =(const RandomPlayerStrategy& rightSide) {
+RandomPlayerStrategy& RandomPlayerStrategy::operator =(const RandomPlayerStrategy& rightSide) {
 	if(&rightSide != this) {
 		PlayerStrategy::operator=(rightSide);
 	}
@@ -501,8 +506,8 @@ bool RandomPlayerStrategy::ifPlayerWantsToExchange()
 	}
 
 	cout << "\nWould you like to exchange your cards? (y/n): ";
-	if(b)	cout << "y\n";
-	else	cout << "n\n";
+	if(b)	phaseLog->printMsg("y");
+	else	phaseLog->printMsg("n");
 	
 	return b;
 	
@@ -517,16 +522,17 @@ int RandomPlayerStrategy::promptExchangeForArmies(bool isMandatory)
 // Choose random country to give +2 bonus
 void RandomPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries)
 {
-	cout << "\nCountries you own matches with your exchanged cards:\n";
+	phaseLog->printMsg("\nCountries you own matches with your exchanged cards:");
 		for (int id : *matchingCountries)
-			cout << " > Country " << id << endl;
+			phaseLog->printMsg(" > Country " + to_string(id));
 
 	// choose randomly 1 of the matching countries
 	int ranNum = genRandomNum(0, matchingCountries->size()-1);
 	int randomCountryId = matchingCountries->at(ranNum);
 
 	player->hand->ownedCountries->at(randomCountryId)->armies += 2;
-	cout << "Choose a country to give 2 additional armies: " << randomCountryId << "\n---";
+	phaseLog->printMsg("Choose a country to give 2 additional armies: " + to_string(randomCountryId));
+	cout << "---";
 }
 
 // Return a random country player owns.
@@ -539,7 +545,7 @@ int RandomPlayerStrategy::promptCountryToReinforce()
 		ownedIds.push_back(iter->first);
 
 	int rand = genRandomNum(0, ownedIds.size()-1);
-	cout << "Country: " << ownedIds.at(rand) << endl;
+	phaseLog->printMsg("Country: " + to_string(ownedIds.at(rand)));
 	return ownedIds.at(rand);
 }
 
@@ -556,13 +562,13 @@ int RandomPlayerStrategy::promptNumOfArmiesToPlace(int totalArmies)
 // Default constructor
 CheaterPlayerStrategy::CheaterPlayerStrategy() {}
 // Overloaded constructors
-CheaterPlayerStrategy::CheaterPlayerStrategy(Player* aPlayer) : PlayerStrategy(aPlayer) {}
+CheaterPlayerStrategy::CheaterPlayerStrategy(PhaseLog* phaseLogPtr) : PlayerStrategy(phaseLogPtr) {}
 // Copy constructor
-CheaterPlayerStrategy::CheaterPlayerStrategy(const CheaterPlayerStrategy& strategy) : PlayerStrategy(strategy.player) {}
+CheaterPlayerStrategy::CheaterPlayerStrategy(const CheaterPlayerStrategy& strategy) : PlayerStrategy(strategy) {}
 // Destructor 
 CheaterPlayerStrategy::~CheaterPlayerStrategy() {}
 // Assignment operator
-const CheaterPlayerStrategy& CheaterPlayerStrategy::operator =(const CheaterPlayerStrategy& rightSide) {
+CheaterPlayerStrategy& CheaterPlayerStrategy::operator =(const CheaterPlayerStrategy& rightSide) {
 	if(&rightSide != this) {
 		PlayerStrategy::operator=(rightSide);
 	}
@@ -574,8 +580,8 @@ bool CheaterPlayerStrategy::ifPlayerWantsToExchange()
 {
 	bool b = player->hand->getHandCount() >= 3;
 	cout << "\nWould you like to exchange your cards? (y/n): ";
-	if(b)	cout << "y\n";
-	else	cout << "n\n";
+	if(b)	phaseLog->printMsg("y");
+	else	phaseLog->printMsg("n");
 	
 	return b; // attempt exchange whenever it's possible
 }
@@ -589,11 +595,11 @@ int CheaterPlayerStrategy::promptExchangeForArmies(bool isMandatory)
 // Give bonus to ALL matching countries
 void CheaterPlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries)
 {
-	cout << "\nCountries you own matches with your exchanged cards:\n";
+	phaseLog->printMsg("\nCountries you own matches with your exchanged cards:");
 		for (int id : *matchingCountries)
-			cout << " > Country " << id << endl;
-	cout << "Choose a country to give 2 additional armies: ";
+			phaseLog->printMsg(" > Country " + to_string(id));
 
+	phaseLog->printMsg("Choose a country to give 2 additional armies: ");
 	for(int id : *matchingCountries) {
 		player->hand->ownedCountries->at(id)->armies += 2;
 		cout << id << " ";
@@ -610,7 +616,7 @@ void CheaterPlayerStrategy::distributeArmies(int totalArmies)
 	map<int,Country*>::iterator iter = player->ownedCountries->begin();
 
 	player->displayOwnedCountries();
-	cout << "Double your armies in every country and display true supremacy?: Yes.\n";
+	phaseLog->printMsg("Double your armies in every country to display true supremacy?: Yes.");
 	for(; iter != player->ownedCountries->end(); ++iter) {
 		player->ownedCountries->at(iter->first)->armies = (2 * iter->second->armies);
 	}
@@ -621,17 +627,18 @@ void CheaterPlayerStrategy::distributeArmies(int totalArmies)
 /****** DEFAULT (HUMAN) PLAYER STRATEGY *******/
 
 // Constructors
-PlayerStrategy::PlayerStrategy() : player(nullptr) {}
-PlayerStrategy::PlayerStrategy(Player* aPlayer) : player(aPlayer) {}
-PlayerStrategy::PlayerStrategy(const PlayerStrategy &strategy) : player(strategy.player) {}
+PlayerStrategy::PlayerStrategy() : player(nullptr), phaseLog(nullptr) {}
+PlayerStrategy::PlayerStrategy(PhaseLog* phaseLogPtr) : player(nullptr), phaseLog(phaseLogPtr) {}
+PlayerStrategy::PlayerStrategy(const PlayerStrategy &strategy) : player(strategy.player), phaseLog(strategy.phaseLog) {}
 
 // Destructor
 PlayerStrategy::~PlayerStrategy() {}
 
 // Assignment operator
-const PlayerStrategy& PlayerStrategy::operator =(const PlayerStrategy& rightSide) {
+PlayerStrategy& PlayerStrategy::operator =(const PlayerStrategy& rightSide) {
 	if (&rightSide != this) {
 		player = rightSide.player;
+		phaseLog = rightSide.phaseLog;
 	}
 	return *this;
 }
@@ -641,13 +648,13 @@ bool PlayerStrategy::ifPlayerWantsToExchange()
 {
 	string input;
 	do {
-		cout << "\nWould you like to exchange your cards? (y/n): " << endl;
+		cout << "\nWould you like to exchange your cards? (y/n): ";
 		cin >> input;
 
 		if(input.compare("y") == 0 || input.compare("n") == 0)  // 0 means equal
 			break;
 		else
-			cout << "\nInput must be 'y' or 'n'\n";
+			phaseLog->printMsg("\nInput must be 'y' or 'n'");
 	} 
 	while (true);
 
@@ -668,8 +675,8 @@ int PlayerStrategy::promptExchangeForArmies(bool isMandatory)
 		int selectedCardIndex = getPlayersCardOfChoice(isMandatory, numOfCardsChosen, cardsToExchangeIndex);
 
 		if (selectedCardIndex == 0 && !isMandatory) {	/// if player wants to cancel
-			cout << "\nExchange action cancelled.\n";
-			return 0;
+			phaseLog->printMsg("\nExchange action cancelled.");
+			break;
 		}
 		else {	/// store chosen card
 			cardsToExchangeIndex[numOfCardsChosen] = selectedCardIndex - 1;
@@ -687,11 +694,15 @@ int PlayerStrategy::promptExchangeForArmies(bool isMandatory)
 				return player->hand->deck->getExchangedArmies();
 			}
 			else {
-				cout << "\nCannot exchange with these cards. Must be a matching or of consecutive types.\n";
+				phaseLog->printMsg("\nCannot exchange with these cards. Must be a matching or of consecutive types.");
 				numOfCardsChosen = 0;
+				cardsToExchangeIndex[0] = -5; cardsToExchangeIndex[1] = -5; cardsToExchangeIndex[2] = -5; // clear previous chosen cards
+				// note for others: do not make it -1 
 			}
 		}
 	} while (numOfCardsChosen != 3);
+
+	return 0;
 }
 
 /*	Prompt user to choose which card from their hand to exchange.
@@ -708,17 +719,17 @@ int PlayerStrategy::getPlayersCardOfChoice(bool isMandatory, int numOfCardsChose
 		cin >> selectedCardIndex;
 		if (!cin.good())	/// !good() when input doesnt match declared type
 		{
-			cout << "\nInvalid number input. Please try again.\n";
+			phaseLog->printMsg("\nInvalid number input. Please try again.");
 			cin.clear();		   /// clear error flag
 			cin.ignore(100, '\n'); /// clear buffer
 		}
 		else if (selectedCardIndex == 0 && isMandatory)
-			cout << "\nYou've reached the card limit and must exchange.\n";
+			phaseLog->printMsg("\nYou've reached the card limit and must exchange.");
 		else if (selectedCardIndex < 0 || selectedCardIndex > player->hand->playerHand->size())
-			cout << "\nYour choice must be within your hand's cards.\n";
+			phaseLog->printMsg("\nYour choice must be within your hand's cards.");
 		else if (selectedCardIndex == cardsToExchangeIndex[0]+1 || 
 				selectedCardIndex == cardsToExchangeIndex[1]+1)
-			cout << "\nYou have already selected this card.\n";
+			phaseLog->printMsg("\nYou have already selected this card.");
 		else
 			break;
 	} 
@@ -757,30 +768,24 @@ void PlayerStrategy::tradeInCards(int cardsToExchange[])
 */
 void PlayerStrategy::distributeExchangeBonus(vector<int>* matchingCountries) 
 {
-	cout << "\nCountries you own matches with your exchanged cards:\n";
+	phaseLog->printMsg("\nCountries you own matches with your exchanged cards:");
 		for (int id : *matchingCountries)
-			cout << " > Country " << id << endl;
+			phaseLog->printMsg(" > Country " + to_string(id));
 
 	int selectedCountryId;
+	bool validInput = false;
 	do {
 		cout << "Choose a country to give 2 additional armies: ";
-		cin >> selectedCountryId;
-		
-		if (!cin.good()) /// !good() when input isnt integer
-		{
-			cout << "\nInvalid number input. Please try again.\n";
-			cin.clear();		   /// clear error flag
-			cin.ignore(100, '\n'); /// clear buffer
+		selectedCountryId = promptNumberInput();
+
+		for(int id : *matchingCountries) {
+			cout << "ID: " << id << " SELECT: " << selectedCountryId;
+			if(selectedCountryId == id)
+				validInput = true;
 		}
-		else {
-			for(int id : *matchingCountries) {
-				if(selectedCountryId == id)
-					break;
-			}
-			cout << "\nPlease choose the countries given.\n";
-		}
+		phaseLog->printMsg("\nPlease choose the countries given.");
 	} 
-	while (true);
+	while (!validInput);
 	cout << "\n---";
 
 	player->hand->ownedCountries->at(selectedCountryId)->armies += 2;
@@ -796,7 +801,8 @@ void PlayerStrategy::distributeArmies(int totalArmies)
 	player->displayOwnedCountries();
 	while(totalArmies > 0) 
 	{
-		cout << "---\nYou have " << totalArmies << " armies" << (i++? " left.\n" : ". Deploy your armies!\n"); // ++ to show different msg the second time
+		phaseLog->printMsg("---\nYou have " + to_string(totalArmies) + " armies" + 
+							(i++? " left." : ". Deploy your armies!")); // ++ to show different msg the second time
 		countryInput = promptCountryToReinforce();
 		armiesInput = promptNumOfArmiesToPlace(totalArmies);
 		player->addOrRemoveArmies(countryInput, armiesInput);
@@ -813,7 +819,7 @@ int PlayerStrategy::promptCountryToReinforce()
 		cout << "Country: ";
 		countryInput = promptNumberInput();
 		if(player->ownedCountries->count(countryInput) == 0)
-			cout << "\nYou do not own this country.";
+			phaseLog->printMsg("\nYou do not own this country.");
 		else break;
 	} while(true);
 	return countryInput;
@@ -827,7 +833,7 @@ int PlayerStrategy::promptNumOfArmiesToPlace(int totalArmies)
 		cout << "Armies: ";
 		armiesInput = promptNumberInput();
 		if (armiesInput > totalArmies || armiesInput < 0) 
-			cout << "\nYou must enter armies in the range given.\n";
+			phaseLog->printMsg("\nYou must enter armies in the range given.");
 		else break;
 	} while(true);
 	return armiesInput;
@@ -842,7 +848,7 @@ int PlayerStrategy::promptNumberInput()
 	do {
 		cin >> n;
 		if (!cin.good()) {	/// !good() when input doesnt match declared type
-			cout << "\nInvalid number input. Please try again.\n";
+			phaseLog->printMsg("\nInvalid number input. Please try again.");
 			cin.clear();		   /// clear error flag
 			cin.ignore(100, '\n'); /// clear buffer
 		}
@@ -1352,7 +1358,7 @@ int PlayerStrategy::exchangeAnyCardsForArmies() {
 	}
 
 	if(cardsToExchange.size() != 3)	{// if no sets of exchangable cards at all
-		cout << "0\n";
+		phaseLog->printMsg("0");
 		return 0;
 	}
 	else {
@@ -1363,7 +1369,9 @@ int PlayerStrategy::exchangeAnyCardsForArmies() {
 		/// any elements with an index higher than the removed element's gets their index shifted by one (minus one).
 		/// sort index with descending order so index doesnt shift when removing Card object from playerHand vector
 		sort(begin(exchangeCardsArr), end(exchangeCardsArr), greater<int>());
-		cout << "Exchanging with card " << (exchangeCardsArr[2]) + 1 << ", card " << exchangeCardsArr[1] + 1 << ", and card " << exchangeCardsArr[0] + 1 << endl;
+		phaseLog->printMsg("Exchanging with card " + to_string(exchangeCardsArr[2] + 1) + 
+										", card " + to_string(exchangeCardsArr[1] + 1) + 
+										", and card " + to_string(exchangeCardsArr[0] + 1));
 		tradeInCards(exchangeCardsArr);
 		/// exchange is successful
 		return player->hand->deck->getExchangedArmies();

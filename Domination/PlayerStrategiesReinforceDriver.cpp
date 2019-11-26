@@ -5,11 +5,13 @@
 #include <vector>
 using namespace std;
 
-PlayerStrategy* humanStrategy = new PlayerStrategy();
-AggressivePlayerStrategy* aggressiveStrategy = new AggressivePlayerStrategy();
-BenevolentPlayerStrategy* benevolentStrategy = new BenevolentPlayerStrategy();
-RandomPlayerStrategy* randomStrategy = new RandomPlayerStrategy();
-CheaterPlayerStrategy* cheaterStrategy = new CheaterPlayerStrategy();
+PhaseLog* phaseLog = new PhaseLog();
+PhaseLogObserver* phaseLogObserver = new PhaseLogObserver(phaseLog);
+PlayerStrategy* humanStrategy = new PlayerStrategy(phaseLog);
+AggressivePlayerStrategy* aggressiveStrategy = new AggressivePlayerStrategy(phaseLog);
+BenevolentPlayerStrategy* benevolentStrategy = new BenevolentPlayerStrategy(phaseLog);
+RandomPlayerStrategy* randomStrategy = new RandomPlayerStrategy(phaseLog);
+CheaterPlayerStrategy* cheaterStrategy = new CheaterPlayerStrategy(phaseLog);
 
 
 void promptSetStrategy(Player* player) 
@@ -59,6 +61,7 @@ int main() {
     } 
     while(true);
 
+    delete phaseLog, phaseLogObserver, humanStrategy, aggressiveStrategy, benevolentStrategy, randomStrategy, cheaterStrategy;
     system("pause");
     return 0;
 }
