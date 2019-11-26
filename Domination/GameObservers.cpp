@@ -5,6 +5,12 @@
 #include <string>
 using namespace std;
 
+/*************** Observer class *****************/
+// Abstract Constructor
+Observer::Observer() {};
+// Abstract Destructor
+Observer::~Observer() {};
+
 /*************** Subject class *****************/
 // Constructor
 Subject::Subject() {
@@ -28,12 +34,6 @@ void Subject::Notify() {
 	for (; i != _observers->end(); ++i)
 		(*i)->Update();
 };
-
-/*************** Observer class *****************/
-// Abstract Constructor
-Observer::Observer() {};
-// Abstract Destructor
-Observer::~Observer() {};
 
 /*************** StatsObserver class *****************/
 // Constructor

@@ -321,14 +321,14 @@ void Player::addOrRemoveArmies(int countryId, int armies)
 */
 void Player::displayOwnedCountries() {
 
-	cout << "\nOwned Countries   Armies  Continent\n"
-		<< "====================================";
+	phaseLogPtr->printMsg("\nOwned Countries   Armies  Continent");
+	phaseLogPtr->printMsg("====================================");
 	map<int, Country*>::iterator iter = ownedCountries->begin();
-	for (; iter != ownedCountries->end(); ++iter)
-	{
-		cout << "\nCountry " << iter->first << " \t|| " << iter->second->armies << "\t|| " << iter->second->continentId;
+	for (; iter != ownedCountries->end(); ++iter) {
+		phaseLogPtr->printMsg("Country " + to_string(iter->first) + 
+								" \t|| " + to_string(iter->second->armies) +
+								 "\t|| " + to_string(iter->second->continentId));
 	}
-	cout << endl;
 }
 
 /////////////////////////

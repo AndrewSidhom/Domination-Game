@@ -41,7 +41,6 @@ private:
 	Map* loadGameMap();
 	void setupPlayers(Deck *deck, Map *gameMap);
 	int queryNumOfPlayers(); //Queries user and validates number of players
-	int queryNumOfAIs(int numHumanPlayers); // Query how much AIs based on how many humans are playing
 	int getStartupArmies();
 	void randomizePlayerOrder();
 	void assignCountriesToPlayers(Map *gameMap);
