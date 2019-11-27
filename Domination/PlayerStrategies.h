@@ -165,6 +165,21 @@ public:
 	bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a 50/50 decision to exchange or not.
 	int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
 
+	// Attack methods
+	// Goal: Attack at random
+	bool decideToAttack(); 
+	Country* selectAttackingCountry(); 
+	Country* selectDefendingCountry(Country* attackingCountry); 
+	int selectNumAttackDice(Country* attackingCountry); 
+	int selectNumDefenseDice(Country* defendingCountry); 
+	int selectNumArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); 
+
+	// Fortify methods
+	virtual bool decideToFortify(); 
+	Country* selectFortifyDestination(); 
+	Country* selectFortifySource(Country* destination); 
+	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination); 
+	
 protected:
 	// REINFORCE
 	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies

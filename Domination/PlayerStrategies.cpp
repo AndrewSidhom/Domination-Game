@@ -557,6 +557,123 @@ int RandomPlayerStrategy::promptNumOfArmiesToPlace(int totalArmies)
 	return rand;
 } 
 
+bool RandomPlayerStrategy::decideToAttack() {
+	return genRandomNum(0,1);
+}
+
+Country* RandomPlayerStrategy::selectAttackingCountry() {
+	map<int, Country*>* ownedCountries = player->getOwnedCountries(); //gets map of owned countries
+	list<int> possibleAttackers;
+	
+	for (auto const& x : *ownedCountries)
+	{
+		if(player->mapPtr->getCountryById(x.first)->armies > 1) //adds to possble attackers if has more than 1 army
+			possibleAttackers.push_back(x.first);
+	}
+	
+	int index = genRandomNum(0, possibleAttackers.size() - 1);
+	Country *country = player->mapPtr->getCountryById(index); //gets a random country from possbilities
+	return country;
+}
+
+Country* RandomPlayerStrategy::selectDefendingCountry(Country* attackingCountry) {
+	Country* attackTarget;
+	Country* countryNeighbor;
+	list<int> neighbors = attackingCountry->neighbors;
+	list<int> possibleTargets; //possible target if neighbor of attacking country
+
+	for (auto const& neighbor : neighbors) {
+		countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+		if (countryNeighbor->player->getId() != *(player->id)) {
+			possibleTargets.push_back(neighbor); //if neighbor isn't attacker owned country, add to possible targets
+		}
+	}
+	throw exception("No countries can be an attack target for the provided attacking country.");
+
+	int index = genRandomNum(0, possibleTargets.size() - 1);  
+	attackTarget = player->mapPtr->getCountryById(index); //get a random country from possible targets
+	return attackTarget;
+}
+
+int RandomPlayerStrategy::selectNumAttackDice(Country* attackingCountry) {
+	// The attack is allowed min: 1 die, max: (number of armies in the attacking Country - 1) dice
+	int max = attackingCountry->armies - 1;
+
+	return genRandomNum(1, max);
+}
+
+int RandomPlayerStrategy::selectNumDefenseDice(Country* defendingCountry) {
+	// The defense is allowed min: 1 die, max: 2 dice if the number of armies in defendingCountry >= 2
+
+	return genRandomNum(1,2);
+}
+
+int RandomPlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled) {
+	// The Player is allowed to move min: (number of dice rolled) armies, max: (number of armies in attacking Country - 1) armies
+	int min = diceRolled;
+	int max = attackingCountry->armies - 1;
+
+	return genRandomNum(min, max);
+}
+
+bool RandomPlayerStrategy::decideToFortify() {
+	if (canFortify()) {
+		return genRandomNum(0, 1);
+	}
+	else
+		return false;
+}
+Country* RandomPlayerStrategy::selectFortifyDestination() {
+	// A Player can fortify a Country if one of the Country's neighbors is owned by the Player and has at least 2 armies on it
+	Country* countryToFortify;
+	Country* countryNeighbor;
+	vector<int> possibleChoices;
+
+	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
+		
+		list<int> neighbors = ownedCountry->second->neighbors;
+
+		for (auto const& neighbor : neighbors) {
+			countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+			if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2) {
+				possibleChoices.push_back(neighbor);
+			}
+		}	
+	}
+	int index = genRandomNum(0, possibleChoices.size() - 1);
+	countryToFortify = player->mapPtr->getCountryById(index);
+	return countryToFortify;
+}
+
+Country* RandomPlayerStrategy::selectFortifySource(Country* destination) {
+	// A Country can be a fortification source if it is owned by the Player, is a neighbor of the destination, and has at least 2 armies on it
+	Country* fortifySource;
+	Country* countryNeighbor;
+	vector<int> possibleChoices;
+
+	list<int> neighbors = destination->neighbors;
+
+	for (auto const& neighbor : neighbors) {
+		countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+		if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2) {
+			possibleChoices.push_back(neighbor);
+		}
+	}
+
+	int index = genRandomNum(0, possibleChoices.size() - 1);
+	fortifySource = player->mapPtr->getCountryById(index);
+	return fortifySource;
+}
+
+int RandomPlayerStrategy::selectArmiesToMoveForFortification(Country* source, Country* destination) {
+	// The number of armies to move should be less than the number of armies on the source Country	
+	int max = source->armies - 1;
+	return genRandomNum(0, max);
+}
+
 //////////////////////////////////////////
 /***** CHEATER (AI) PLAYER STRATEGY ******/
 // Default constructor
