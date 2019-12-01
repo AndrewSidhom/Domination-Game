@@ -32,7 +32,56 @@ GameEngine::GameEngine() {
 	
 	// Assign all countries to players
 	assignCountriesToPlayers(gameMap);
-	assignArmiesToCountries();	
+	assignArmiesToCountries();
+
+	maxTurns = new int(1000000); //when not in tournament mode, up to a million turns are allowed
+}
+
+//constructor used by tournaments
+GameEngine::GameEngine(Map* map, vector<char> strategies, int maxTurns)
+{	
+	// Inits
+	setupObservers();
+	setupStrategies();
+
+	// Set up map and deck
+	gameMap = map;
+	list<Country*>* countries = gameMap->getCountries();
+	int numOfCountries = (int)countries->size();
+	NUM_OF_COUNTRIES = new int(numOfCountries);
+	deck = new Deck(*NUM_OF_COUNTRIES);
+
+	// Create players
+	NUM_OF_PLAYERS = new int(strategies.size());
+	playerPtrs = new vector<Player*>();
+	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
+		Player* playerPtr;
+		switch (strategies.at(i))
+		{
+		case 'a': 
+			playerPtr = new Player("Agressive", deck, gameMap, aggressiveStrategy, phaseLog); break;
+		case 'b':
+			playerPtr = new Player("Benevolent", deck, gameMap, benevolentStrategy, phaseLog); break;
+		case 'r':
+			playerPtr = new Player("Random", deck, gameMap, randomStrategy, phaseLog); break;
+		case 'c':
+			playerPtr = new Player("Cheater", deck, gameMap, cheaterStrategy, phaseLog); break;
+		default:
+			break;
+		}
+		playerPtrs->push_back(playerPtr);
+	}
+	randomizePlayerOrder();
+	phaseLog->printMsg("Order of player's turn\n-------------------");
+	for (int i = 0; i < *NUM_OF_PLAYERS; i++) {
+		phaseLog->printMsg(playerPtrs->at(i)->getName());
+	}
+
+	// Assign all countries to players
+	assignCountriesToPlayers(gameMap);
+	assignArmiesToCountries();
+
+	this->maxTurns = new int(maxTurns);
 }
 
 // Copy constructor
@@ -52,6 +101,7 @@ GameEngine::GameEngine(const GameEngine &ge)
 	humanStrategy = new PlayerStrategy(*ge.humanStrategy);
 	randomStrategy = new RandomPlayerStrategy(*ge.randomStrategy);
 	cheaterStrategy = new CheaterPlayerStrategy(*ge.cheaterStrategy);
+	maxTurns = new int(*ge.maxTurns);
 }
 	
 // Assignment operator
@@ -61,6 +111,7 @@ GameEngine& GameEngine::operator=(const GameEngine &ge)
 		delete playerPtrs, phaseLog, phaseLogObserver, gameMap, deck;
 		delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
 		delete aggressiveStrategy, benevolentStrategy, humanStrategy, randomStrategy, cheaterStrategy;
+		delete maxTurns;
 		playerPtrs = new vector<Player*>();
 		for(Player* ptr : *ge.playerPtrs)
 			playerPtrs->push_back(ptr);
@@ -75,6 +126,7 @@ GameEngine& GameEngine::operator=(const GameEngine &ge)
 		humanStrategy = new PlayerStrategy(*ge.humanStrategy);
 		randomStrategy = new RandomPlayerStrategy(*ge.randomStrategy);
 		cheaterStrategy = new CheaterPlayerStrategy(*ge.cheaterStrategy);
+		maxTurns = new int(*ge.maxTurns);
 	}
 	return *this;
 }
@@ -85,14 +137,18 @@ GameEngine::~GameEngine() {
 	playerPtrs = nullptr;
 	delete NUM_OF_COUNTRIES, NUM_OF_PLAYERS;
 	delete aggressiveStrategy, benevolentStrategy, humanStrategy, randomStrategy, cheaterStrategy;
+	delete maxTurns;
 }
 
 /*	Responsible for starting the game loop. Loop ends when a player owns all countries on map.
 	Every loop, each player that owns at least 1 country will call reinforce, attack, fortify in that order.
+	Returns the name of the player who won or "Draw"
 */
-void GameEngine::startGameLoop() {
+string GameEngine::startGameLoop() {
     
-    int turn = 0; // index of current player's turn
+	int turnsPlayed = 0;
+	int turn = 0; // index of current player's turn
+	Player* winningPlayer = nullptr;  //no winning player in the beginning
     do {
         while(playerPtrs->at(turn)->getNumOfOwnedCountries() == 0) 
 			{ turn++; }
@@ -108,20 +164,28 @@ void GameEngine::startGameLoop() {
             turn = 0;
 		else
 			turn++;
+		turnsPlayed++;
+		winningPlayer = aPlayerOwnsAllCountries(); //this value remains nullptr if there isn't a player who owns all countries
     } 
-    while(!aPlayerOwnsAllCountries());
+    while(!winningPlayer && turnsPlayed < *maxTurns);
+
+	if (!winningPlayer)
+		return "Draw";
+	else
+		return winningPlayer->getName();
 }
 
 /*	Checks if a player owns all countries on the map.
-	@return if a player owns all countries
+	@return the player who owns all countries if there is one or nullptr if not.
 */
-bool GameEngine::aPlayerOwnsAllCountries() {
+Player* GameEngine::aPlayerOwnsAllCountries() {
 
     for(int i = 0; i < *NUM_OF_PLAYERS; i++) {
-        if(playerPtrs->at(i)->getNumOfOwnedCountries() == *NUM_OF_COUNTRIES) 
-            return true;
+		Player* pl = playerPtrs->at(i);
+        if(pl->getNumOfOwnedCountries() == *NUM_OF_COUNTRIES) 
+            return pl;
     }
-    return false;
+    return nullptr;
 }
 
 /*	Sets up PhaseLog (subject) with PhaseLogObserver to display msg related to changes in phases.
@@ -317,3 +381,131 @@ void GameEngine::promptChangeStrategy(Player* curPlayer) {
 		}
 	}
 }
+
+
+
+
+
+Tournament::Tournament() : maps(new vector<Map*>()), playerStrategies(new vector<char>()), gamesPerMap(new int(0)), maxTurns(new int (0)) {}
+
+Tournament::Tournament(const Tournament& old)
+{
+	maps = new vector<Map*>(*old.maps);
+	playerStrategies = new vector<char>(*old.playerStrategies);
+	gamesPerMap = new int(*old.gamesPerMap);
+	maxTurns = new int(*old.maxTurns);
+}
+
+const Tournament& Tournament::operator=(const Tournament& t)
+{
+	if (&t != this) {
+		maps = new vector<Map*>(*t.maps);
+		playerStrategies = new vector<char>(*t.playerStrategies);
+		gamesPerMap = new int(*t.gamesPerMap);
+		maxTurns = new int(*t.maxTurns);
+	}
+	return *this;
+}
+
+Tournament::~Tournament() { delete maps; delete playerStrategies; delete gamesPerMap; delete maxTurns; }
+
+void Tournament::setUpWithUserInput() {
+	cout << "Welcome to Tournament mode!" << endl;
+
+	//set up the tournament's maps
+	cout << "Enter the number of maps you would like to load (1 to 5)" << endl;
+	int numOfMaps;
+	cin >> numOfMaps;
+	while (!cin.good() || numOfMaps < 1 || numOfMaps > 5) {
+		cin.clear();
+		cin.ignore(INT_MAX, '\n');
+		cout << "Incorrent input. Enter a number from 1 to 5." << endl;
+		cin >> numOfMaps;
+	}
+	delete maps;
+	maps = new vector<Map*>();
+	string mapName;
+	for (int i = 1; i <= numOfMaps; i++) {
+		cout << "Map " << i << ": Enter the name of the map you would like to load (without the .map extension): " << endl;
+		cin >> mapName;
+		Map* gameMap = MapLoader::loadMapFile(mapName);
+		while (gameMap == nullptr) {
+			cout << "Invalid map name, try again: " << endl;
+			cin >> mapName;
+			gameMap = MapLoader::loadMapFile(mapName);
+		}
+		maps->push_back(gameMap);
+	}
+
+	//set up the tournament's player strategies
+	cout << "Enter the number of computer players who will play the tournament (2 to 4)" << endl;
+	int numOfPlayers;
+	cin >> numOfPlayers;
+	while (!cin.good() || numOfPlayers < 2 || numOfPlayers > 4) {
+		cin.clear();
+		cin.ignore(INT_MAX, '\n');
+		cout << "Incorrent input. Enter a number from 2 to 4." << endl;
+		cin >> numOfPlayers;
+	}
+	delete playerStrategies;
+	playerStrategies = new vector<char>();
+	cout << "Choose one of the following strategies by entering its number, for each computer player as prompted below." << endl;
+	cout << "(1) Aggressive strategy" << endl; 
+	cout << "(2) Benevolent strategy" << endl;
+	cout << "(3) Random strategy" << endl; 
+	cout << "(4) Cheater strategy" << endl;
+	cout << endl;
+	for (int i = 1; i <= numOfPlayers; i++) {
+		cout << "Strategy for Computer Player " << i << ": " << endl;
+		int choice = -1;
+		cin >> choice;
+		while (!cin.good() || choice < 1 || choice > 4) {
+			cin.clear();
+			cin.ignore(INT_MAX, '\n');
+			cout << "Incorrent input. Enter a number from 1 to 4 to indicate the strategy for Player " << i << endl;
+			cin >> choice;
+		}
+		switch (choice) {
+			case 1: playerStrategies->push_back('a'); break;
+			case 2: playerStrategies->push_back('b'); break;
+			case 3: playerStrategies->push_back('r'); break;
+			case 4: playerStrategies->push_back('c'); break;
+			default:break;
+		}
+	}
+
+	//set up the number of games per map
+	cout << "Enter the number of games you would like to be played (1 to 5)" << endl;
+	int games;
+	cin >> games;
+	while (!cin.good() || games < 1 || games > 5) {
+		cin.clear();
+		cin.ignore(INT_MAX, '\n');
+		cout << "Incorrent input. Enter a number from 1 to 5." << endl;
+		cin >> games;
+	}
+	*gamesPerMap = games;
+
+	//set up the maximum number of turns
+	cout << "Enter the number of turns per game to be played before the game is declared to be a draw (10 to 50)" << endl;
+	int turns;
+	cin >> turns;
+	while (!cin.good() || turns < 10 || turns > 50) {
+		cin.clear();
+		cin.ignore(INT_MAX, '\n');
+		cout << "Incorrent input. Enter a number from 10 to 50." << endl;
+		cin >> turns;
+	}
+	*maxTurns = turns;
+}
+
+void Tournament::playTournament()
+{
+	//TODO: Replace this single test game with full tournament
+
+	GameEngine ge(maps->at(0), *playerStrategies, *maxTurns);
+	string winner = ge.startGameLoop();
+	cout << "Winner: " << winner << endl;
+}
+
+
