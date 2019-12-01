@@ -623,6 +623,47 @@ void CheaterPlayerStrategy::distributeArmies(int totalArmies)
 	player->displayOwnedCountries();
 }
 
+// Conquers all the neighbors of all countries owned by the player
+void CheaterPlayerStrategy::cheaterAttack()
+{
+	vector<Country*> countriesToConquer = vector<Country*>();
+	vector<int> armiesToAdd = vector<int>();
+	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
+		list<int> neighbors = ownedCountry->second->neighbors;
+
+		for (auto const& neighbor : neighbors) {
+			Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+			if (countryNeighbor->player->getId() != *(player->id)) {
+				countriesToConquer.push_back(countryNeighbor);
+				armiesToAdd.push_back(ownedCountry->second->armies);
+			}
+		}
+	}
+
+	for (int i = 0; i < countriesToConquer.size(); i++) {
+		phaseLog->printMsg("Player " + player->getName() + " conquered Country " + countriesToConquer.at(i)->name + " (" + to_string(countriesToConquer.at(i)->id) + ") and placed " + to_string(armiesToAdd.at(i)) + " armies on it");
+		player->claimCountry(countriesToConquer.at(i), armiesToAdd.at(i));
+	}
+}
+
+// Doubles the number of armies on all Countries owned by the player which have enemy neighbors
+void CheaterPlayerStrategy::cheaterFortify()
+{
+	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
+		list<int> neighbors = ownedCountry->second->neighbors;
+
+		for (auto const& neighbor : neighbors) {
+			Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+
+			if (countryNeighbor->player->getId() != *(player->id)) {
+				ownedCountry->second->armies *= 2;
+				phaseLog->printMsg("Player " + player->getName() + " doubled the armies in Country " + ownedCountry->second->name + " (" + to_string(ownedCountry->second->id) + ")\nCountry " + ownedCountry->second->name + " (" + to_string(ownedCountry->second->id) + ") now has " + to_string(ownedCountry->second->armies) + " armies");
+			}
+		}
+	}
+}
+
 ////////////////////////////////////////////////
 /****** DEFAULT (HUMAN) PLAYER STRATEGY *******/
 
@@ -1124,6 +1165,11 @@ int PlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country * attackingC
 	return selectedNumArmies;
 }
 
+void PlayerStrategy::cheaterAttack()
+{
+	// do nothing
+}
+
 // Returns true if the Player has a Country that can be fortified
 bool PlayerStrategy::canFortify()
 {
@@ -1309,6 +1355,11 @@ int PlayerStrategy::selectArmiesToMoveForFortification(Country * source, Country
 	} while (!validNumArmies);
 
 	return selectedNumArmies;
+}
+
+void PlayerStrategy::cheaterFortify()
+{
+	//do nothing
 }
 
 /*	Checks if 3 cards are valid for exchange.

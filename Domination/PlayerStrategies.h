@@ -29,6 +29,8 @@ public:
 	void setPlayer(Player* aPlayer) { player = aPlayer; }; // Set the player data member
 	void setPhaseLog(PhaseLog* phaseLogPtr) { phaseLog = phaseLogPtr; };
 
+	virtual bool isCheater() { return false; } // indicates whether a strategy is a cheater strategy
+
 	// REINFORCE
 	virtual bool ifPlayerWantsToExchange(); // Prompt if user wants to exchange
 	virtual int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
@@ -42,6 +44,7 @@ public:
 	virtual int selectNumAttackDice(Country* attackingCountry); // Choose the number of dice to roll for attack
 	virtual int selectNumDefenseDice(Country* defendingCountry); // Choose the number of dice to roll for defending against an attack
 	virtual int selectNumArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); // Choose the number of armies to move from the attackingCountry to the defendingCountry after the Player won an attack
+	virtual void cheaterAttack(); // attack method specifically for the cheater strategy
 
 	// FORTIFY
 	virtual bool canFortify(); // Whether a Player has a Country that can be fortified
@@ -51,6 +54,7 @@ public:
 	virtual Country* selectFortifyDestination(); // Choose which Country should be fortified
 	virtual Country* selectFortifySource(Country* destination); // Choose a Country from which to move armies into the destination Country
 	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination); // Choose how many armies to move from the source Country into the destination Country
+	virtual void cheaterFortify(); // fortify method specifically for the cheater strategy
 
 protected:
 	Player* player; // The current Player using this strategy
@@ -179,10 +183,18 @@ public:
 	// Assignment operator
 	CheaterPlayerStrategy& operator =(const CheaterPlayerStrategy& rightSide);
 
+	bool isCheater() { return true; } // indicates whether a strategy is a cheater strategy
+
 	// REINFORCE
 	bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a 50/50 decision to exchange or not.
 	int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
 	void distributeArmies(int totalArmies); // Reinforce by doubling every owned country's armies
+
+	// ATTACK
+	void cheaterAttack(); // Attack method specifically for the cheater strategy
+
+	// FORTIFY
+	void cheaterFortify(); // Fortify method specifically for the fortify strategy
 
 protected:
 	void distributeExchangeBonus(vector<int>* matchingCountries); // Choose country with least armies

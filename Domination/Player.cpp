@@ -128,8 +128,7 @@ void Player::attack()
 
 	strategy->attackInit();
 	bool atLeastOneCountryConquered = false;
-
-	while (strategy->decideToAttack()) {
+	while (!strategy->isCheater() && strategy->decideToAttack()) {
 		phaseLogPtr->printMsg("\nPlayer " + *name + " chose to attack!");
 
 		// Select attacking and defending Countries
@@ -211,7 +210,11 @@ void Player::attack()
 		}
 	}
 
-	phaseLogPtr->printMsg("\nPlayer " + *name + " chose not to attack\n");
+	if (!strategy->isCheater()) {
+		phaseLogPtr->printMsg("\nPlayer " + *name + " chose not to attack\n");
+	} else {
+		strategy->cheaterAttack();
+	}
 
 	if (atLeastOneCountryConquered) {
 		//TODO in A3: check if Player defeated other Player. Transfer cards and impose trading if necessary.
@@ -242,29 +245,38 @@ void Player::fortify()
 	phaseLogPtr->printMsg("PLAYER " + *name + " FORTIFICATION PHASE");
 	phaseLogPtr->printMsg("/////////////////////////////");
 
-	// Choose whether to fortify or not
-	if (!strategy->decideToFortify()) {
-		phaseLogPtr->printMsg("\nPlayer " + *name + " chose not to fortify");
-		return;
+	Country* source = nullptr;
+	Country* destination = nullptr;
+	int armiesToMove = 0;
+
+	if (!strategy->isCheater()) {
+		// Choose whether to fortify or not
+		if (!strategy->decideToFortify()) {
+			phaseLogPtr->printMsg("\nPlayer " + *name + " chose not to fortify");
+			return;
+		}
+
+		// Choose a the Country that will be fortified (destination)
+		destination = strategy->selectFortifyDestination();
+		phaseLogPtr->printMsg("\nPlayer " + *name + " chose to fortify Country (" + to_string(destination->id) + ") " + destination->name);
+
+		// Choose the Country from which armies will be moved into destination (source)
+		source = strategy->selectFortifySource(destination);
+		phaseLogPtr->printMsg("Player " + *name + " chose to use armies from Country (" + to_string(source->id) + ") " + source->name + " to fortify Country (" + to_string(destination->id) + ") " + destination->name);
+
+		// Choose the number of armies to move from source into destination
+		armiesToMove = strategy->selectArmiesToMoveForFortification(source, destination);
+		phaseLogPtr->printMsg("Player " + *name + " chose to move " + to_string(armiesToMove) + " armies from Country (" + to_string(source->id) + ") " + source->name + " into Country (" + to_string(destination->id) + ") " + destination->name);
+	} else {
+		strategy->cheaterFortify();
 	}
-
-	// Choose a the Country that will be fortified (destination)
-	Country* destination = strategy->selectFortifyDestination();
-	phaseLogPtr->printMsg("\nPlayer " + *name + " chose to fortify Country (" + to_string(destination->id) + ") " + destination->name);
-
-	// Choose the Country from which armies will be moved into destination (source)
-	Country* source = strategy->selectFortifySource(destination);
-	phaseLogPtr->printMsg("Player " + *name + " chose to use armies from Country (" + to_string(source->id) + ") " + source->name + " to fortify Country (" + to_string(destination->id) + ") " + destination->name);
-
-	// Choose the number of armies to move from source into destination
-	int armiesToMove = strategy->selectArmiesToMoveForFortification(source, destination);
-	phaseLogPtr->printMsg("Player " + *name + " chose to move " + to_string(armiesToMove) + " armies from Country (" + to_string(source->id) + ") " + source->name + " into Country (" + to_string(destination->id) + ") " + destination->name);
-
+	
 	try {
-		// Remove armies from source and add them in destination
-		addOrRemoveArmies(source->id, -armiesToMove);
-		addOrRemoveArmies(destination->id, armiesToMove);
-
+		if (!strategy->isCheater()) {
+			// Remove armies from source and add them in destination
+			addOrRemoveArmies(source->id, -armiesToMove);
+			addOrRemoveArmies(destination->id, armiesToMove);
+		}
 		phaseLogPtr->printMsg("\n/////////////////////////////");
 		phaseLogPtr->printMsg("END OF PLAYER " + *name + " FORTIFICATION PHASE");
 		phaseLogPtr->printMsg("/////////////////////////////");
