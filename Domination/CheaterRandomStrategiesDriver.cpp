@@ -53,6 +53,8 @@ int main() {
 
         // call reinforce
         playerPtrs->at(turn)->reinforce();
+		playerPtrs->at(turn)->attack();
+		playerPtrs->at(turn)->fortify();
         turn++;
         
         cout << "\nContinue testing? (y/n): "; 
