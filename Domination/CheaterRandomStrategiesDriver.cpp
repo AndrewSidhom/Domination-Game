@@ -37,7 +37,7 @@ void promptSetStrategy(Player* player)
 /*  Tests the PlayerStrategies class with Cheater and Random strategy as the focus. 
 	Ensure that...
 		REINFORCE:
-		1. Random strategy randomly choose:
+		1. Random strategy randomly chooses:
             - to exchange or not.
             - a country to give +2 bonus army from exchanging.
             - any countries to place armies until out of armies.
@@ -46,7 +46,16 @@ void promptSetStrategy(Player* player)
             - giving +2 bonus army to all countries matching exchanged cards.
             - double all current armies to all countries
         ATTACK:
+		1. Random strategy randomly chooses:
+			- a Country to attack
+			- a number of time to attack this Country
+		2. Cheater strategy will cheat by:
+			- automatically conquering all the neighbours of all its Countries
         FORTIFY:
+		1. Random strategy randomly chooses:
+			- a Country to fortify
+		2. Cheater strategy will cheat by:
+			- doubling the number of armies on its Countries that have neighbours that belong to other players
 */
 int main() {
 
@@ -66,7 +75,7 @@ int main() {
         for(int i = 0; i < 3; i++)
         playerPtrs->at(turn)->getHand()->drawFromDeck();
 
-        // call reinforce
+        // call reinforce, attack and fortify
         playerPtrs->at(turn)->reinforce();
 		playerPtrs->at(turn)->attack();
 		playerPtrs->at(turn)->fortify();
