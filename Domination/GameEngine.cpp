@@ -386,8 +386,10 @@ void GameEngine::promptChangeStrategy(Player* curPlayer) {
 
 
 
+//constructor
 Tournament::Tournament() : maps(new vector<Map*>()), playerStrategies(new vector<char>()), gamesPerMap(new int(0)), maxTurns(new int (0)) {}
 
+//copy constructor
 Tournament::Tournament(const Tournament& old)
 {
 	maps = new vector<Map*>(*old.maps);
@@ -396,6 +398,7 @@ Tournament::Tournament(const Tournament& old)
 	maxTurns = new int(*old.maxTurns);
 }
 
+//assignment operator
 const Tournament& Tournament::operator=(const Tournament& t)
 {
 	if (&t != this) {
@@ -407,8 +410,10 @@ const Tournament& Tournament::operator=(const Tournament& t)
 	return *this;
 }
 
+//destructor
 Tournament::~Tournament() { delete maps; delete playerStrategies; delete gamesPerMap; delete maxTurns; }
 
+//Takes input from the user to set up the tournament to be played. Gives values to the data members.
 void Tournament::setUpWithUserInput() {
 	cout << "Welcome to Tournament mode!" << endl;
 
@@ -499,10 +504,12 @@ void Tournament::setUpWithUserInput() {
 	*maxTurns = turns;
 }
 
+//plays the tournament to the end and prints the results in a table
 void Tournament::playTournament()
 {
-	vector<string> winners; //the winners' name or "Draw", in the order the games were played.
+	vector<string> winners; //will store the winners' name or "Draw", in the order the games were played.
 
+	//loop through games, storing the winner each time
 	for (int m = 0; m < maps->size(); m++) {
 		for (int g = 0; g < *gamesPerMap; g++) {
 			GameEngine ge(maps->at(m), *playerStrategies, *maxTurns);
@@ -512,20 +519,39 @@ void Tournament::playTournament()
 		}
 	}
 
+	//display tournament info
+	cout << endl << "The tournament was played in the following way:" << endl;
+	cout << "M: ";
+	for (int m = 0; m < maps->size(); m++)
+		cout << maps->at(m)->getName() << ", ";
+	cout << endl;
+	cout << "P: ";
+	for (int p = 0; p < playerStrategies->size(); p++) {
+		switch (playerStrategies->at(p)) {
+		case 'a': cout << "Agressive, "; break;
+		case 'b': cout << "Benevolent, "; break;
+		case 'r': cout << "Random, "; break;
+		case 'c': cout << "Cheater, "; break;
+		default:break;
+		}
+	}
+	cout << endl;
+	cout << "G: " << *gamesPerMap << endl;
+	cout << "D: " << *maxTurns << endl;
+
 	//print results
 	cout << endl << "TOURNAMENT RESULTS:" << endl << endl;
-	cout << left << setw(12) << setfill(' ') << " ";
+	cout << left << setw(14) << setfill(' ') << " ";
 	for (int g = 0; g < *gamesPerMap; g++) {
 		string gameString = "Game " + to_string(g+1);
-		cout << left << setw(12) << setfill(' ') << gameString ;
+		cout << left << setw(14) << setfill(' ') << gameString ;
 	}
 	cout << endl;
 	int winnersIndex = 0;
 	for (int m = 0; m < maps->size(); m++) {
-		string mapString = "Map " + to_string(m + 1);
-		cout << left << setw(12) << setfill(' ') << mapString;
+		cout << left << setw(14) << setfill(' ') << maps->at(m)->getName();
 		for(int g = 0; g < *gamesPerMap; g++)
-			cout << left << setw(12) << setfill(' ') << winners.at(winnersIndex++);
+			cout << left << setw(14) << setfill(' ') << winners.at(winnersIndex++);
 		cout << endl;
 	}
 

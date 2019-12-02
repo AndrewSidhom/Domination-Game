@@ -3,10 +3,16 @@
 #include <iostream>
 using namespace std;
 
+/* Allows the user to play games of Risk in:
+1. Single-game mode
+2. Tournament mode (with only computer players)
+ */
+
+
 int main() {
-	string choiceToLoop;
+	string choiceToLoop; //'y' or 'n' for whether the user wants to play again
 	do {
-		int choice;
+		int choice;  //'1' for single-game or '2' for tournament
 		cout << "Welcome to Domination! Please type 1 for Single-game mode and 2 for Tournament mode" << endl;
 		cin >> choice;
 		while (!cin.good() || choice < 1 || choice > 2) {

@@ -56,11 +56,11 @@ public:
 	Tournament(const Tournament& old); //copy constructor
 	const Tournament& operator=(const Tournament& t);  //assignment operator
 	~Tournament();  //destructor
-	void setUpWithUserInput();
-	void playTournament();
+	void setUpWithUserInput();  //Takes input from the user to set up the tournament to be played. Gives values to the data members.
+	void playTournament();  //plays the tournament to the end and prints the results in a table
 private:
-	vector<Map*>* maps;
-	vector<char>* playerStrategies; //'a' for agressive, 'b' for benevolent, 'r' for random, 'c' for cheater
-	int* gamesPerMap;
-	int* maxTurns;
+	vector<Map*>* maps;  //the maps on which the games will be played
+	vector<char>* playerStrategies; //the computer players who will play all games. 'a' for agressive, 'b' for benevolent, 'r' for random, 'c' for cheater
+	int* gamesPerMap;  //how many games will be played on each map
+	int* maxTurns;  //maximum number of turns before a game is declared to be a draw
 };
