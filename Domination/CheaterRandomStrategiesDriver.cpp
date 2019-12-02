@@ -5,6 +5,7 @@
 #include <vector>
 using namespace std;
 
+// global members for easy access
 PhaseLog* phaseLog = new PhaseLog();
 PhaseLogObserver* phaseLogObserver = new PhaseLogObserver(phaseLog);
 PlayerStrategy* humanStrategy = new PlayerStrategy(phaseLog);
@@ -13,7 +14,7 @@ BenevolentPlayerStrategy* benevolentStrategy = new BenevolentPlayerStrategy(phas
 RandomPlayerStrategy* randomStrategy = new RandomPlayerStrategy(phaseLog);
 CheaterPlayerStrategy* cheaterStrategy = new CheaterPlayerStrategy(phaseLog);
 
-
+// Prompt during test to change (or keep same) strategies before start of each turn.
 void promptSetStrategy(Player* player) 
 {
     cout << "\nChoose strategies for " + player->getName() + ":";
@@ -33,6 +34,20 @@ void promptSetStrategy(Player* player)
     }
 }
 
+/*  Tests the PlayerStrategies class with Cheater and Random strategy as the focus. 
+	Ensure that...
+		REINFORCE:
+		1. Random strategy randomly choose:
+            - to exchange or not.
+            - a country to give +2 bonus army from exchanging.
+            - any countries to place armies until out of armies.
+            - a # of armies to place.
+        2. Cheater strategy will cheat by:
+            - giving +2 bonus army to all countries matching exchanged cards.
+            - double all current armies to all countries
+        ATTACK:
+        FORTIFY:
+*/
 int main() {
 
     GameEngine ge;
