@@ -562,41 +562,41 @@ bool RandomPlayerStrategy::decideToAttack() {
 }
 
 Country* RandomPlayerStrategy::selectAttackingCountry() {
-	vector<int> possibleAttackers;
-	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
-		list<int> neighbors = ownedCountry->second->neighbors;
+	vector<int> possibleAttackers; // will store ids of potential attackers
+	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) { // loop through player owned countries 
+		list<int> neighbors = ownedCountry->second->neighbors; // get neighbors of each country 
 
-		for (auto const& neighbor : neighbors) {
-			Country* countryNeighbor = player->mapPtr->getCountryById(neighbor);
+		for (auto const& neighbor : neighbors) { // loop through neighbors 
+			Country* countryNeighbor = player->mapPtr->getCountryById(neighbor); // get neighbor id
 
-			if (countryNeighbor->player->getId() != *(player->id) && ownedCountry->second->armies >= 2) {
-				possibleAttackers.push_back(ownedCountry->second->id);
+			if (countryNeighbor->player->getId() != *(player->id) && ownedCountry->second->armies >= 2) { // if neighbor doesn't belong to player
+				possibleAttackers.push_back(ownedCountry->second->id); // add the country to potential attackers 
 			}
 		}		
 	}
 	
-	int index = genRandomNum(0, possibleAttackers.size() - 1);
-	int id = possibleAttackers.at(index);
+	int index = genRandomNum(0, possibleAttackers.size() - 1); // get a random index 
+	int id = possibleAttackers.at(index); // get a random id 
 	Country *country = player->mapPtr->getCountryById(id); //gets a random country from possbilities
 	return country;
 }
 
-Country* RandomPlayerStrategy::selectDefendingCountry(Country* attackingCountry) {
-	Country* attackTarget;
-	Country* countryNeighbor;
-	list<int> neighbors = attackingCountry->neighbors;
+Country* RandomPlayerStrategy::selectDefendingCountry(Country* attackingCountry) { 
+	Country* attackTarget; // the target 
+	Country* countryNeighbor; // the neighbor
+	list<int> neighbors = attackingCountry->neighbors; // neighbors of attacker 
 	vector<int> possibleTargets; //possible target if neighbor of attacking country
 
-	for (auto const& neighbor : neighbors) {
+	for (auto const& neighbor : neighbors) { // loop through neighbors 
 		countryNeighbor = player->mapPtr->getCountryById(neighbor);
 
-		if (countryNeighbor->player->getId() != *(player->id)) {
+		if (countryNeighbor->player->getId() != *(player->id)) { 
 			possibleTargets.push_back(neighbor); //if neighbor isn't attacker owned country, add to possible targets
 		}
 	}
 	
-	int index = genRandomNum(0, possibleTargets.size() - 1);
-	int id = possibleTargets.at(index);
+	int index = genRandomNum(0, possibleTargets.size() - 1); // get a random index 
+	int id = possibleTargets.at(index); // get a random id
 	attackTarget = player->mapPtr->getCountryById(id); //get a random country from possible targets
 	return attackTarget;
 	throw exception("No countries can be an attack target for the provided attacking country.");
@@ -625,53 +625,53 @@ int RandomPlayerStrategy::selectNumArmiesToMoveAfterAttackSuccess(Country* attac
 
 bool RandomPlayerStrategy::decideToFortify() {
 	if (canFortify()) {
-		return genRandomNum(0, 1);
+		return genRandomNum(0, 1); // if possible to fortify, decide randomly
 	}
 	else
-		return false;
+		return false; // otherwise won't fortify
 }
 Country* RandomPlayerStrategy::selectFortifyDestination() {
 	// A Player can fortify a Country if one of the Country's neighbors is owned by the Player and has at least 2 armies on it
 	Country* countryToFortify;
 	Country* countryNeighbor;
-	vector<int> possibleChoices;
+	vector<int> possibleChoices; // stores ids of possbile choices 
 
-	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) {
+	for (auto ownedCountry = player->ownedCountries->begin(); ownedCountry != player->ownedCountries->end(); ownedCountry++) { // loop through owned countries 
 		
-		list<int> neighbors = ownedCountry->second->neighbors;
+		list<int> neighbors = ownedCountry->second->neighbors; // list of neighbors of each owned country 
 
-		for (auto const& neighbor : neighbors) {
-			countryNeighbor = player->mapPtr->getCountryById(neighbor);
+		for (auto const& neighbor : neighbors) { // loop through neighbors 
+			countryNeighbor = player->mapPtr->getCountryById(neighbor); // get neighbor by id 
 
-			if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2) {
-				possibleChoices.push_back(ownedCountry->second->id);
+			if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2) { // if neighbor belongs to player
+				possibleChoices.push_back(ownedCountry->second->id); // add it to possible choices 
 			}
 		}	
 	}
-	int index = genRandomNum(0, possibleChoices.size() - 1);
-	int id = possibleChoices.at(index);
-	countryToFortify = player->mapPtr->getCountryById(id);
+	int index = genRandomNum(0, possibleChoices.size() - 1); // get a random index 
+	int id = possibleChoices.at(index); // get a random id 
+	countryToFortify = player->mapPtr->getCountryById(id); // gets a country by the random id 
 	return countryToFortify;
 }
 
 Country* RandomPlayerStrategy::selectFortifySource(Country* destination) {
 	// A Country can be a fortification source if it is owned by the Player, is a neighbor of the destination, and has at least 2 armies on it
-	Country* fortifySource;
+	Country* fortifySource; 
 	Country* countryNeighbor;
-	vector<int> possibleChoices;
+	vector<int> possibleChoices; // stores possible choices 
 
-	list<int> neighbors = destination->neighbors;
+	list<int> neighbors = destination->neighbors; // gets neighbors ids of destination country 
 
-	for (auto const& neighbor : neighbors) {
-		countryNeighbor = player->mapPtr->getCountryById(neighbor);
+	for (auto const& neighbor : neighbors) { // loops through neighbor ids 
+		countryNeighbor = player->mapPtr->getCountryById(neighbor); // gets neighbor by id 
 
-		if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2) {
-			possibleChoices.push_back(neighbor);
+		if (countryNeighbor->player->getId() == *(player->id) && countryNeighbor->armies >= 2) { // if owned by player and has >= 2 armies 
+			possibleChoices.push_back(neighbor); // add to list of possibilities 
 		}
 	}
-	int index = genRandomNum(0, possibleChoices.size() - 1);
-	int id = possibleChoices.at(index);
-	fortifySource = player->mapPtr->getCountryById(id);
+	int index = genRandomNum(0, possibleChoices.size() - 1); // get random index 
+	int id = possibleChoices.at(index); // get random id from possibilites 
+	fortifySource = player->mapPtr->getCountryById(id); // get source by id 
 	return fortifySource;
 }
 

@@ -167,18 +167,18 @@ public:
 
 	// Attack methods
 	// Goal: Attack at random
-	bool decideToAttack(); 
-	Country* selectAttackingCountry(); 
-	Country* selectDefendingCountry(Country* attackingCountry); 
-	int selectNumAttackDice(Country* attackingCountry); 
-	int selectNumDefenseDice(Country* defendingCountry); 
-	int selectNumArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); 
+	bool decideToAttack(); // randomly decide to attack
+	Country* selectAttackingCountry(); // randomly pick an attacking country
+	Country* selectDefendingCountry(Country* attackingCountry); // randomly select a country to attack
+	int selectNumAttackDice(Country* attackingCountry); // randomly select number of attack dice
+	int selectNumDefenseDice(Country* defendingCountry); // randomly select number of defense dice
+	int selectNumArmiesToMoveAfterAttackSuccess(Country* attackingCountry, Country* defendingCountry, int diceRolled); // randomly select number of armies to move
 
 	// Fortify methods
-	virtual bool decideToFortify(); 
-	Country* selectFortifyDestination(); 
-	Country* selectFortifySource(Country* destination); 
-	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination); 
+	virtual bool decideToFortify(); // randomly decide to fortify (if possible)
+	Country* selectFortifyDestination(); // randomly select a country to fortify
+	Country* selectFortifySource(Country* destination); // randomly select a neighboring country to fortify from
+	virtual int selectArmiesToMoveForFortification(Country* source, Country* destination); // randomly select number of armies to move from source to destination
 	
 protected:
 	// REINFORCE
