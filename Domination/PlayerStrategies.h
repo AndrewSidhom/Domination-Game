@@ -162,7 +162,7 @@ public:
 	RandomPlayerStrategy& operator =(const RandomPlayerStrategy& rightSide);
 
 	// REINFORCE
-	bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a 50/50 decision to exchange or not.
+	bool ifPlayerWantsToExchange(); // If have >= 3 cards, make a fifty-fifty decision to exchange or not.
 	int promptExchangeForArmies(bool isMandatory); // Prompt user to choose which cards to exchange and get armies received
 
 	// Attack methods
