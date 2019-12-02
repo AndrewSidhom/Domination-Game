@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 #include <random>
-using std::cout;
-using std::cin;
-using std::endl;
+#include <iostream>
+#include <iomanip>
+using namespace std;
 
 
 // Constructor
@@ -153,7 +153,7 @@ string GameEngine::startGameLoop() {
         while(playerPtrs->at(turn)->getNumOfOwnedCountries() == 0) 
 			{ turn++; }
 
-		promptChangeStrategy(playerPtrs->at(turn));
+		//promptChangeStrategy(playerPtrs->at(turn));
 		playerPtrs->at(turn)->getStrategy()->setPlayer(playerPtrs->at(turn)); // appoint different player to specific strategy every time
 
 		playerPtrs->at(turn)->reinforce();
@@ -475,7 +475,7 @@ void Tournament::setUpWithUserInput() {
 	}
 
 	//set up the number of games per map
-	cout << "Enter the number of games you would like to be played (1 to 5)" << endl;
+	cout << "Enter the number of games you would like to be played on each map (1 to 5)" << endl;
 	int games;
 	cin >> games;
 	while (!cin.good() || games < 1 || games > 5) {
@@ -501,11 +501,35 @@ void Tournament::setUpWithUserInput() {
 
 void Tournament::playTournament()
 {
-	//TODO: Replace this single test game with full tournament
+	vector<string> winners; //the winners' name or "Draw", in the order the games were played.
 
-	GameEngine ge(maps->at(0), *playerStrategies, *maxTurns);
-	string winner = ge.startGameLoop();
-	cout << "Winner: " << winner << endl;
+	for (int m = 0; m < maps->size(); m++) {
+		for (int g = 0; g < *gamesPerMap; g++) {
+			GameEngine ge(maps->at(m), *playerStrategies, *maxTurns);
+			string winner = ge.startGameLoop();
+			cout << "Winner: " << winner << endl;
+			winners.push_back(winner);
+		}
+	}
+
+	//print results
+	cout << endl << "TOURNAMENT RESULTS:" << endl << endl;
+	cout << left << setw(12) << setfill(' ') << " ";
+	for (int g = 0; g < *gamesPerMap; g++) {
+		string gameString = "Game " + to_string(g+1);
+		cout << left << setw(12) << setfill(' ') << gameString ;
+	}
+	cout << endl;
+	int winnersIndex = 0;
+	for (int m = 0; m < maps->size(); m++) {
+		string mapString = "Map " + to_string(m + 1);
+		cout << left << setw(12) << setfill(' ') << mapString;
+		for(int g = 0; g < *gamesPerMap; g++)
+			cout << left << setw(12) << setfill(' ') << winners.at(winnersIndex++);
+		cout << endl;
+	}
+
+	
 }
 
 
